@@ -1,4 +1,4 @@
-import sys
+import sys, os, ctypes, subprocess
 from PyQt5.QtWidgets import (
     QApplication, QMainWindow, QPushButton, QVBoxLayout, QHBoxLayout,
     QWidget, QLabel, QTextEdit, QLineEdit, QGroupBox
@@ -14,6 +14,25 @@ from desktop_manager_ui import DesktopManagerWindow
 from system_restore_ui import SystemRestoreWindow
 from browser_ui import BrowserWindow
 from task_manager_ui import TaskManagerWindow
+
+def is_admin():
+    """
+    Проверяет, запущен ли скрипт с правами администратора.
+    :return: True, если скрипт запущен с правами администратора, иначе False.
+    """
+    try:
+        return ctypes.windll.shell32.IsUserAnAdmin() != 0
+    except:
+        return False
+
+def run_as_admin():
+    """
+    Перезапускает скрипт с правами администратора.
+    """
+    if sys.argv[0] != "main.py":  # Проверка, чтобы избежать бесконечного цикла
+        # Запуск скрипта с правами администратора
+        ctypes.windll.shell32.ShellExecuteW(None, "runas", sys.executable, " ".join(sys.argv), None, 1)
+        sys.exit(0)
 
 class VirusProtectionApp(QMainWindow):
     def __init__(self):
@@ -144,4 +163,9 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    if not is_admin():
+        print("Попытка запустить с правами администратора...")
+        run_as_admin()
+    else:
+        print('Ура!')
+        main()

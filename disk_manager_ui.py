@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import QMainWindow, QVBoxLayout, QTableWidget, QTableWidgetItem, QWidget, QProgressBar
 import psutil
-from disk_manager import is_bitlocker_protected
+from disk_manager import is_bitlocker_protected, check_disk_status
 
 class DiskManagerWindow(QMainWindow):
     def __init__(self):
@@ -37,7 +37,10 @@ class DiskManagerWindow(QMainWindow):
             self.disk_table.setItem(row, 2, QTableWidgetItem(bitlocker_status))
 
             # Прогресс бар
-            usage = psutil.disk_usage(partition.mountpoint)
             progress = QProgressBar()
-            progress.setValue((usage.used / usage.total) * 100)
             self.disk_table.setCellWidget(row, 3, progress)
+            if check_disk_status(partition.mountpoint):
+                usage = psutil.disk_usage(partition.mountpoint)
+                progress.setValue(int((usage.used / usage.total) * 100))
+            else:
+                progress.setDisabled(True)

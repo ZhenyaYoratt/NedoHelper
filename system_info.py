@@ -11,6 +11,9 @@ def get_disk_info():
     disk_info = psutil.disk_partitions()
     disk_data = []
     for partition in disk_info:
-        usage = psutil.disk_usage(partition.mountpoint)
-        disk_data.append(f"{partition.device} ({partition.mountpoint}): {usage.percent}%")
+        try:
+            usage = psutil.disk_usage(partition.mountpoint)
+            disk_data.append(f"{partition.device} ({partition.mountpoint}): {usage.percent}%")
+        except:
+            print(f'Не уадлось получить информацию использования диска {partition}')
     return "\n".join(disk_data)

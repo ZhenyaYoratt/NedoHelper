@@ -1,6 +1,6 @@
 import psutil
 
-def list_processes():
+def get_process_list():
     """Возвращает список активных процессов."""
     processes = []
     for proc in psutil.process_iter(attrs=["pid", "name", "status"]):
