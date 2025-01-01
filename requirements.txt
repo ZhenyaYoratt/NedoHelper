@@ -1,6 +1,5 @@
 pywin32
 PyQt5
-PyQt5-sip
 PyQtWebEngine
 psutil
 requests

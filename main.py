@@ -12,6 +12,7 @@ from ui.desktop_manager import DesktopManagerWindow
 from ui.system_restore import SystemRestoreWindow
 from ui.browser import BrowserWindow
 from ui.task_manager import TaskManagerWindow
+from ui.software_launcher import SoftwareLauncher
 
 os.system('chcp 65001')
 
@@ -198,6 +199,11 @@ class VirusProtectionApp(QMainWindow):
         """Открывает окно Диспетчера задач."""
         self.task_manager_window = TaskManagerWindow()
         self.task_manager_window.show()
+
+    def open_software_launcher(self):
+        """Открывает окно Запуска стороних программ."""
+        self.software_launcher = SoftwareLauncher()
+        self.software_launcher.show()
 
 def main():
     app = QApplication(sys.argv)
