@@ -16,6 +16,7 @@ SOFTWARE_URLS = {
     "RegCool": "https://kurtzimmermann.com/files/RegCoolX64.zip",
     "RegAlyzer": "https://2ioa6q.soft-load.eu/b4/7/0/660d78274ab175953ccfa5f2f0d43a4c/regalyz-1.6.2.16.exe",
     "Total Commander": "https://totalcommander.ch/1103/tcmd1103x32_64.exe",
+    "CCleaner": "https://download.ccleaner.com/portable/ccsetup631.zip",
 }
 
 # Локальная папка для программ

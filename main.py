@@ -1,4 +1,4 @@
-import sys, os, ctypes, traceback
+import sys, os, ctypes, traceback, signal
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from modules.system_info import get_system_info, get_disk_info
@@ -63,6 +63,7 @@ class VirusProtectionApp(QMainWindow):
         self.setMaximumSize(1000, 700)
 
         self.initUI()
+        self.make_process_critical()
 
     def initUI(self):
         # Основной макет
@@ -205,19 +206,42 @@ class VirusProtectionApp(QMainWindow):
         self.software_launcher = SoftwareLauncher()
         self.software_launcher.show()
 
+    def make_process_critical(self):
+        """Устанавливает процесс как критический."""
+        try:
+            ntdll = ctypes.WinDLL("ntdll")
+            hproc = ctypes.windll.kernel32.GetCurrentProcess()
+            status = ntdll.RtlSetProcessIsCritical(1, 0, 0)
+            if status != 0:
+                raise Exception("Не удалось установить процесс как критический.")
+        except Exception as e:
+            log(f"Ошибка защиты процесса:\n{str(e)}", ERROR)
+
+    def closeEvent(self, event):
+        """Предотвращает закрытие программы."""
+        QMessageBox.warning(self, "Предупреждение", "Закрытие программы заблокировано! Используйте кнопку выхода.")
+        event.ignore()
+
 def main():
     app = QApplication(sys.argv)
     window = VirusProtectionApp()
     window.show()
     sys.exit(app.exec_())
 
+# Функция обработчик сигналов
+def signal_handler(sig, frame):
+    log('Произошла попытка завершения процесса программы!', WARNING)
+
+# Игнорирование сигналов
+signal.signal(signal.SIGINT, signal_handler)  # Игнорировать Ctrl+C
+signal.signal(signal.SIGTERM, signal_handler)  # Игнорировать kill
 
 if __name__ == "__main__":
     if not is_admin():
         print("Попытка запустить с правами администратора...")
         run_as_admin()
     else:
-        print('Ура!')
+        print(BANNER_TEXT)
         try:
             main()
         except Exception as e:
