@@ -1,12 +1,13 @@
 import hashlib
 import os, sys, requests
+from .logger import *
 
 if getattr(sys, 'frozen', False):
     application_path = os.path.dirname(sys.executable)
 elif __file__:
     application_path = os.path.dirname(__file__)
 
-LIST_DATABASES_URL = "https://example.com/api/files"
+LIST_DATABASES_URL = "https://raw.githubusercontent.com/ZhenyaYoratt/nh-db/refs/heads/main/antivirus_dbs"
 DATABASES_FORLDER = os.path.join(application_path, '..', 'databases')
 
 def update_database(main_url=LIST_DATABASES_URL, databases_folder=DATABASES_FORLDER):
@@ -23,7 +24,7 @@ def update_database(main_url=LIST_DATABASES_URL, databases_folder=DATABASES_FORL
         # Загружаем список ссылок с JSON-формата
         response = requests.get(main_url)
         response.raise_for_status()  # Проверка успешности запроса
-        file_links = response.json()  # Получаем JSON, который содержит ссылки на файлы
+        file_links = response.text.split('\n') # Получаем JSON, который содержит ссылки на файлы
 
         # Скачиваем каждый файл по ссылке
         for file_url in file_links:
@@ -31,20 +32,19 @@ def update_database(main_url=LIST_DATABASES_URL, databases_folder=DATABASES_FORL
                 file_name = file_url.split("/")[-1]  # Извлекаем имя файла из URL
                 file_path = os.path.join(databases_folder, file_name)
 
-                print(f"Загружаем файл: {file_name}")
+                if not os.path.exists(file_path):
 
-                # Загружаем файл
-                file_response = requests.get(file_url)
-                file_response.raise_for_status()  # Проверка успешности запроса
+                    # Загружаем файл
+                    file_response = requests.get(file_url)
+                    file_response.raise_for_status()  # Проверка успешности запроса
 
-                with open(file_path, 'wb') as f:
-                    f.write(file_response.content)
+                    with open(file_path, 'wb') as f:
+                        f.write(file_response.content)
 
-                print(f"Файл {file_name} успешно загружен.")
             except requests.RequestException as e:
-                print(f"Ошибка при загрузке файла {file_url}: {e}")
+                log(f"Ошибка при загрузке файла {file_url}: {e}", ERROR)
     except requests.RequestException as e:
-        print(f"Ошибка при получении списка файлов: {e}")
+        log(f"Ошибка при получении списка файлов: {e}", ERROR)
 
 def load_database(databases_folder=DATABASES_FORLDER):
     """

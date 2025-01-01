@@ -27,9 +27,9 @@ class AntivirusWindow(QMainWindow):
         self.setCentralWidget(central_widget)
 
     def update_db(self):
-        self.status_label = QLabel("Обновление базы данных...")
+        self.status_label.setText("Обновление базы данных...")
         update_database()
-        self.status_label = QLabel("Базы данных обновлены!")
+        self.status_label.setText("Базы данных обновлены!")
 
     def start_scan(self):
         """Начинает сканирование выбранной папки."""

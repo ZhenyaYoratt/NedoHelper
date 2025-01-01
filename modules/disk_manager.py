@@ -49,6 +49,12 @@ def check_disk_status(drive_letter):
         log(f"Ошибка при проверке статуса диска {drive_letter}: {e}", ERROR)
         return False
 
+class DriveInfo:
+    def __init__(self, status = False, letter = None, type = None):
+        self.status = False
+        self.letter = None
+        self.type = None
+
 def get_drive_info(drive_letter):
     """
     Получает информацию о диске: тип и доступность.
@@ -58,9 +64,9 @@ def get_drive_info(drive_letter):
     """
     if check_disk_status(drive_letter):
         disk_type = get_disk_type(drive_letter)
-        return f"{drive_letter} доступен. Тип устройства: {disk_type}"
+        return DriveInfo(status=True, letter=drive_letter, type=disk_type)
     else:
-        return f"{drive_letter} не доступен."
+        return DriveInfo(status=False, letter=drive_letter)
 
 def unlock_bitlocker(drive_letter):
     """Попытка разблокировать диск с BitLocker."""
@@ -96,5 +102,6 @@ def is_bitlocker_protected(drive_letter):
                 return True
         return False
     except Exception as e:
+        print(e)
         log(f"Ошибка проверки защиты BitLocker: {e}", ERROR)
-        return False
+        return None

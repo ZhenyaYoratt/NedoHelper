@@ -1,12 +1,9 @@
 import sys, os, ctypes, traceback
-from PyQt5.QtWidgets import (
-    QApplication, QMainWindow, QPushButton, QVBoxLayout, QHBoxLayout,
-    QWidget, QLabel, QTextEdit, QLineEdit, QGroupBox
-)
-from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import *
+from PyQt5.QtCore import *
 from modules.system_info import get_system_info, get_disk_info
 from modules.process_launcher import launch_process
-from modules.logger import log, setup_logger
+from modules.logger import *
 from modules.titles import make_title
 from ui.antivirus import AntivirusWindow
 from ui.disk_manager import DiskManagerWindow
@@ -17,6 +14,27 @@ from ui.browser import BrowserWindow
 from ui.task_manager import TaskManagerWindow
 
 os.system('chcp 65001')
+
+BANNER_TEXT = """::::    ::: :::::::::: :::::::::   ::::::::  :::    ::: :::::::::: :::        :::::::::  :::::::::: :::::::::  
+:+:+:   :+: :+:        :+:    :+: :+:    :+: :+:    :+: :+:        :+:        :+:    :+: :+:        :+:    :+: 
+:+:+:+  +:+ +:+        +:+    +:+ +:+    +:+ +:+    +:+ +:+        +:+        +:+    +:+ +:+        +:+    +:+ 
++#+ +:+ +#+ +#++:++#   +#+    +:+ +#+    +:+ +#++:++#++ +#++:++#   +#+        +#++:++#+  +#++:++#   +#++:++#:  
++#+  +#+#+# +#+        +#+    +#+ +#+    +#+ +#+    +#+ +#+        +#+        +#+        +#+        +#+    +#+ 
+#+#   #+#+# #+#        #+#    #+# #+#    #+# #+#    #+# #+#        #+#        #+#        #+#        #+#    #+# 
+###    #### ########## #########   ########  ###    ### ########## ########## ###        ########## ###    ### 
+"""
+
+CMD_PROGRAMS_LIST = [
+    'regedit',
+    'taskmgr',
+    'msconfig',
+    'tasklist',
+    'taskkill',
+    'shutdown',
+    'systeminfo',
+    'ping'
+    'sfc',
+]
 
 def is_admin():
     """
@@ -49,8 +67,14 @@ class VirusProtectionApp(QMainWindow):
         # Основной макет
         main_layout = QVBoxLayout()
 
+        premain_layout = QVBoxLayout()
+
+        mains_layout = QHBoxLayout()
+
         # Верхняя панель кнопок
         button_layout = QHBoxLayout()
+
+        side_layout = QVBoxLayout()
 
         module_buttons = [
             ("Антивирус", self.open_antivirus),
@@ -81,13 +105,16 @@ class VirusProtectionApp(QMainWindow):
         log_layout = QVBoxLayout()
         self.log_text_edit = QTextEdit()
         self.log_text_edit.setReadOnly(True)
-        setup_logger(self.log_text_edit)
+        setup_logger(self.log_text_edit)       
+        self.log_text_edit.setHtml(f'<pre style="font-size:7pt;white-space: pre;">{BANNER_TEXT}</pre>')
         log_layout.addWidget(self.log_text_edit)
         log_group.setLayout(log_layout)
 
         # Поле запуска команд
         command_layout = QHBoxLayout()
         self.command_input = QLineEdit()
+        completer = QCompleter(CMD_PROGRAMS_LIST, self.command_input)
+        self.command_input.setCompleter(completer) 
         self.command_input.setPlaceholderText("Введите команду...")
         self.command_input.returnPressed.connect(self.run_command)
         command_run_button = QPushButton("Запустить")
@@ -95,16 +122,31 @@ class VirusProtectionApp(QMainWindow):
         command_layout.addWidget(self.command_input)
         command_layout.addWidget(command_run_button)
 
-        # Добавление компонентов в основной макет
+        # Система
+        system_group = QGroupBox()
+        side_layout.addWidget(system_group)
+
+        # Добавление компонентов в макеты
+        mains_layout.addLayout(premain_layout)
+        mains_layout.addLayout(side_layout)
+
         main_layout.addLayout(button_layout)
-        main_layout.addWidget(system_info_group)
-        main_layout.addLayout(command_layout)
-        main_layout.addWidget(log_group)
+        main_layout.addLayout(mains_layout)
+        premain_layout.addWidget(system_info_group)
+        premain_layout.addLayout(command_layout)
+        premain_layout.addWidget(log_group)
 
         central_widget = QWidget()
         central_widget.setLayout(main_layout)
         self.setCentralWidget(central_widget)
 
+        self.update_system_info()
+
+        self.timer = QTimer()
+        self.timer.timeout.connect(self.on_timer)
+        self.timer.start(1000)
+
+    def on_timer(self):
         self.update_system_info()
 
     def update_system_info(self):
@@ -120,7 +162,7 @@ class VirusProtectionApp(QMainWindow):
         if not command:
             return
         result = launch_process(command, admin=True)
-        log(result, level="info")
+        log(result, INFO)
 
     def open_antivirus(self):
         """Открывает окно Антивируса."""
@@ -156,9 +198,6 @@ class VirusProtectionApp(QMainWindow):
         """Открывает окно Диспетчера задач."""
         self.task_manager_window = TaskManagerWindow()
         self.task_manager_window.show()
-
-    def log(self, message, level="info"):
-        self.log_text_edit.insertHtml(f'<span style="color: {'red' if level == "error" else 'orange' if level == "warning" else 'blue' if level == 'info' else 'black'};">{message}</span>')
 
 def main():
     app = QApplication(sys.argv)
