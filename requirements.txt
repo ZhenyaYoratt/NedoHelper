@@ -4,3 +4,4 @@ PyQt5-sip
 PyQtWebEngine
 psutil
 requests
+pyinstaller
