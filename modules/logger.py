@@ -13,16 +13,16 @@ DEBUG = 10
 NOTSET = 0
 
 level_colors = {
+    NOTSET: "grey",
+    DEBUG: "black",
     INFO: "blue",
     WARNING: "yellow",
-    ERROR: "red"
+    ERROR: "red",
 }
 
-def log(message, level="info"):
+def log(message, level=INFO):
     """Логирует сообщение с уровнем."""
-    level = level.lower()
-    levels_int = {"info": INFO, "warning": WARNING, "error": ERROR}
-    logging.log(levels_int[level], message)
+    logging.log(level, message)
 
 class QTextEditLogger(logging.Handler):
     def __init__(self, text_edit_widget):
@@ -30,9 +30,9 @@ class QTextEditLogger(logging.Handler):
         self.text_edit_widget: QTextEdit = text_edit_widget
 
     def emit(self, record):
-        print(record)
         msg = self.format(record)
-        self.text_edit_widget.insertHtml(f'<span style="color: {level_colors[INFO]};">{msg}</span>' + '\n')
+        level = record.levelno
+        self.text_edit_widget.setHtml(self.text_edit_widget.toHtml() + f'\n<div style="color: {level_colors[level]};{'font-weight: 900;' if level == CRITICAL else None}">{msg}</div>')
 
 def setup_logger(text_edit_widget):
     """

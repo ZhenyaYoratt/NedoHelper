@@ -1,6 +1,6 @@
 import ctypes
 
-from .logger import log
+from .logger import *
 
 def set_wallpaper(image_path):
     """Устанавливает обои рабочего стола."""
@@ -11,7 +11,7 @@ def set_wallpaper(image_path):
         return msg
     except Exception as e:
         msg = f"Ошибка установки обоев: {e}"
-        log(msg, 'error')
+        log(msg, ERROR)
         return log
 
 def reset_wallpaper():
@@ -23,5 +23,5 @@ def reset_wallpaper():
         return log
     except Exception as e:
         msg = f"Ошибка сброса обоев: {e}"
-        log(msg, 'error')
+        log(msg, ERROR)
         return log

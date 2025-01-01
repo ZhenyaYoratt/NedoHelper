@@ -1,5 +1,5 @@
 import psutil
-from .logger import log
+from .logger import *
 
 def get_process_list():
     """Возвращает список активных процессов."""
@@ -37,10 +37,12 @@ def kill_process(pid):
     try:
         p = psutil.Process(pid)
         p.terminate()
-        return f"Процесс {pid} ({p.name()}) завершен."
+        msg = f"Процесс {pid} ({p.name()}) завершен."
+        log(msg)
+        return msg
     except Exception as e:
         msg = f"Ошибка завершения процесса {pid}: {e}"
-        log(msg, 'error')
+        log(msg, ERROR)
         return msg
     
 import psutil
@@ -60,15 +62,15 @@ def suspend_process(pid):
         return msg
     except psutil.NoSuchProcess:
         msg = f"Ошибка: Процесс с PID {pid} не существует."
-        log(msg, 'error')
+        log(msg, ERROR)
         return msg
     except psutil.AccessDenied:
         msg = f"Ошибка: Доступ к процессу с PID {pid} запрещён."
-        log(msg, 'error')
+        log(msg, ERROR)
         return msg
     except Exception as e:
         msg = f"Ошибка при приостановке процесса с PID {pid}: {e}"
-        log(msg, 'error')
+        log(msg, ERROR)
         return msg
 
 def resume_process(pid):
@@ -86,14 +88,14 @@ def resume_process(pid):
         return msg
     except psutil.NoSuchProcess:
         msg = f"Ошибка: Процесс с PID {pid} не существует."
-        log(msg, 'error')
+        log(msg, ERROR)
         return msg
     except psutil.AccessDenied:
         msg = f"Ошибка: Доступ к процессу с PID {pid} запрещён."
-        log(msg, 'error')
+        log(msg, ERROR)
         return msg
     except Exception as e:
         msg = f"Ошибка при возобновлении процесса с PID {pid}: {e}"
-        log(msg, 'error')
+        log(msg, ERROR)
         return msg
 

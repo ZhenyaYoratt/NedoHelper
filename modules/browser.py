@@ -1,6 +1,6 @@
 import webbrowser
 
-from logger import log
+from .logger import *
 
 def open_browser(url="https://www.google.com"):
     """Открывает веб-браузер с указанным URL."""
@@ -11,5 +11,5 @@ def open_browser(url="https://www.google.com"):
         return msg
     except Exception as e:
         msg = f"Ошибка открытия браузера: {e}"
-        log(msg, 'error')
+        log(msg, ERROR)
         return msg

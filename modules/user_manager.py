@@ -1,5 +1,5 @@
 import subprocess
-from modules.logger import log
+from modules.logger import *
 
 def list_users():
     """Получает список пользователей в системе."""
@@ -14,7 +14,7 @@ def list_users():
         return f"Пользователи:\n{users}"
     except Exception as e:
         msg = f"Ошибка получения списка пользователей: {e}"
-        log(msg, "error")
+        log(msg, ERROR)
         return msg
 
 def add_user(username, password):
@@ -26,7 +26,7 @@ def add_user(username, password):
         return msg
     except Exception as e:
         msg = f"Ошибка добавления пользователя {username}: {e}"
-        log(msg, "error")
+        log(msg, ERROR)
         return msg
 
 def delete_user(username):
@@ -38,7 +38,7 @@ def delete_user(username):
         return msg
     except Exception as e:
         msg = f"Ошибка удаления пользователя {username}: {e}"
-        log(msg, "error")
+        log(msg, ERROR)
         return msg
 
 def set_password(username, password):
@@ -50,7 +50,7 @@ def set_password(username, password):
         return msg
     except Exception as e:
         msg = f"Ошибка установки пароля для пользователя {username}: {e}"
-        log(msg, "error")
+        log(msg, ERROR)
         return msg
 
 def remove_password(username):
@@ -62,5 +62,5 @@ def remove_password(username):
         return msg
     except Exception as e:
         msg = f"Ошибка удаления пароля для пользователя {username}: {e}"
-        log(msg, "error")
+        log(msg, ERROR)
         return msg

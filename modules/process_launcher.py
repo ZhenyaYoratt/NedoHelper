@@ -1,5 +1,5 @@
 import subprocess
-from .logger import log
+from .logger import *
 
 def launch_process(command, admin=False):
     """Запускает процесс с опциональными правами администратора."""
@@ -11,5 +11,5 @@ def launch_process(command, admin=False):
         return f"Процесс '{command}' успешно запущен."
     except Exception as e:
         msg = f"Ошибка запуска процесса '{command}': {e}"
-        log(msg, 'error')
+        log(msg, ERROR)
         return msg

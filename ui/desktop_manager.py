@@ -1,6 +1,7 @@
 from PyQt5.QtWidgets import QMainWindow, QVBoxLayout, QLabel, QPushButton, QFileDialog, QWidget
 from modules.desktop_manager import set_wallpaper, reset_wallpaper
 from modules.titles import make_title
+from modules.logger import *
 
 class DesktopManagerWindow(QMainWindow):
     def __init__(self):
@@ -28,13 +29,11 @@ class DesktopManagerWindow(QMainWindow):
         """Меняет обои рабочего стола."""
         image_path, _ = QFileDialog.getOpenFileName(self, "Выберите изображение", "", "Images (*.png *.jpg *.jpeg *.bmp)")
         if not image_path:
-            self.status_label.setText("Обои не выбраны.")
+            log("Обои не выбраны.", WARN)
             return
 
-        result = set_wallpaper(image_path)
-        self.status_label.setText(result)
+        set_wallpaper(image_path)
 
     def reset_wallpaper(self):
         """Сбрасывает обои рабочего стола."""
-        result = reset_wallpaper()
-        self.status_label.setText(result)
+        reset_wallpaper()

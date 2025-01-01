@@ -1,6 +1,6 @@
 import ctypes
 from ctypes.wintypes import DWORD, BOOL, LPCWSTR
-from .logger import log
+from .logger import *
 
 # Загрузка библиотеки SRClient.dll для работы с точками восстановления
 srclient = ctypes.WinDLL("Srclient.dll")
@@ -53,7 +53,7 @@ def create_restore_point(description="Custom Restore Point"):
     if result:
         log(f"Точка восстановления создана: {description}")
     else:
-        log("Ошибка создания точки восстановления.", 'error')
+        log("Ошибка создания точки восстановления.", ERROR)
 
     return result
 
@@ -74,5 +74,5 @@ def restore_to_point(sequence_number):
         log(f"Система восстановлена до точки {sequence_number}.")
         return True
     except Exception as e:
-        log(f"Ошибка восстановления до точки {sequence_number}: {e}", 'error')
+        log(f"Ошибка восстановления до точки {sequence_number}: {e}", ERROR)
         return False

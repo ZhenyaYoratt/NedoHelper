@@ -1,13 +1,85 @@
 import hashlib
-import os
+import os, sys, requests
 
-def scan_directory(directory, hash_database="../data/antivirus.db"):
-    """Сканирует папку на наличие файлов с хешами из базы данных."""
-    if not os.path.exists(hash_database):
+if getattr(sys, 'frozen', False):
+    application_path = os.path.dirname(sys.executable)
+elif __file__:
+    application_path = os.path.dirname(__file__)
+
+LIST_DATABASES_URL = "https://example.com/api/files"
+DATABASES_FORLDER = os.path.join(application_path, '..', 'databases')
+
+def update_database(main_url=LIST_DATABASES_URL, databases_folder=DATABASES_FORLDER):
+    """
+    Обновляет базу данных, загружая файлы по ссылкам, полученным с главной ссылки.
+
+    :param main_url: Главная ссылка для получения списка ссылок с файлами (в формате JSON).
+    :param databases_folder: Папка, куда будут сохраняться файлы (по умолчанию 'databases').
+    """
+    if not os.path.exists(databases_folder):
+        os.makedirs(databases_folder)
+
+    try:
+        # Загружаем список ссылок с JSON-формата
+        response = requests.get(main_url)
+        response.raise_for_status()  # Проверка успешности запроса
+        file_links = response.json()  # Получаем JSON, который содержит ссылки на файлы
+
+        # Скачиваем каждый файл по ссылке
+        for file_url in file_links:
+            try:
+                file_name = file_url.split("/")[-1]  # Извлекаем имя файла из URL
+                file_path = os.path.join(databases_folder, file_name)
+
+                print(f"Загружаем файл: {file_name}")
+
+                # Загружаем файл
+                file_response = requests.get(file_url)
+                file_response.raise_for_status()  # Проверка успешности запроса
+
+                with open(file_path, 'wb') as f:
+                    f.write(file_response.content)
+
+                print(f"Файл {file_name} успешно загружен.")
+            except requests.RequestException as e:
+                print(f"Ошибка при загрузке файла {file_url}: {e}")
+    except requests.RequestException as e:
+        print(f"Ошибка при получении списка файлов: {e}")
+
+def load_database(databases_folder=DATABASES_FORLDER):
+    """
+    Загружает базу данных из файлов в папке `databases`, исключая строки, начинающиеся с #.
+
+    :param databases_folder: Папка с файлами базы данных (по умолчанию 'databases').
+    :return: Список строк из файлов, исключая строки, начинающиеся с '#'.
+    """
+    database_content = []
+
+    # Проверяем, существует ли папка с файлами
+    if not os.path.exists(databases_folder):
+        print(f"Папка {databases_folder} не найдена.")
         return []
 
-    with open(hash_database, "r") as file:
-        malicious_hashes = set(line.strip() for line in file)
+    # Проходим по всем файлам в папке
+    for filename in os.listdir(databases_folder):
+        file_path = os.path.join(databases_folder, filename)
+
+        # Пропускаем директории
+        if os.path.isdir(file_path):
+            continue
+
+        # Открываем и читаем файл
+        with open(file_path, 'r', encoding='utf-8') as file:
+            for line in file:
+                # Пропускаем строки, начинающиеся с '#'
+                if not line.startswith('#'):
+                    database_content.append(line.strip())
+
+    return database_content
+
+def scan_directory(directory):
+    """Сканирует папку на наличие файлов с хешами из базы данных."""
+    malicious_hashes = load_database()
 
     suspicious_files = []
     for root, _, files in os.walk(directory):

@@ -1,5 +1,5 @@
 import psutil
-from .logger import log
+from .logger import *
 
 def get_system_info():
     """Возвращает информацию о системе."""
@@ -16,5 +16,5 @@ def get_disk_info():
             usage = psutil.disk_usage(partition.mountpoint)
             disk_data.append(f"{partition.device} ({partition.mountpoint}): {usage.percent}%")
         except:
-            log(f'Не удалось получить информацию использования диска {partition}', 'error')
+            log(f'Не удалось получить информацию использования диска {partition}', ERROR)
     return "\n".join(disk_data)

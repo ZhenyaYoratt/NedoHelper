@@ -98,8 +98,8 @@ class VirusProtectionApp(QMainWindow):
         # Добавление компонентов в основной макет
         main_layout.addLayout(button_layout)
         main_layout.addWidget(system_info_group)
-        main_layout.addWidget(log_group)
         main_layout.addLayout(command_layout)
+        main_layout.addWidget(log_group)
 
         central_widget = QWidget()
         central_widget.setLayout(main_layout)
