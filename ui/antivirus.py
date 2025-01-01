@@ -1,10 +1,11 @@
 from PyQt5.QtWidgets import QMainWindow, QVBoxLayout, QLabel, QPushButton, QWidget, QFileDialog
-from antivirus import scan_directory, delete_file
+from modules.antivirus import scan_directory, delete_file
+from modules.titles import make_title
 
 class AntivirusWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Антивирус")
+        self.setWindowTitle(make_title("Антивирус"))
         self.setFixedSize(600, 400)
 
         layout = QVBoxLayout()

@@ -1,10 +1,11 @@
 from PyQt5.QtWidgets import QMainWindow, QVBoxLayout, QLabel, QPushButton, QWidget
-from system_restore import create_restore_point, restore_to_point
+from modules.system_restore import create_restore_point, restore_to_point
+from modules.titles import make_title
 
 class SystemRestoreWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Точка восстановления")
+        self.setWindowTitle(make_title("Точка восстановления"))
         self.setFixedSize(400, 300)
 
         layout = QVBoxLayout()

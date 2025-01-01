@@ -1,10 +1,11 @@
 from PyQt5.QtWidgets import QMainWindow, QVBoxLayout, QLabel, QPushButton, QFileDialog, QWidget
-from desktop_manager import set_wallpaper, reset_wallpaper
+from modules.desktop_manager import set_wallpaper, reset_wallpaper
+from modules.titles import make_title
 
 class DesktopManagerWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Управление обоями")
+        self.setWindowTitle(make_title("Управление обоями"))
         self.setFixedSize(400, 300)
 
         layout = QVBoxLayout()

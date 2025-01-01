@@ -1,12 +1,13 @@
 from PyQt5.QtWidgets import QMainWindow, QVBoxLayout, QLabel, QLineEdit, QPushButton, QWidget
 import json
+from modules.titles import make_title
 
 class SettingsWindow(QMainWindow):
     SETTINGS_FILE = "settings.json"
 
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Настройки")
+        self.setWindowTitle(make_title("Настройки"))
         self.setFixedSize(400, 300)
 
         layout = QVBoxLayout()

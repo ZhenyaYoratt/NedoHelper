@@ -1,7 +1,7 @@
 import hashlib
 import os
 
-def scan_directory(directory, hash_database="MD5 Hashes.txt"):
+def scan_directory(directory, hash_database="../data/antivirus.db"):
     """Сканирует папку на наличие файлов с хешами из базы данных."""
     if not os.path.exists(hash_database):
         return []

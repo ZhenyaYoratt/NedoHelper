@@ -1,10 +1,11 @@
 from PyQt5.QtWidgets import QMainWindow, QVBoxLayout, QLabel, QLineEdit, QPushButton, QWidget, QMessageBox
-from user_manager import list_users, add_user, delete_user, set_password
+from modules.user_manager import list_users, add_user, delete_user, set_password
+from modules.titles import make_title
 
 class UserManagerWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Управление пользователями")
+        self.setWindowTitle(make_title("Управление пользователями"))
         self.setFixedSize(500, 500)
 
         layout = QVBoxLayout()

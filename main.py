@@ -1,19 +1,22 @@
-import sys, os, ctypes, subprocess
+import sys, os, ctypes, traceback
 from PyQt5.QtWidgets import (
     QApplication, QMainWindow, QPushButton, QVBoxLayout, QHBoxLayout,
     QWidget, QLabel, QTextEdit, QLineEdit, QGroupBox
 )
 from PyQt5.QtCore import Qt
-from system_info import get_system_info, get_disk_info
-from process_launcher import launch_process
-from logger import log
-from antivirus_ui import AntivirusWindow
-from disk_manager_ui import DiskManagerWindow
-from user_manager_ui import UserManagerWindow
-from desktop_manager_ui import DesktopManagerWindow
-from system_restore_ui import SystemRestoreWindow
-from browser_ui import BrowserWindow
-from task_manager_ui import TaskManagerWindow
+from modules.system_info import get_system_info, get_disk_info
+from modules.process_launcher import launch_process
+from modules.logger import log, setup_logger
+from modules.titles import make_title
+from ui.antivirus import AntivirusWindow
+from ui.disk_manager import DiskManagerWindow
+from ui.user_manager import UserManagerWindow
+from ui.desktop_manager import DesktopManagerWindow
+from ui.system_restore import SystemRestoreWindow
+from ui.browser import BrowserWindow
+from ui.task_manager import TaskManagerWindow
+
+os.system('chcp 65001')
 
 def is_admin():
     """
@@ -37,8 +40,8 @@ def run_as_admin():
 class VirusProtectionApp(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("System Helper")
-        self.setFixedSize(1000, 700)
+        self.setWindowTitle(make_title('NedoHelper - MultiTool for Windows 10'))
+        self.setMaximumSize(1000, 700)
 
         self.initUI()
 
@@ -78,6 +81,7 @@ class VirusProtectionApp(QMainWindow):
         log_layout = QVBoxLayout()
         self.log_text_edit = QTextEdit()
         self.log_text_edit.setReadOnly(True)
+        setup_logger(self.log_text_edit)
         log_layout.addWidget(self.log_text_edit)
         log_group.setLayout(log_layout)
 
@@ -117,7 +121,6 @@ class VirusProtectionApp(QMainWindow):
             return
         result = launch_process(command, admin=True)
         log(result, level="info")
-        self.log_text_edit.append(result)
 
     def open_antivirus(self):
         """Открывает окно Антивируса."""
@@ -154,6 +157,8 @@ class VirusProtectionApp(QMainWindow):
         self.task_manager_window = TaskManagerWindow()
         self.task_manager_window.show()
 
+    def log(self, message, level="info"):
+        self.log_text_edit.insertHtml(f'<span style="color: {'red' if level == "error" else 'orange' if level == "warning" else 'blue' if level == 'info' else 'black'};">{message}</span>')
 
 def main():
     app = QApplication(sys.argv)
@@ -168,4 +173,8 @@ if __name__ == "__main__":
         run_as_admin()
     else:
         print('Ура!')
-        main()
+        try:
+            main()
+        except Exception as e:
+            print(traceback.format_exc())
+            os.system('pause')

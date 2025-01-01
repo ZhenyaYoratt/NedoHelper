@@ -4,6 +4,8 @@ import win32com.client
 import psutil
 import os
 
+from .logger import log
+
 def get_disk_type(drive_letter):
     """
     Получает тип устройства для указанного диска.
@@ -29,7 +31,9 @@ def get_disk_type(drive_letter):
                     return "Физический диск"
         return "Неизвестный тип устройства"
     except Exception as e:
-        return f"Ошибка определения типа диска: {e}"
+        msg = f"Ошибка определения типа диска: {e}"
+        log(msg, 'error')
+        return msg
 
 def check_disk_status(drive_letter):
     """
@@ -42,7 +46,7 @@ def check_disk_status(drive_letter):
         # Проверяем доступность устройства
         return os.path.exists(drive_letter) and os.access(drive_letter, os.R_OK)
     except Exception as e:
-        print(f"Ошибка при проверке статуса диска {drive_letter}: {e}")
+        log(f"Ошибка при проверке статуса диска {drive_letter}: {e}", 'error')
         return False
 
 def get_drive_info(drive_letter):
@@ -66,7 +70,9 @@ def unlock_bitlocker(drive_letter):
             return f"Диск {drive_letter} разблокирован."
         return f"Не удалось разблокировать диск {drive_letter}."
     except Exception as e:
-        return f"Ошибка разблокировки диска: {e}"
+        msg = f"Ошибка разблокировки диска: {e}"
+        log(msg, 'error')
+        return msg
 
 def is_bitlocker_protected(drive_letter):
     """
@@ -90,5 +96,5 @@ def is_bitlocker_protected(drive_letter):
                 return True
         return False
     except Exception as e:
-        print(f"Ошибка проверки защиты BitLocker: {e}")
+        log(f"Ошибка проверки защиты BitLocker: {e}", 'error')
         return False

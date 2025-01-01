@@ -1,11 +1,12 @@
 from PyQt5.QtWidgets import QMainWindow, QVBoxLayout, QTableWidget, QTableWidgetItem, QWidget, QProgressBar
 import psutil
-from disk_manager import is_bitlocker_protected, check_disk_status
+from modules.disk_manager import is_bitlocker_protected, check_disk_status
+from modules.titles import make_title
 
 class DiskManagerWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Управление дисками")
+        self.setWindowTitle(make_title('Управление дисками'))
         self.setFixedSize(600, 400)
 
         layout = QVBoxLayout()
@@ -44,3 +45,5 @@ class DiskManagerWindow(QMainWindow):
                 progress.setValue(int((usage.used / usage.total) * 100))
             else:
                 progress.setDisabled(True)
+        self.disk_table.resizeColumnsToContents()
+        self.disk_table.resizeRowsToContents()
