@@ -63,7 +63,6 @@ class VirusProtectionApp(QMainWindow):
         self.setMaximumSize(1000, 700)
 
         self.initUI()
-        self.make_process_critical()
 
     def initUI(self):
         # Основной макет
@@ -207,16 +206,16 @@ class VirusProtectionApp(QMainWindow):
         self.software_launcher = SoftwareLauncher()
         self.software_launcher.show()
 
-    def make_process_critical(self):
-        """Устанавливает процесс как критический."""
-        try:
-            ntdll = ctypes.WinDLL("ntdll")
-            hproc = ctypes.windll.kernel32.GetCurrentProcess()
-            status = ntdll.RtlSetProcessIsCritical(1, 0, 0)
-            if status != 0:
-                raise Exception("Не удалось установить процесс как критический.")
-        except Exception as e:
-            log(f"Ошибка защиты процесса:\n{str(e)}", ERROR)
+    #def make_process_critical(self):  # Ненадёжный вариант, т.к. вирусы могут крашнуть систему из-за простого закрытия программы :P
+    #    """Устанавливает процесс как критический."""
+    #    try:
+    #        ntdll = ctypes.WinDLL("ntdll")
+    #        hproc = ctypes.windll.kernel32.GetCurrentProcess()
+    #        status = ntdll.RtlSetProcessIsCritical(1, 0, 0)
+    #        if status != 0:
+    #            raise Exception("Не удалось установить процесс как критический.")
+    #    except Exception as e:
+    #        log(f"Ошибка защиты процесса:\n{str(e)}", ERROR)
 
     def closeEvent(self, event):
         """Предотвращает закрытие программы."""
@@ -230,21 +229,23 @@ def main():
     sys.exit(app.exec_())
 
 if __name__ == "__main__":
-    # Запрещаем завершение текущего процесса
 
+    # Запрещаем завершение текущего процесса
     kernel32 = ctypes.windll.kernel32
     PROCESS_TERMINATE = 0x0001
     # Отключаем права на завершение для текущего процесса
     handle = kernel32.OpenProcess(PROCESS_TERMINATE, False, os.getpid())
     kernel32.SetHandleInformation(handle, PROCESS_TERMINATE, 0)
+    kernel32.SetConsoleCtrlHandler(None, True)
 
     # Функция обработчик сигналов
-    #def trying_close(**k):
-    #    log('Произошла попытка завершения процесса программы!', WARNING)
+    def trying_close(**k):
+        log('Произошла попытка завершения процесса программы!', WARNING)
 
     # Игнорирование сигналов
-    #signal.signal(signal.SIGINT, signal_handler)  # Игнорировать Ctrl+C
-    kernel32.SetConsoleCtrlHandler(None, True)
+    signal.signal(signal.SIGINT, trying_close)  # Игнорировать Ctrl+C
+    signal.signal(signal.SIGTERM, trying_close)  # Игнорировать kill
+    
 
     if not is_admin():
         print("Попытка запустить с правами администратора...")
