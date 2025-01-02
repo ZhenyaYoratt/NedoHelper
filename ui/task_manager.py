@@ -1,4 +1,5 @@
 from PyQt5.QtWidgets import *
+from PyQt5.QtCore import Qt
 from modules.task_manager import get_process_list, kill_process, parse_process_info
 from modules.titles import make_title
 
@@ -7,6 +8,8 @@ class TaskManagerWindow(QMainWindow):
         super().__init__()
         self.setWindowTitle(make_title("Диспетчер задач"))
         self.setFixedSize(800, 600)
+        self.setWindowFlags(Qt.WindowType.WindowStaysOnTopHint | Qt.WindowType.Dialog)
+        self.setWindowFlag(Qt.WindowType.WindowContextHelpButtonHint, False)
 
         layout = QVBoxLayout()
 

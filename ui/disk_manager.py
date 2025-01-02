@@ -1,4 +1,5 @@
 from PyQt5.QtWidgets import QMainWindow, QVBoxLayout, QTableWidget, QTableWidgetItem, QWidget, QProgressBar
+from PyQt5.QtCore import Qt
 import psutil
 from modules.disk_manager import *
 from modules.titles import make_title
@@ -7,7 +8,8 @@ class DiskManagerWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle(make_title('Управление дисками'))
-        self.setFixedSize(600, 400)
+        self.setWindowFlags(Qt.WindowType.WindowStaysOnTopHint | Qt.WindowType.Dialog)
+        self.setWindowFlag(Qt.WindowType.WindowContextHelpButtonHint, False)
 
         layout = QVBoxLayout()
         self.disk_table = QTableWidget()

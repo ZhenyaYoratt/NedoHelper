@@ -1,15 +1,20 @@
-from PyQt5.QtWidgets import QMainWindow, QVBoxLayout, QLineEdit, QPushButton, QWidget, QHBoxLayout, QProgressBar
-from PyQt5.QtCore import QUrl
+from PyQt5.QtWidgets import *
+from PyQt5.QtCore import QUrl, Qt
 from PyQt5.QtWebEngineWidgets import QWebEngineView
 import webbrowser
 from modules.titles import make_title
 
 class BrowserWindow(QMainWindow):
-    def __init__(self):
+    def __init__(self, url = "google.com"):
         super().__init__()
         self.setWindowTitle(make_title("Встроенный браузер"))
-        self.setFixedSize(800, 600)
+        self.resize(800, 600)
+        self.setWindowFlags(Qt.WindowType.WindowStaysOnTopHint | Qt.WindowType.Dialog)
+        self.setWindowFlag(Qt.WindowType.WindowContextHelpButtonHint, False)
 
+        # Браузер
+        self.browser = QWebEngineView()
+        
         layout = QVBoxLayout()
 
         # Панель управления
@@ -39,9 +44,6 @@ class BrowserWindow(QMainWindow):
         control_layout.addWidget(go_button)
         control_layout.addWidget(external_browser_button)
 
-        # Браузер
-        self.browser = QWebEngineView()
-
         self.browser.urlChanged.connect(self.on_url_changed)
         self.browser.titleChanged.connect(self.on_title_changed)
         self.browser.loadStarted.connect(self.on_load_started)
@@ -59,8 +61,18 @@ class BrowserWindow(QMainWindow):
         central_widget.setLayout(layout)
         self.setCentralWidget(central_widget)
 
+        self.load_url(url)
+
     def on_url_changed(self):
-        self.url_input.setText(self.browser.url().toString())
+        url = self.browser.url().toString()
+        self.url_input.setText(url)
+        if url.find("nedohackers.site/challenge") != -1:
+            QMessageBox.question(
+                self,
+                "а?",
+                "Вы зачем каждый раз проверяете нас? Из-за этого не все браузеры поддерживают капчу :/",
+                QMessageBox.StandardButton.Ignore | QMessageBox.StandardButton.Escape | QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.FirstButton
+            )
 
     def on_title_changed(self):
         self.setWindowTitle(self.browser.title())
@@ -70,9 +82,10 @@ class BrowserWindow(QMainWindow):
     def on_load_finished(self):
         self.progess_bar.setRange(0, 1)
 
-    def load_url(self):
+    def load_url(self, url = None):
         """Загружает указанный URL."""
-        url = self.url_input.text().strip()
+        if not url:
+            self.url_input.text().strip()
         if not url.startswith("http://") and not url.startswith("https://"):
             url = "http://" + url
         self.browser.setUrl(QUrl(url))

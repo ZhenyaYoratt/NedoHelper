@@ -1,4 +1,5 @@
 from PyQt5.QtWidgets import QMainWindow, QVBoxLayout, QLabel, QLineEdit, QPushButton, QWidget
+from PyQt5.QtCore import Qt
 import json
 from modules.titles import make_title
 
@@ -9,6 +10,8 @@ class SettingsWindow(QMainWindow):
         super().__init__()
         self.setWindowTitle(make_title("Настройки"))
         self.setFixedSize(400, 300)
+        self.setWindowFlags(Qt.WindowType.WindowStaysOnTopHint | Qt.WindowType.Dialog)
+        self.setWindowFlag(Qt.WindowType.WindowContextHelpButtonHint, False)
 
         layout = QVBoxLayout()
         self.status_label = QLabel("Настройки программы.")

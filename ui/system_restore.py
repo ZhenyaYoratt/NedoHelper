@@ -1,4 +1,5 @@
 from PyQt5.QtWidgets import QMainWindow, QVBoxLayout, QLabel, QPushButton, QWidget
+from PyQt5.QtCore import Qt
 from modules.system_restore import create_restore_point, restore_to_point
 from modules.titles import make_title
 
@@ -7,6 +8,8 @@ class SystemRestoreWindow(QMainWindow):
         super().__init__()
         self.setWindowTitle(make_title("Точка восстановления"))
         self.setFixedSize(400, 300)
+        self.setWindowFlags(Qt.WindowType.WindowStaysOnTopHint | Qt.WindowType.Dialog)
+        self.setWindowFlag(Qt.WindowType.WindowContextHelpButtonHint, False)
 
         layout = QVBoxLayout()
         self.status_label = QLabel("Управление точками восстановления.")

@@ -1,4 +1,5 @@
 from PyQt5.QtWidgets import QMainWindow, QVBoxLayout, QLabel, QLineEdit, QPushButton, QWidget, QMessageBox
+from PyQt5.QtCore import Qt
 from modules.user_manager import list_users, add_user, delete_user, set_password
 from modules.titles import make_title
 
@@ -7,6 +8,8 @@ class UserManagerWindow(QMainWindow):
         super().__init__()
         self.setWindowTitle(make_title("Управление пользователями"))
         self.setFixedSize(500, 500)
+        self.setWindowFlags(Qt.WindowType.WindowStaysOnTopHint | Qt.WindowType.Dialog)
+        self.setWindowFlag(Qt.WindowType.WindowContextHelpButtonHint, False)
 
         layout = QVBoxLayout()
         self.status_label = QLabel("Управление пользователями.")

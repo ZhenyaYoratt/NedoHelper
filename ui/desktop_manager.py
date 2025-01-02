@@ -1,4 +1,5 @@
 from PyQt5.QtWidgets import QMainWindow, QVBoxLayout, QLabel, QPushButton, QFileDialog, QWidget
+from PyQt5.QtCore import Qt
 from modules.desktop_manager import set_wallpaper, reset_wallpaper
 from modules.titles import make_title
 from modules.logger import *
@@ -8,6 +9,8 @@ class DesktopManagerWindow(QMainWindow):
         super().__init__()
         self.setWindowTitle(make_title("Управление обоями"))
         self.setFixedSize(400, 300)
+        self.setWindowFlags(Qt.WindowType.WindowStaysOnTopHint | Qt.WindowType.Dialog)
+        self.setWindowFlag(Qt.WindowType.WindowContextHelpButtonHint, False)
 
         layout = QVBoxLayout()
         self.status_label = QLabel("Управление обоями рабочего стола.")

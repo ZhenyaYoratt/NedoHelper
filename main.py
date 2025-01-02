@@ -1,4 +1,134 @@
-import sys, os, ctypes, traceback, signal
+print('Инициализация...')
+import ctypes, ctypes.wintypes, os, atexit
+
+WM_CLOSE = 0x0010
+WM_SYSCOMMAND = 0x0112
+SC_CLOSE = 0xF060
+original_wnd_proc = None
+
+def disable_console_close():
+    # Получаем handle текущего окна консоли
+    hwnd = ctypes.windll.kernel32.GetConsoleWindow()
+    if hwnd == 0:
+        print("Консольное окно не обнаружено.")
+        return
+    
+    # Получаем текущее меню окна
+    hMenu = ctypes.windll.user32.GetSystemMenu(hwnd, False)
+    if hMenu == 0:
+        print("Не удалось получить меню системы.")
+        return
+
+    # Отключаем пункт "Закрыть"
+    SC_CLOSE = 0xF060
+    ctypes.windll.user32.RemoveMenu(hMenu, SC_CLOSE, 0x00000000)
+
+    # Обновляем меню консоли
+    ctypes.windll.user32.DrawMenuBar(hwnd)
+    print("Кнопка 'Закрыть' консоли отключена.")
+
+def disable_console_close_by_pid(pid):
+    # Ищем консольное окно по PID
+    hwnd = None
+    def callback(h, _):
+        nonlocal hwnd
+        process_id = ctypes.c_ulong()
+        ctypes.windll.user32.GetWindowThreadProcessId(h, ctypes.byref(process_id))
+        if process_id.value == pid:
+            hwnd = h
+            return False
+        return True
+
+    # Перебираем все окна
+    ctypes.windll.user32.EnumWindows(ctypes.WINFUNCTYPE(ctypes.c_bool, ctypes.c_void_p, ctypes.c_void_p)(callback), 0)
+
+    if hwnd:
+        # Удаляем кнопку "Закрыть"
+        hMenu = ctypes.windll.user32.GetSystemMenu(hwnd, False)
+        if hMenu:
+            SC_CLOSE = 0xF060
+            ctypes.windll.user32.RemoveMenu(hMenu, SC_CLOSE, 0x00000000)
+            ctypes.windll.user32.DrawMenuBar(hwnd)
+            print(f"Кнопка 'Закрыть' отключена для окна с PID {pid}.")
+        else:
+            print("Не удалось получить системное меню.")
+    else:
+        print(f"Окно с PID {pid} не найдено.")
+
+def enable_debug_privileges():
+    hToken = ctypes.wintypes.HANDLE()
+    TOKEN_ADJUST_PRIVILEGES = 0x0020
+    TOKEN_QUERY = 0x0008
+    SE_PRIVILEGE_ENABLED = 0x00000002
+
+    class LUID(ctypes.Structure):
+        _fields_ = [("LowPart", ctypes.wintypes.DWORD), ("HighPart", ctypes.wintypes.LONG)]
+
+    class TOKEN_PRIVILEGES(ctypes.Structure):
+        _fields_ = [("PrivilegeCount", ctypes.wintypes.DWORD),
+                    ("Privileges", LUID * 1)]
+
+    luid = LUID()
+    ctypes.windll.advapi32.LookupPrivilegeValueW(None, "SeDebugPrivilege", ctypes.byref(luid))
+
+    if not ctypes.windll.advapi32.OpenProcessToken(
+        ctypes.windll.kernel32.GetCurrentProcess(),
+        TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY,
+        ctypes.byref(hToken)
+    ):
+        return False
+
+    tp = TOKEN_PRIVILEGES()
+    tp.PrivilegeCount = 1
+    tp.Privileges[0].LowPart = luid.LowPart
+    tp.Privileges[0].HighPart = luid.HighPart
+    tp.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED
+
+    return ctypes.windll.advapi32.AdjustTokenPrivileges(
+        hToken, False, ctypes.byref(tp), ctypes.sizeof(tp), None, None
+    )
+
+def new_wnd_proc(hwnd, msg, wparam, lparam):
+    if msg == WM_CLOSE or (msg == WM_SYSCOMMAND and wparam == SC_CLOSE):
+        print("Попытка закрыть консоль заблокирована!")
+        return 0
+    return ctypes.windll.user32.CallWindowProcW(original_wnd_proc, hwnd, msg, wparam, lparam)
+
+def block_console_close():
+    global original_wnd_proc
+
+    if not enable_debug_privileges():
+        print("Не удалось включить привилегии SeDebugPrivilege.")
+        return
+
+    hwnd = ctypes.windll.kernel32.GetConsoleWindow()
+    if hwnd == 0:
+        print("Не удалось получить окно консоли.")
+        return
+
+    if ctypes.sizeof(ctypes.c_void_p) == 8:  # 64-битная система
+        set_window_long = ctypes.windll.user32.SetWindowLongPtrW
+    else:
+        set_window_long = ctypes.windll.user32.SetWindowLongW
+
+    original_wnd_proc = set_window_long(
+        hwnd, -4, ctypes.WINFUNCTYPE(ctypes.c_long, ctypes.wintypes.HWND, ctypes.wintypes.UINT,
+                                     ctypes.wintypes.WPARAM, ctypes.wintypes.LPARAM)(new_wnd_proc)
+    )
+    if not original_wnd_proc:
+        print("Не удалось установить обработчик оконных сообщений.")
+    else:
+        print("Закрытие консоли заблокировано.")
+
+    atexit.register(lambda: set_window_long(hwnd, -4, original_wnd_proc))
+
+if __name__ == "__main__":
+    block_console_close()
+    current_pid = os.getpid()
+    disable_console_close()
+    disable_console_close_by_pid(current_pid)
+
+import sys, traceback
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from modules.system_info import get_system_info, get_disk_info
@@ -59,8 +189,25 @@ def run_as_admin():
 class VirusProtectionApp(QMainWindow):
     def __init__(self):
         super().__init__()
+        self.setWindowFlag(Qt.WindowType.WindowCloseButtonHint, False)
+        self.setWindowFlag(Qt.WindowType.WindowStaysOnTopHint, True)
         self.setWindowTitle(make_title('NedoHelper - MultiTool for Windows 10'))
-        self.setMaximumSize(1000, 700)
+        self.setMinimumSize(900, 400)
+        self.setMaximumSize(1600, 1000)
+
+        self.setStyleSheet("""
+* {
+    font-size: 16px;
+    font-family: 'Consolas';
+}
+QPushButton {
+    padding: 8px 16px;
+}
+#title {
+    font-size: 28px;
+    font-weight: bold;
+}
+""")
 
         self.initUI()
 
@@ -70,14 +217,21 @@ class VirusProtectionApp(QMainWindow):
 
         premain_layout = QVBoxLayout()
 
-        mains_layout = QHBoxLayout()
+        self.title = QLabel('NedoHelper')
+        self.title.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.title.setStyleSheet('font-size: 48px;font-weight: bold;font-family: "Comic Sans MS";')
+        premain_layout.addWidget(self.title)
 
-        # Верхняя панель кнопок
-        button_layout = QHBoxLayout()
+        mains_layout = QHBoxLayout()
 
         side_layout = QVBoxLayout()
 
+        # Система
+        system_group = QGroupBox()
+        side_layout.addWidget(system_group)
+
         module_buttons = [
+            ("Запуск сторонних программ", self.open_software_launcher),
             ("Антивирус", self.open_antivirus),
             ("Управление дисками", self.open_disk_manager),
             ("Управление пользователями", self.open_user_manager),
@@ -91,7 +245,7 @@ class VirusProtectionApp(QMainWindow):
         for text, action in module_buttons:
             btn = QPushButton(text)
             btn.clicked.connect(action)
-            button_layout.addWidget(btn)
+            side_layout.addWidget(btn)
 
         # Системная информация
         system_info_group = QGroupBox("Системная информация")
@@ -124,19 +278,27 @@ class VirusProtectionApp(QMainWindow):
         command_layout.addWidget(self.command_input)
         command_layout.addWidget(command_run_button)
 
-        # Система
-        system_group = QGroupBox()
-        side_layout.addWidget(system_group)
+        other_layout = QHBoxLayout()
+        other_buttons = [
+            ("Настройки", self.open_software_launcher),
+            ("Сайт NedoTube", self.open_browser),
+            ("О программе", self.open_disk_manager),
+        ]
+
+        for text, action in other_buttons:
+            btn = QPushButton(text)
+            btn.clicked.connect(action)
+            other_layout.addWidget(btn)
 
         # Добавление компонентов в макеты
         mains_layout.addLayout(premain_layout)
         mains_layout.addLayout(side_layout)
 
-        main_layout.addLayout(button_layout)
         main_layout.addLayout(mains_layout)
         premain_layout.addWidget(system_info_group)
         premain_layout.addLayout(command_layout)
         premain_layout.addWidget(log_group)
+        premain_layout.addLayout(other_layout)
 
         central_widget = QWidget()
         central_widget.setLayout(main_layout)
@@ -163,12 +325,12 @@ class VirusProtectionApp(QMainWindow):
         command = self.command_input.text().strip()
         if not command:
             return
-        result = launch_process(command, admin=True)
+        result = launch_process(command)
         log(result, INFO)
 
     def open_antivirus(self):
         """Открывает окно Антивируса."""
-        self.antivirus_window = AntivirusWindow()
+        self.antivirus_window = AntivirusWindow(self)
         self.antivirus_window.show()
 
     def open_disk_manager(self):
@@ -203,7 +365,7 @@ class VirusProtectionApp(QMainWindow):
 
     def open_software_launcher(self):
         """Открывает окно Запуска стороних программ."""
-        self.software_launcher = SoftwareLauncher()
+        self.software_launcher = SoftwareLauncher(self)
         self.software_launcher.show()
 
     #def make_process_critical(self):  # Ненадёжный вариант, т.к. вирусы могут крашнуть систему из-за простого закрытия программы :P
@@ -223,34 +385,25 @@ class VirusProtectionApp(QMainWindow):
         event.ignore()
 
 def main():
+    def trying_close(**k):
+        log('Произошла попытка завершения процесса программы!', WARNING)
+
     app = QApplication(sys.argv)
+    QCoreApplication.setQuitLockEnabled(True)  # Включаем блокировку выхода
     window = VirusProtectionApp()
+    app.aboutToQuit.connect(trying_close)
     window.show()
     sys.exit(app.exec_())
 
 if __name__ == "__main__":
-
-    # Запрещаем завершение текущего процесса
-    kernel32 = ctypes.windll.kernel32
-    PROCESS_TERMINATE = 0x0001
-    # Отключаем права на завершение для текущего процесса
-    handle = kernel32.OpenProcess(PROCESS_TERMINATE, False, os.getpid())
-    kernel32.SetHandleInformation(handle, PROCESS_TERMINATE, 0)
-    kernel32.SetConsoleCtrlHandler(None, True)
-
-    # Функция обработчик сигналов
-    def trying_close(**k):
-        log('Произошла попытка завершения процесса программы!', WARNING)
-
-    # Игнорирование сигналов
-    signal.signal(signal.SIGINT, trying_close)  # Игнорировать Ctrl+C
-    signal.signal(signal.SIGTERM, trying_close)  # Игнорировать kill
-    
+    error_code = ctypes.windll.kernel32.GetLastError()
+    print(f"Ошибка установки обработчика: {error_code}")
 
     if not is_admin():
         print("Попытка запустить с правами администратора...")
         run_as_admin()
     else:
+        print('\n\n\n')
         print(BANNER_TEXT)
         try:
             main()

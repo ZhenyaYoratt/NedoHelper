@@ -1,4 +1,5 @@
 databases/
+software/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -173,3 +174,4 @@ cython_debug/
 .pypirc
 
 .codegpt
+software/processhacker-2.39-bin.zip

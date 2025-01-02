@@ -1,8 +1,9 @@
+setuptools
 pywin32
 PyQt5
 PyQtWebEngine
 psutil
 requests
-pyinstaller
-pandas
-scikit-learn==1.1.3
+#pyinstaller
+#pandas
+#scikit-learn==1.1.3
