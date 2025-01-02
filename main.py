@@ -84,8 +84,9 @@ class VirusProtectionApp(QMainWindow):
             ("Управление пользователями", self.open_user_manager),
             ("Смена обоев", self.open_desktop_manager),
             ("Точка восстановления", self.open_system_restore),
-            ("Встроенный браузер", self.open_browser),
+            ("Браузер", self.open_browser),
             ("Диспетчер задач", self.open_task_manager),
+            ("Выход", qApp.quit),
         ]
 
         for text, action in module_buttons:
@@ -228,15 +229,23 @@ def main():
     window.show()
     sys.exit(app.exec_())
 
-# Функция обработчик сигналов
-def signal_handler(sig, frame):
-    log('Произошла попытка завершения процесса программы!', WARNING)
-
-# Игнорирование сигналов
-signal.signal(signal.SIGINT, signal_handler)  # Игнорировать Ctrl+C
-signal.signal(signal.SIGTERM, signal_handler)  # Игнорировать kill
-
 if __name__ == "__main__":
+    # Запрещаем завершение текущего процесса
+
+    kernel32 = ctypes.windll.kernel32
+    PROCESS_TERMINATE = 0x0001
+    # Отключаем права на завершение для текущего процесса
+    handle = kernel32.OpenProcess(PROCESS_TERMINATE, False, os.getpid())
+    kernel32.SetHandleInformation(handle, PROCESS_TERMINATE, 0)
+
+    # Функция обработчик сигналов
+    #def trying_close(**k):
+    #    log('Произошла попытка завершения процесса программы!', WARNING)
+
+    # Игнорирование сигналов
+    #signal.signal(signal.SIGINT, signal_handler)  # Игнорировать Ctrl+C
+    kernel32.SetConsoleCtrlHandler(None, True)
+
     if not is_admin():
         print("Попытка запустить с правами администратора...")
         run_as_admin()
