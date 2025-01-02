@@ -131,6 +131,7 @@ if __name__ == "__main__":
 import sys, traceback
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
+from PyQt5.QtNetwork import *
 from modules.system_info import get_system_info, get_disk_info
 from modules.process_launcher import launch_process
 from modules.logger import *
@@ -143,6 +144,7 @@ from ui.system_restore import SystemRestoreWindow
 from ui.browser import BrowserWindow
 from ui.task_manager import TaskManagerWindow
 from ui.software_launcher import SoftwareLauncher
+from fp.fp import FreeProxy
 
 os.system('chcp 65001')
 
@@ -384,9 +386,19 @@ QPushButton {
         QMessageBox.warning(self, "Предупреждение", "Закрытие программы заблокировано! Используйте кнопку выхода.")
         event.ignore()
 
+from urllib.parse import urlparse
+
 def main():
     def trying_close(**k):
         log('Произошла попытка завершения процесса программы!', WARNING)
+
+    #free_proxy = urlparse(FreeProxy(anonym=True).get())
+    #print(free_proxy)
+    #proxy = QNetworkProxy()
+    #proxy.setType(QNetworkProxy.HttpProxy)
+    #proxy.setHostName(free_proxy.hostname)
+    #proxy.setPort(free_proxy.port)
+    #QNetworkProxy.setApplicationProxy(proxy)
 
     app = QApplication(sys.argv)
     QCoreApplication.setQuitLockEnabled(True)  # Включаем блокировку выхода

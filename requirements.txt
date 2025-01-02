@@ -7,3 +7,4 @@ requests
 #pyinstaller
 #pandas
 #scikit-learn==1.1.3
+free-proxy

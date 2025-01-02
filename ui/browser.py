@@ -70,8 +70,8 @@ class BrowserWindow(QMainWindow):
             QMessageBox.question(
                 self,
                 "а?",
-                "Вы зачем каждый раз проверяете нас? Из-за этого не все браузеры поддерживают капчу :/",
-                QMessageBox.StandardButton.Ignore | QMessageBox.StandardButton.Escape | QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.FirstButton
+                "Ваш сайт не работает... Потому что, вы напоставили капчов на всех устройствах",
+                QMessageBox.StandardButton.Ignore | QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Help
             )
 
     def on_title_changed(self):
@@ -85,7 +85,7 @@ class BrowserWindow(QMainWindow):
     def load_url(self, url = None):
         """Загружает указанный URL."""
         if not url:
-            self.url_input.text().strip()
+            url = self.url_input.text().strip()
         if not url.startswith("http://") and not url.startswith("https://"):
             url = "http://" + url
         self.browser.setUrl(QUrl(url))
