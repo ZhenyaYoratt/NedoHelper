@@ -2,7 +2,7 @@
 
 pip install --upgrade virtualenv
 
-virtualenv venv --python=python3.12
+virtualenv venv --python=python3.11.9
 
 echo.
 echo.

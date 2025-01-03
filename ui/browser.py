@@ -73,6 +73,13 @@ class BrowserWindow(QMainWindow):
                 "Ваш сайт не работает... Потому что, вы напоставили капчов на всех устройствах",
                 QMessageBox.StandardButton.Ignore | QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Help
             )
+        if url.replace('+', '').replace('%20', '').find("simpleunlocker") != -1:
+            QMessageBox.question(
+                self,
+                "зачееем",
+                "Э! Я для кого запихнул SimpleUnlocker в прогу?! Посмотри в \"Запуске стороних программ\"!1",
+                QMessageBox.StandardButton.Ignore | QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Help
+            )
 
     def on_title_changed(self):
         self.setWindowTitle(self.browser.title())

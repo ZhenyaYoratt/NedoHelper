@@ -32,7 +32,7 @@ class QTextEditLogger(logging.Handler):
     def emit(self, record):
         msg = self.format(record)
         level = record.levelno
-        self.text_edit_widget.setHtml(self.text_edit_widget.toHtml() + f'\n<div style="color: {level_colors[level]};{'font-weight: 900;' if level == CRITICAL else None}">{msg}</div>')
+        self.text_edit_widget.setHtml(self.text_edit_widget.toHtml() + f'\n<div style="color: {level_colors[level]};{"font-weight: 900;" if level == CRITICAL else None}">{msg}</div>')
 
 def setup_logger(text_edit_widget):
     """

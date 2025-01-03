@@ -5,6 +5,7 @@ from PyQt5.QtWidgets import (
 )
 from PyQt5.QtCore import Qt
 from modules.titles import make_title
+import qdarktheme
 
 if getattr(sys, 'frozen', False):
     application_path = os.path.dirname(sys.executable)
@@ -13,7 +14,7 @@ elif __file__:
     
 main_exe = "NedoHelper.exe"  # Имя файла программы
 
-class InstallerWindow(QMainWindow):
+class InstallerWindow(Window):
     def __init__(self):
         super().__init__()
         self.setWindowTitle(make_title("Установщик программы"))
@@ -144,7 +145,10 @@ class InstallerWindow(QMainWindow):
 
 
 if __name__ == "__main__":
+    qdarktheme.enable_hi_dpi()
     app = QApplication(sys.argv)
+    qdarktheme.setup_theme()
     installer = InstallerWindow()
     installer.show()
+
     sys.exit(app.exec_())

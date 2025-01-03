@@ -144,7 +144,9 @@ from ui.system_restore import SystemRestoreWindow
 from ui.browser import BrowserWindow
 from ui.task_manager import TaskManagerWindow
 from ui.software_launcher import SoftwareLauncher
-from fp.fp import FreeProxy
+#from fp.fp import FreeProxy
+import qdarktheme
+from pyqt_windows_os_light_dark_theme_window.main import Window
 
 os.system('chcp 65001')
 
@@ -188,7 +190,7 @@ def run_as_admin():
         ctypes.windll.shell32.ShellExecuteW(None, "runas", sys.executable, " ".join(sys.argv), None, 1)
         sys.exit(0)
 
-class VirusProtectionApp(QMainWindow):
+class VirusProtectionApp(QMainWindow, Window):
     def __init__(self):
         super().__init__()
         self.setWindowFlag(Qt.WindowType.WindowCloseButtonHint, False)
@@ -204,6 +206,7 @@ class VirusProtectionApp(QMainWindow):
 }
 QPushButton {
     padding: 8px 16px;
+    min-height: 35px;
 }
 #title {
     font-size: 28px;
@@ -401,10 +404,13 @@ def main():
     #QNetworkProxy.setApplicationProxy(proxy)
 
     app = QApplication(sys.argv)
+    qdarktheme.setup_theme()
+
     QCoreApplication.setQuitLockEnabled(True)  # Включаем блокировку выхода
     window = VirusProtectionApp()
-    app.aboutToQuit.connect(trying_close)
     window.show()
+    app.aboutToQuit.connect(trying_close)
+
     sys.exit(app.exec_())
 
 if __name__ == "__main__":
