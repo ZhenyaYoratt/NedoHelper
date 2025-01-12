@@ -1,4 +1,51 @@
-# NedoHelper
-![GitHub last commit](https://img.shields.io/github/last-commit/ZhenyaYoratt/NedoHelper)
+# NedoHelper ![GitHub last commit](https://img.shields.io/github/last-commit/ZhenyaYoratt/NedoHelper?style=flat-square) ![GitHub top language](https://img.shields.io/github/languages/top/ZhenyaYoratt/NedoHelper?style=flat-square)
 
+The multitool program will allow you to remove viruses (may be) and restore Windows 10 to its perfect state. This program is designed exclusively for the YouTube-project "NEDOHACKERS Lite".
+
+![GitHub Downloads (all assets, latest release)](https://img.shields.io/github/downloads/ZhenyaYoratt/NedoHelper/latest/total?style=for-the-badge&logo=github)
+
+> [!CAUTION]
+> This program needs to be improved to its ideal state. **Use it AT <ins>YOUR OWN RISK AND RISK</ins>, test IT ONLY ON VIRTUAL MACHINES.** This project is under an MIT license. If you find problems, feel free to create a Issue and describe it!
+
+> [!IMPORTANT]
+> This program is developed in Russian, but it does not yet have an international translation, including English. Please be patient!
+
+## Download
+Download [the lastest release version](/releases/) of the program. There are also file hashes and links to antivirus scans.
 <!-- VirusTotal/Trag.le -->
+
+## Features
+The following features are built into the program:
+- Antivirus
+- Browser
+- Desktop Manager
+- Disk Manager
+- Software Launcher
+- System Restore
+- Task Manager
+- User Manager
+
+## TODO
+- [ ] Fix detected bugs
+- [ ] Translate to English
+
+## Contributing Guidelines
+Please ensure to adhere to the coding standards and include comments where necessary. For larger changes, it's recommended to open an issue first to discuss potential alterations.
+
+## Dependencies Used
+- `Python` 3.11.9
+- `PyQt5` 5.15.11
+- `PyQtWebEngine` 5.15
+
+See the full list in the file [requirements.txt](requirements.txt).
+
+
+## Acknowledgments
+Special thanks to the open-source community for providing libraries and tools that facilitate rapid development. This project leverages several community resources to enhance its functionality.
+
+## License
+This project has an MIT license.
+
+---
+
+Feel free to reach out to the repository owner, [ZhenyaYoratt](https://github.com/ZhenyaYoratt), for any questions or guidance regarding the project.

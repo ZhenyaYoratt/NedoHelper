@@ -8,7 +8,7 @@ class UserManagerWindow(QMainWindow):
         super().__init__()
         self.setWindowTitle(make_title("Управление пользователями"))
         self.setFixedSize(500, 500)
-        self.setWindowFlags(Qt.WindowType.WindowStaysOnTopHint | Qt.WindowType.Dialog)
+        self.setWindowFlags(Qt.WindowType.Dialog)
         self.setWindowFlag(Qt.WindowType.WindowContextHelpButtonHint, False)
 
         layout = QVBoxLayout()

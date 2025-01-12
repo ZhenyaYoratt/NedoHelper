@@ -14,8 +14,8 @@ NOTSET = 0
 
 level_colors = {
     NOTSET: "grey",
-    DEBUG: "black",
-    INFO: "blue",
+    DEBUG: "#3f4042",
+    INFO: "#4fc1ff",
     WARNING: "yellow",
     ERROR: "red",
 }
@@ -32,8 +32,11 @@ class QTextEditLogger(logging.Handler):
     def emit(self, record):
         msg = self.format(record)
         level = record.levelno
-        self.text_edit_widget.setHtml(self.text_edit_widget.toHtml() + f'\n<div style="color: {level_colors[level]};{"font-weight: 900;" if level == CRITICAL else None}">{msg}</div>')
-
+        try:
+            self.text_edit_widget.setHtml(self.text_edit_widget.toHtml() + f'\n<div style="color: {level_colors[level]};{"font-weight: 900;" if level == CRITICAL else None}">{msg}</div>')
+        except RuntimeError:
+            pass
+        
 def setup_logger(text_edit_widget):
     """
     Настраивает логгер для вывода в текстовое поле PyQt5.

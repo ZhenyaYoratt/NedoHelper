@@ -10,7 +10,7 @@ class AntivirusWindow(QMainWindow):
         self.setWindowTitle(make_title("Антивирус"))
         self.setMaximumSize(800, 1000)
         self.resize(450, 350)
-        self.setWindowFlags(Qt.WindowType.WindowStaysOnTopHint | Qt.WindowType.Dialog)
+        self.setWindowFlags(Qt.WindowType.Dialog)
         self.setWindowFlag(Qt.WindowType.WindowContextHelpButtonHint, False)
 
         self.statusbar = self.statusBar()

@@ -6,6 +6,7 @@ from PyQt5.QtWidgets import (
 from PyQt5.QtCore import Qt
 from modules.titles import make_title
 import qdarktheme
+from pyqt_windows_os_light_dark_theme_window.main import Window
 
 if getattr(sys, 'frozen', False):
     application_path = os.path.dirname(sys.executable)

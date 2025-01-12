@@ -69,7 +69,9 @@ def enable_debug_privileges():
                     ("Privileges", LUID * 1)]
 
     luid = LUID()
-    ctypes.windll.advapi32.LookupPrivilegeValueW(None, "SeDebugPrivilege", ctypes.byref(luid))
+    if not ctypes.windll.advapi32.LookupPrivilegeValueW(None, "SeDebugPrivilege", ctypes.byref(luid)):
+        print("Ошибка при вызове LookupPrivilegeValueW")
+        return False
 
     if not ctypes.windll.advapi32.OpenProcessToken(
         ctypes.windll.kernel32.GetCurrentProcess(),
@@ -84,9 +86,14 @@ def enable_debug_privileges():
     tp.Privileges[0].HighPart = luid.HighPart
     tp.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED
 
-    return ctypes.windll.advapi32.AdjustTokenPrivileges(
+    ctypes.windll.advapi32.AdjustTokenPrivileges(
         hToken, False, ctypes.byref(tp), ctypes.sizeof(tp), None, None
     )
+
+    if ctypes.windll.kernel32.GetLastError() != 0:
+        return False
+
+    return True
 
 def new_wnd_proc(hwnd, msg, wparam, lparam):
     if msg == WM_CLOSE or (msg == WM_SYSCOMMAND and wparam == SC_CLOSE):
@@ -133,9 +140,10 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.QtNetwork import *
 from modules.system_info import get_system_info, get_disk_info
-from modules.process_launcher import launch_process
+from modules.process_launcher import ProcessLauncher
 from modules.logger import *
 from modules.titles import make_title
+from modules.tts import say_async
 from ui.antivirus import AntivirusWindow
 from ui.disk_manager import DiskManagerWindow
 from ui.user_manager import UserManagerWindow
@@ -194,9 +202,10 @@ class VirusProtectionApp(QMainWindow, Window):
     def __init__(self):
         super().__init__()
         self.setWindowFlag(Qt.WindowType.WindowCloseButtonHint, False)
-        self.setWindowFlag(Qt.WindowType.WindowStaysOnTopHint, True)
+        self.setWindowFlag(Qt.WindowType.WindowMinMaxButtonsHint, False)
         self.setWindowTitle(make_title('NedoHelper - MultiTool for Windows 10'))
         self.setMinimumSize(900, 400)
+        self.resize(1000, 700)
         self.setMaximumSize(1600, 1000)
 
         self.setStyleSheet("""
@@ -206,7 +215,6 @@ class VirusProtectionApp(QMainWindow, Window):
 }
 QPushButton {
     padding: 8px 16px;
-    min-height: 35px;
 }
 #title {
     font-size: 28px;
@@ -215,6 +223,8 @@ QPushButton {
 """)
 
         self.initUI()
+
+        self.threads = list()
 
     def initUI(self):
         # Основной макет
@@ -251,7 +261,8 @@ QPushButton {
             btn = QPushButton(text)
             btn.clicked.connect(action)
             side_layout.addWidget(btn)
-
+            btn.setMinimumHeight(35)
+        
         # Системная информация
         system_info_group = QGroupBox("Системная информация")
         system_info_layout = QVBoxLayout()
@@ -330,8 +341,17 @@ QPushButton {
         command = self.command_input.text().strip()
         if not command:
             return
-        result = launch_process(command)
-        log(result, INFO)
+        # запустить в отдельном потоке
+        self.command_input.clear()
+        self.log_text_edit.append(f"<b>Введена комманда:</b> {command}")
+
+        self.threads.append(QThread()) 
+        self.process_launcher = ProcessLauncher(self, command)
+        self.process_launcher.setParent(None)
+        self.process_launcher.moveToThread(self.threads[-1])
+        self.process_launcher.setParent(self)
+        self.threads[-1].started.connect(self.process_launcher.launch_process)
+        self.threads[-1].start()
 
     def open_antivirus(self):
         """Открывает окно Антивируса."""
@@ -405,6 +425,8 @@ def main():
 
     app = QApplication(sys.argv)
     qdarktheme.setup_theme()
+
+    say_async("Примечание: Чтобы сделать окно поверх всех окон, нажмите сочетание клавиш: Shift + F10")
 
     QCoreApplication.setQuitLockEnabled(True)  # Включаем блокировку выхода
     window = VirusProtectionApp()

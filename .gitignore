@@ -173,5 +173,4 @@ cython_debug/
 # PyPI configuration file
 .pypirc
 
-.codegpt
-software/processhacker-2.39-bin.zip
+hosted_softwares/processhacker-2.39-bin.zip

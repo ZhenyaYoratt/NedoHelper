@@ -8,7 +8,7 @@ class TaskManagerWindow(QMainWindow):
         super().__init__()
         self.setWindowTitle(make_title("Диспетчер задач"))
         self.setFixedSize(800, 600)
-        self.setWindowFlags(Qt.WindowType.WindowStaysOnTopHint | Qt.WindowType.Dialog)
+        self.setWindowFlags(Qt.WindowType.Dialog)
         self.setWindowFlag(Qt.WindowType.WindowContextHelpButtonHint, False)
 
         layout = QVBoxLayout()

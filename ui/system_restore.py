@@ -8,7 +8,7 @@ class SystemRestoreWindow(QMainWindow):
         super().__init__()
         self.setWindowTitle(make_title("Точка восстановления"))
         self.setFixedSize(400, 300)
-        self.setWindowFlags(Qt.WindowType.WindowStaysOnTopHint | Qt.WindowType.Dialog)
+        self.setWindowFlags(Qt.WindowType.Dialog)
         self.setWindowFlag(Qt.WindowType.WindowContextHelpButtonHint, False)
 
         layout = QVBoxLayout()

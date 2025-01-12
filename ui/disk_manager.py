@@ -8,7 +8,7 @@ class DiskManagerWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle(make_title('Управление дисками'))
-        self.setWindowFlags(Qt.WindowType.WindowStaysOnTopHint | Qt.WindowType.Dialog)
+        self.setWindowFlags(Qt.WindowType.Dialog)
         self.setWindowFlag(Qt.WindowType.WindowContextHelpButtonHint, False)
 
         layout = QVBoxLayout()

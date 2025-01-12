@@ -5,11 +5,11 @@ import webbrowser
 from modules.titles import make_title
 
 class BrowserWindow(QMainWindow):
-    def __init__(self, url = "google.com"):
+    def __init__(self, url = "google.com/?hl=ru"):
         super().__init__()
         self.setWindowTitle(make_title("Встроенный браузер"))
         self.resize(800, 600)
-        self.setWindowFlags(Qt.WindowType.WindowStaysOnTopHint | Qt.WindowType.Dialog)
+        self.setWindowFlags(Qt.WindowType.Dialog)
         self.setWindowFlag(Qt.WindowType.WindowContextHelpButtonHint, False)
 
         # Браузер

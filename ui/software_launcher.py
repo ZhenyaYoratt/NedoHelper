@@ -9,7 +9,7 @@ from PyQt5.QtCore import Qt, QObject, QThread, pyqtSignal, QUrl
 # Ссылки для загрузки программ
 SOFTWARE_URLS = {
     "ProcessHacker": {
-        "url": "https://raw.githubusercontent.com/ZhenyaYoratt/NedoHelper/refs/heads/main/software/processhacker-2.39-bin.zip",
+        "url": "https://raw.githubusercontent.com/ZhenyaYoratt/NedoHelper/refs/heads/main/hosted_softwares/processhacker-2.39-bin.zip",
         "path": "/x64/ProcessHacker.exe",
     },
     "AnVir Task Manager": {
@@ -86,7 +86,7 @@ class SoftwareLauncher(QMainWindow):
         self.setParent(parent)
         self.setWindowTitle("Запуск сторонних программ")
         self.setMinimumSize(400, 250)
-        self.setWindowFlags(Qt.WindowType.WindowStaysOnTopHint | Qt.WindowType.Dialog)
+        self.setWindowFlags(Qt.WindowType.Dialog)
         self.setWindowFlag(Qt.WindowType.WindowContextHelpButtonHint, False)
 
         # Основной виджет
@@ -107,11 +107,6 @@ class SoftwareLauncher(QMainWindow):
             button = QPushButton(program_name)
             button.clicked.connect(lambda checked, p=program_name: self.launch_program(p))
             layout.addWidget(button)
-
-        # Прогресс-бар
-        self.progress_bar = QProgressBar()
-        self.progress_bar.setVisible(False)
-        layout.addWidget(self.progress_bar)
 
     def launch_program(self, program_name):
         program = SOFTWARE_URLS.get(program_name)
@@ -151,21 +146,22 @@ class SoftwareLauncher(QMainWindow):
         file_path = os.path.join(SOFTWARE_DIR, os.path.basename(program['url']))
 
         # Настраиваем поток
-        self.progress_bar.setValue(0)
-        self.progress_bar.setVisible(True)
+        progress_bar = QProgressBar()
+        self.centralWidget().layout().addWidget(progress_bar)
+        progress_bar.setValue(0)
 
         self.worker = DownloadSoftwareWorker(self, program['url'], file_path)
-        self.worker.set_max.connect(self.progress_bar.setMaximum)
-        self.worker.progress.connect(self.progress_bar.setValue)
-        self.worker.completed.connect(lambda path: self.on_download_completed(path, program_name, program))
-        self.worker.error.connect(self.on_download_error)
+        self.worker.set_max.connect(progress_bar.setMaximum)
+        self.worker.progress.connect(progress_bar.setValue)
+        self.worker.completed.connect(lambda path: self.on_download_completed(path, program_name, program, progress_bar))
+        self.worker.error.connect(lambda error: self.on_download_error(error, progress_bar))
         thread = QThread(self.parent())
         self.worker.moveToThread(thread)
         thread.started.connect(self.worker.run)
         thread.start()
 
-    def on_download_completed(self, file_path, program_name, program):
-        self.progress_bar.setVisible(False)
+    def on_download_completed(self, file_path, program_name, program, progress_bar: QProgressBar):
+        progress_bar.destroy()
 
         # Если это архив, распаковываем
         if file_path.endswith(".zip"):
@@ -188,8 +184,8 @@ class SoftwareLauncher(QMainWindow):
         else:
             QMessageBox.information(self, "Успех", f"Программа {program_name} успешно загружена.")
 
-    def on_download_error(self, error_message):
-        self.progress_bar.setVisible(False)
+    def on_download_error(self, error_message, progress_bar: QProgressBar):
+        progress_bar.destroy()
         QMessageBox.critical(self, "Ошибка", f"Ошибка загрузки: {error_message}")
 
 
