@@ -172,5 +172,3 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
-
-hosted_softwares/processhacker-2.39-bin.zip
