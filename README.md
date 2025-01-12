@@ -1,11 +1,11 @@
 # NedoHelper ![GitHub last commit](https://img.shields.io/github/last-commit/ZhenyaYoratt/NedoHelper?style=flat-square) ![GitHub top language](https://img.shields.io/github/languages/top/ZhenyaYoratt/NedoHelper?style=flat-square)
 
-The multitool program will allow you to remove viruses (may be) and restore Windows 10 to its perfect state. This program is designed exclusively for the YouTube-project "NEDOHACKERS Lite".
+The multitool program will allow you to remove viruses (may be) and restore Windows 10 to its perfect state. This program is designed exclusively for the [YouTube channel "NEDOHACKERS Lite"](https://youtube.com/@nedohackerslite).
 
 ![GitHub Downloads (all assets, latest release)](https://img.shields.io/github/downloads/ZhenyaYoratt/NedoHelper/latest/total?style=for-the-badge&logo=github)
 
 > [!CAUTION]
-> This program needs to be improved to its ideal state. **Use it AT <ins>YOUR OWN RISK AND RISK</ins>, test IT ONLY ON VIRTUAL MACHINES.** This project is under an MIT license. If you find problems, feel free to create a Issue and describe it!
+> This program needs to be improved to its ideal state. **Use it AT <ins>YOUR OWN RISK AND RISK</ins>, test it ONLY ON VIRTUAL MACHINES.** This project is under an MIT license. If you find problems, feel free to create a Issue and describe it!
 
 > [!IMPORTANT]
 > This program is developed in Russian, but it does not yet have an international translation, including English. Please be patient!
