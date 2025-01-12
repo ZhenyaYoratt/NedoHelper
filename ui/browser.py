@@ -82,7 +82,8 @@ class BrowserWindow(QMainWindow):
             )
 
     def on_title_changed(self):
-        self.setWindowTitle(self.browser.title())
+        # set text to progess bar
+        self.progess_bar.setFormat(self.browser.title())
 
     def on_load_started(self):
         self.progess_bar.setRange(0, 0)

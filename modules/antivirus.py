@@ -9,7 +9,7 @@ if getattr(sys, 'frozen', False):
 elif __file__:
     application_path = os.path.dirname(__file__)
 
-LIST_DATABASES_URL = "https://raw.githubusercontent.com/ZhenyaYoratt/nh-db/refs/heads/main/antivirus_dbs"
+LIST_DATABASES_URL = "https://raw.githubusercontent.com/ZhenyaYoratt/NedoHelper/refs/heads/main/antivirus_databases_list"
 DATABASES_FORLDER = os.path.join(application_path, '..', 'databases')
 
 class UpdateWorker(QObject):
