@@ -5,7 +5,7 @@ The multitool program will allow you to remove viruses (may be) and restore Wind
 ![GitHub Downloads (all assets, latest release)](https://img.shields.io/github/downloads/ZhenyaYoratt/NedoHelper/latest/total?style=for-the-badge&logo=github) ![GitHub file size in bytes](https://img.shields.io/github/size/ZhenyaYoratt/NedoHelper/main.py)
 
 > [!CAUTION]
-> This program needs to be improved to its ideal state. **Use it AT <ins>YOUR OWN RISK AND RISK</ins>, test it ONLY ON VIRTUAL MACHINES.** This project is under an MIT license. If you find problems, feel free to create a Issue and describe it!
+> This program needs to be improved to its ideal state. **Use it AT <ins>YOUR OWN RISK AND RISK</ins>, test it ONLY ON VIRTUAL MACHINES.** If you find problems, feel free to create a Issue and describe it!
 
 > [!IMPORTANT]
 > This program is developed in Russian, but it does not yet have an international translation, including English. Please be patient!
@@ -25,8 +25,12 @@ The following features are built into the program:
 - Task Manager
 - User Manager
 
+## Known issues
+- Error checking the BitLocker disk status \
+  In the console: "BitLocker Security Check failed: (-2147217385, 'OLE error 0x80041017', None, None)"
+
 ## TODO
-- [ ] Fix detected bugs
+- [ ] Fix detected bugs and known issues
 - [ ] Translate to English
 
 ## Contributing Guidelines
@@ -44,7 +48,8 @@ See the full list in the file [requirements.txt](requirements.txt).
 Special thanks to the open-source community for providing libraries and tools that facilitate rapid development. This project leverages several community resources to enhance its functionality.
 
 ## License
-This project has an MIT license.
+This project is licensed under the terms of GNU General Public License version 3.0 or newer. You can see full license text in [LICENSE](LICENSE) file.
+
 
 ---
 
