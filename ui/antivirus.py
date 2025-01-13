@@ -4,7 +4,7 @@ from modules.antivirus import delete_file, UpdateWorker, ScanThread
 from modules.titles import make_title
 
 class AntivirusWindow(QMainWindow):
-    def __init__(self, parent):
+    def __init__(self, parent = None):
         super().__init__()
         self.setParent(parent)
         self.setWindowTitle(make_title("Антивирус"))
@@ -21,8 +21,7 @@ class AntivirusWindow(QMainWindow):
         update_db_button.clicked.connect(self.update_db)
 
         self.header_label = QLabel("Антивирус")
-        self.header_label.setAlignment(Qt.AlignCenter)
-        self.header_label.setStyleSheet("font-size: 16px; font-weight: bold;")
+        self.header_label.setObjectName("title")
 
         self.progress_bar = QProgressBar()
         self.results_label = QLabel("Результаты сканирования:")

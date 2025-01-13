@@ -4,8 +4,9 @@ from modules.task_manager import get_process_list, kill_process, parse_process_i
 from modules.titles import make_title
 
 class TaskManagerWindow(QMainWindow):
-    def __init__(self):
+    def __init__(self, parent = None):
         super().__init__()
+        self.setParent(parent)
         self.setWindowTitle(make_title("Диспетчер задач"))
         self.setFixedSize(800, 600)
         self.setWindowFlags(Qt.WindowType.Dialog)
@@ -54,6 +55,7 @@ class TaskManagerWindow(QMainWindow):
             layout_actions.addWidget(suspend_button)
             layout_actions.addWidget(resume_button)
             actions.setLayout(layout_actions)
+            actions.setContentsMargins(0, 0, 0, 0)
             self.process_table.setItem(row, 3, QTableWidgetItem())
             self.process_table.setCellWidget(row, 3, actions)
         self.process_table.resizeColumnsToContents()

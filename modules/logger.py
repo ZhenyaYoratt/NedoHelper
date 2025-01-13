@@ -52,7 +52,7 @@ def setup_logger(text_edit_widget):
 
     # Создание обработчика для вывода в текстовое поле
     text_handler = QTextEditLogger(text_edit_widget)
-    text_handler.setFormatter(logging.Formatter(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") + ' [%(levelname)s]	%(message)s'))
+    text_handler.setFormatter(logging.Formatter('%(asctime)s [%(levelname)s]	%(message)s'))
 
     logger.addHandler(text_handler)
 

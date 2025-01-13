@@ -2,24 +2,28 @@ import os
 import requests
 import subprocess
 import zipfile
-from PyQt5.QtWidgets import QMainWindow, QVBoxLayout, QPushButton, QLabel, QWidget, QMessageBox, QProgressBar
+from PyQt5.QtWidgets import *
 from PyQt5.QtNetwork import QNetworkAccessManager, QNetworkRequest, QNetworkReply
-from PyQt5.QtCore import Qt, QObject, QThread, pyqtSignal, QUrl
+from PyQt5.QtCore import *
+from PyQt5.QtGui import *
 
 # Ссылки для загрузки программ
 SOFTWARE_URLS = {
     "ProcessHacker": {
         "url": "https://raw.githubusercontent.com/ZhenyaYoratt/NedoHelper/refs/heads/main/hosted_softwares/processhacker-2.39-bin.zip",
         "path": "/x64/ProcessHacker.exe",
+        "icon": "https://www.softportal.com/scr/14593/icons/process_hacker_72.png"
     },
     "AnVir Task Manager": {
         "url": "https://www.anvir.net/downloads/anvirrus.zip",
         "path": "AnVir.exe",
-        "zip": "anvirrus-portable.zip"
+        "zip": "anvirrus-portable.zip",
+        "icon": "https://www.softportal.com/scr/9259/icons/anvir_task_manager_72.png"
     },
     "Autoruns": {
         "url": "https://download.sysinternals.com/files/Autoruns.zip",
         "path": "Autoruns.exe",
+        "icon": "https://www.softportal.com/scr/7891/icons/autoruns_72.png"
     },
     "SimpleUnlocker": {
         "url": "https://mirror.ds1nc.ru/su/release/simpleunlocker_release.zip",
@@ -32,16 +36,19 @@ SOFTWARE_URLS = {
     "RegCool": {
         "url": "https://kurtzimmermann.com/files/RegCoolX64.zip",
         "path": "RegCool.exe",
+        "icon": "https://www.softportal.com/scr/47453/icons/regcool_64.png"
     },
     "RegAlyzer": {
         "url": "https://download2.portableapps.com/portableapps/RegAlyzerPortable/RegAlyzerPortable_1.6.2.16.paf.exe",
     },
     "Total Commander": {
         "url": "https://totalcommander.ch/1103/tcmd1103x32_64.exe",
+        "icon": "https://www.softportal.com/scr/33/icons/total_commander_72.png"
     },
     "CCleaner": {
         "url": "https://download.ccleaner.com/portable/ccsetup631.zip",
         "path": "CCleaner.exe",
+        "icon": "https://www.softportal.com/scr/14259/icons/ccleaner_portable_72.png"
     },
 }
 
@@ -80,9 +87,46 @@ class DownloadSoftwareWorker(QObject):
             self.error.emit(str(reply.errorString()))
         reply.deleteLater()
 
+class AsyncQIcon(QObject):
+    icon_downloaded = pyqtSignal(QIcon)
+
+    def __init__(self, url, placeholder_icon=None, parent=None):
+        super().__init__(parent)
+        self.url = url
+        self.placeholder_icon = placeholder_icon or QIcon()
+        self.manager = QNetworkAccessManager(parent)
+        self.manager.finished.connect(self.on_finished)
+        self.download_icon()
+
+    def download_icon(self):
+        print(f"Starting download from {self.url}")
+        request = QNetworkRequest(QUrl(self.url))
+        self.reply = self.manager.get(request)
+        self.reply.finished.connect(self.on_finished)
+
+    def on_finished(self):
+        reply = self.reply
+        print('Request finished')
+        if reply.error() == QNetworkReply.NoError:
+            pixmap = QPixmap()
+            data = reply.readAll()
+            print(reply.url(), data)
+            if pixmap.loadFromData(data):
+                icon = QIcon(pixmap)
+                self.icon_downloaded.emit(icon)
+                print('Icon downloaded successfully')
+            else:
+                print('Failed to load pixmap from data')
+                self.icon_downloaded.emit(self.placeholder_icon)
+        else:
+            print(f"Error occurred: {reply.errorString()}")
+            self.icon_downloaded.emit(self.placeholder_icon)
+        reply.deleteLater()
+
 class SoftwareLauncher(QMainWindow):
-    def __init__(self, parent):
+    def __init__(self, parent = None):
         super().__init__()
+        self.setParent(parent)
         self.setParent(parent)
         self.setWindowTitle("Запуск сторонних программ")
         self.setMinimumSize(400, 250)
@@ -98,13 +142,19 @@ class SoftwareLauncher(QMainWindow):
 
         # Заголовок
         header_label = QLabel("Выберите программу для запуска:")
-        header_label.setAlignment(Qt.AlignCenter)
         header_label.setObjectName("title")
         layout.addWidget(header_label)
+
+        placeholder_icon = QIcon("ui/icons/placeholder.png")
 
         # Кнопки для запуска программ
         for program_name in SOFTWARE_URLS.keys():
             button = QPushButton(program_name)
+            if SOFTWARE_URLS[program_name].get('icon'):
+                icon = AsyncQIcon(SOFTWARE_URLS[program_name]['icon'], placeholder_icon, self.parent())
+                icon.icon_downloaded.connect(lambda icon, b=button: b.setIcon(icon))
+                button.setIcon(placeholder_icon)
+                button.setIconSize(QSize(24, 24))
             button.clicked.connect(lambda checked, p=program_name: self.launch_program(p))
             layout.addWidget(button)
 

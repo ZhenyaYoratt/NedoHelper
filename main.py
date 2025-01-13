@@ -152,9 +152,13 @@ from ui.system_restore import SystemRestoreWindow
 from ui.browser import BrowserWindow
 from ui.task_manager import TaskManagerWindow
 from ui.software_launcher import SoftwareLauncher
+from ui.settings import SettingsWindow
+from ui.about import AboutWindow
 #from fp.fp import FreeProxy
 import qdarktheme
 from pyqt_windows_os_light_dark_theme_window.main import Window
+import qtawesome
+import qtmdi
 
 os.system('chcp 65001')
 
@@ -214,7 +218,7 @@ class VirusProtectionApp(QMainWindow, Window):
     font-family: 'Consolas';
 }
 QPushButton {
-    padding: 8px 16px;
+    padding: 5px 13px;
 }
 #title {
     font-size: 28px;
@@ -223,6 +227,8 @@ QPushButton {
 """)
 
         self.initUI()
+
+        self.move(QApplication.desktop().screen().rect().center() - self.rect().center())
 
         self.threads = list()
 
@@ -246,19 +252,21 @@ QPushButton {
         side_layout.addWidget(system_group)
 
         module_buttons = [
-            ("Запуск сторонних программ", self.open_software_launcher),
-            ("Антивирус", self.open_antivirus),
-            ("Управление дисками", self.open_disk_manager),
-            ("Управление пользователями", self.open_user_manager),
-            ("Смена обоев", self.open_desktop_manager),
-            ("Точка восстановления", self.open_system_restore),
-            ("Браузер", self.open_browser),
-            ("Диспетчер задач", self.open_task_manager),
-            ("Выход", qApp.quit),
+            ("Запуск сторонних программ", self.open_software_launcher, "mdi.apps"),
+            ("Антивирус", self.open_antivirus, "mdi.shield-bug"),
+            ("Управление дисками", self.open_disk_manager, "mdi.harddisk"),
+            ("Управление пользователями", self.open_user_manager, "mdi.account-group"),
+            ("Персонализация", self.open_desktop_manager, "mdi.image"),
+            ("Точка восстановления", self.open_system_restore, "mdi.restore"),
+            ("Браузер", lambda: self.open_browser(), "mdi.web"),
+            ("Диспетчер задач", self.open_task_manager, "mdi.apps"),
+            ("Выход", qApp.quit, "mdi.exit-to-app"),
         ]
 
-        for text, action in module_buttons:
+        for text, action, icon in module_buttons:
             btn = QPushButton(text)
+            btn.setIcon(qtawesome.icon(icon))
+            btn.setIconSize(QSize(24, 24))
             btn.clicked.connect(action)
             side_layout.addWidget(btn)
             btn.setMinimumHeight(35)
@@ -296,9 +304,9 @@ QPushButton {
 
         other_layout = QHBoxLayout()
         other_buttons = [
-            ("Настройки", self.open_software_launcher),
-            ("Сайт NedoTube", self.open_browser),
-            ("О программе", self.open_disk_manager),
+            ("Настройки", self.open_settings),
+            ("Сайт NedoTube", lambda: self.open_browser('https://nedotube.vercel.app/')),
+            ("О программе", self.open_about),
         ]
 
         for text, action in other_buttons:
@@ -360,38 +368,48 @@ QPushButton {
 
     def open_disk_manager(self):
         """Открывает окно Управления дисками."""
-        self.disk_manager_window = DiskManagerWindow()
+        self.disk_manager_window = DiskManagerWindow(self)
         self.disk_manager_window.show()
 
     def open_user_manager(self):
         """Открывает окно Управления пользователями."""
-        self.user_manager_window = UserManagerWindow()
+        self.user_manager_window = UserManagerWindow(self)
         self.user_manager_window.show()
 
     def open_desktop_manager(self):
         """Открывает окно Управления обоями."""
-        self.desktop_manager_window = DesktopManagerWindow()
+        self.desktop_manager_window = DesktopManagerWindow(self)
         self.desktop_manager_window.show()
 
     def open_system_restore(self):
         """Открывает окно Точки восстановления."""
-        self.system_restore_window = SystemRestoreWindow()
+        self.system_restore_window = SystemRestoreWindow(self)
         self.system_restore_window.show()
 
-    def open_browser(self):
+    def open_browser(self, url = "https://www.google.com/?hl=ru"):
         """Открывает окно Встроенного браузера."""
-        self.browser_window = BrowserWindow()
+        self.browser_window = BrowserWindow(self, url)
         self.browser_window.show()
 
     def open_task_manager(self):
         """Открывает окно Диспетчера задач."""
-        self.task_manager_window = TaskManagerWindow()
+        self.task_manager_window = TaskManagerWindow(self)
         self.task_manager_window.show()
 
     def open_software_launcher(self):
         """Открывает окно Запуска стороних программ."""
         self.software_launcher = SoftwareLauncher(self)
         self.software_launcher.show()
+
+    def open_settings(self):
+        """Открывает окно Настроек."""
+        self.settings_window = SettingsWindow(self)
+        self.settings_window.show()
+
+    def open_about(self):
+        """Открывает окно О программе."""
+        self.about_window = AboutWindow(self)
+        self.about_window.show()
 
     #def make_process_critical(self):  # Ненадёжный вариант, т.к. вирусы могут крашнуть систему из-за простого закрытия программы :P
     #    """Устанавливает процесс как критический."""

@@ -5,9 +5,10 @@ PyQtWebEngine
 psutil
 requests
 pyinstaller
-#pandas
-#scikit-learn==1.1.3
 free-proxy
 pyqtdarktheme
 pyqt-windows-os-light-dark-theme-window
+QtMDi
 pyttsx3
+validators
+pyqtspinner

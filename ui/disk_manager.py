@@ -1,21 +1,28 @@
-from PyQt5.QtWidgets import QMainWindow, QVBoxLayout, QTableWidget, QTableWidgetItem, QWidget, QProgressBar
-from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import *
+from PyQt5.QtCore import *
 import psutil
 from modules.disk_manager import *
 from modules.titles import make_title
 
 class DiskManagerWindow(QMainWindow):
-    def __init__(self):
+    def __init__(self, parent = None):
         super().__init__()
+        self.setParent(parent)
         self.setWindowTitle(make_title('Управление дисками'))
         self.setWindowFlags(Qt.WindowType.Dialog)
         self.setWindowFlag(Qt.WindowType.WindowContextHelpButtonHint, False)
 
         layout = QVBoxLayout()
+
+        self.header_label = QLabel("Список дисков")
+        self.header_label.setObjectName("title")
+
         self.disk_table = QTableWidget()
         self.disk_table.setColumnCount(6)
         self.disk_table.setHorizontalHeaderLabels(["Буква диска", "Название", "Битлокер", "Занято/Свободно", "Статус", "Тип"])
+        self.disk_table.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
 
+        layout.addWidget(self.header_label)
         layout.addWidget(self.disk_table)
         central_widget = QWidget()
         central_widget.setLayout(layout)

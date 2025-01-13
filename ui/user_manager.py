@@ -4,15 +4,20 @@ from modules.user_manager import list_users, add_user, delete_user, set_password
 from modules.titles import make_title
 
 class UserManagerWindow(QMainWindow):
-    def __init__(self):
+    def __init__(self, parent = None):
         super().__init__()
+        self.setParent(parent)
         self.setWindowTitle(make_title("Управление пользователями"))
         self.setFixedSize(500, 500)
         self.setWindowFlags(Qt.WindowType.Dialog)
         self.setWindowFlag(Qt.WindowType.WindowContextHelpButtonHint, False)
 
+        self.statusbar = self.statusBar()
+        self.statusbar.showMessage("Готов к работе")
+
         layout = QVBoxLayout()
-        self.status_label = QLabel("Управление пользователями.")
+        self.header_label = QLabel("Управление пользователями.")
+        self.header_label.setObjectName("title")
         self.users_label = QLabel("Список пользователей будет здесь.")
         list_users_button = QPushButton("Показать пользователей")
         list_users_button.clicked.connect(self.show_users)
@@ -37,7 +42,7 @@ class UserManagerWindow(QMainWindow):
         set_password_button = QPushButton("Установить пароль")
         set_password_button.clicked.connect(self.set_password)
 
-        layout.addWidget(self.status_label)
+        layout.addWidget(self.header_label)
         layout.addWidget(list_users_button)
         layout.addWidget(self.users_label)
         layout.addWidget(self.username_input)
@@ -60,16 +65,16 @@ class UserManagerWindow(QMainWindow):
         username = self.username_input.text().strip()
         password = self.password_input.text().strip()
         result = add_user(username, password)
-        self.status_label.setText(result)
+        self.statusbar.showMessage(result)
 
     def delete_user(self):
         username = self.delete_user_input.text().strip()
         if QMessageBox.question(self, "Подтверждение", f"Удалить пользователя {username}?", QMessageBox.Yes | QMessageBox.No) == QMessageBox.Yes:
             result = delete_user(username)
-            self.status_label.setText(result)
+            self.statusbar.showMessage(result)
 
     def set_password(self):
         username = self.set_password_input.text().strip()
         password = self.password_input.text().strip()
         result = set_password(username, password)
-        self.status_label.setText(result)
+        self.statusbar.showMessage(result)
