@@ -5,7 +5,7 @@ The multitool program will allow you to remove viruses (may be) and restore Wind
 ![GitHub Downloads (all assets, latest release)](https://img.shields.io/github/downloads/ZhenyaYoratt/NedoHelper/latest/total?style=for-the-badge&logo=github) ![GitHub file size in bytes](https://img.shields.io/github/size/ZhenyaYoratt/NedoHelper/main.py)
 
 > [!CAUTION]
-> This program needs to be improved to its ideal state. **Use it AT <ins>YOUR OWN RISK AND RISK</ins>, test it ONLY ON VIRTUAL MACHINES.** This project is under an MIT license. If you find problems, feel free to create a Issue and describe it!
+> This program needs to be improved to its ideal state. **Use it AT <ins>YOUR OWN RISK AND RISK</ins>, test it ONLY ON VIRTUAL MACHINES.** If you find problems, feel free to create a Issue and describe it!
 
 > [!IMPORTANT]
 > This program is developed in Russian, but it does not yet have an international translation, including English. Please be patient!
@@ -44,7 +44,7 @@ See the full list in the file [requirements.txt](requirements.txt).
 Special thanks to the open-source community for providing libraries and tools that facilitate rapid development. This project leverages several community resources to enhance its functionality.
 
 ## License
-This project has an MIT license.
+This project is licensed under the [GNU General Public License v3.0](LICENSE).
 
 ---
 
