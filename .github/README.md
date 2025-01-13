@@ -25,8 +25,12 @@ The following features are built into the program:
 - Task Manager
 - User Manager
 
+## Known issues
+- Error checking the BitLocker disk status \
+  In the console: "BitLocker Security Check failed: (-2147217385, 'OLE error 0x80041017', None, None)"
+
 ## TODO
-- [ ] Fix detected bugs
+- [ ] Fix detected bugs and known issues
 - [ ] Translate to English
 
 ## Contributing Guidelines
