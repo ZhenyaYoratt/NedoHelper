@@ -48,7 +48,8 @@ See the full list in the file [requirements.txt](requirements.txt).
 Special thanks to the open-source community for providing libraries and tools that facilitate rapid development. This project leverages several community resources to enhance its functionality.
 
 ## License
-This project is licensed under the [GNU General Public License v3.0](LICENSE).
+This project is licensed under the terms of GNU General Public License version 3.0 or newer. You can see full license text in [LICENSE](LICENSE) file.
+
 
 ---
 
