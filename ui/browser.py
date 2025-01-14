@@ -105,9 +105,6 @@ class BrowserWindow(QMainWindow):
         browser = QWebEngineView()
  
         browser.setUrl(qurl)
-
-        # problem: js Unrecognized feature: 'cross-origin-isolated'.
-        browser.page().setFeaturePermission(QUrl(), QWebEnginePage.Feature.WebRTC, QWebEnginePage.PermissionGrantedByUser)
  
         i = self.tabs.addTab(browser, spin_icon(self), label)
         self.tabs.setCurrentIndex(i)
