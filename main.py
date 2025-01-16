@@ -207,7 +207,7 @@ class VirusProtectionApp(QMainWindow, Window):
         super().__init__()
         self.setWindowFlag(Qt.WindowType.WindowCloseButtonHint, False)
         self.setWindowFlag(Qt.WindowType.WindowMinMaxButtonsHint, False)
-        self.setWindowTitle(make_title('NedoHelper - MultiTool for Windows 10'))
+        self.setWindowTitle(make_title('YoHelper - MultiTool for Windows 10'))
         self.setMinimumSize(900, 400)
         self.resize(1000, 700)
         self.setMaximumSize(1600, 1000)
@@ -238,7 +238,7 @@ QPushButton {
 
         premain_layout = QVBoxLayout()
 
-        self.title = QLabel('NedoHelper')
+        self.title = QLabel('YoHelper')
         self.title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.title.setStyleSheet('font-size: 48px;font-weight: bold;font-family: "Comic Sans MS";')
         premain_layout.addWidget(self.title)
