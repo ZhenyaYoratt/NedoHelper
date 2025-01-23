@@ -1,8 +1,8 @@
-# NedoHelper ![GitHub last commit](https://img.shields.io/github/last-commit/ZhenyaYoratt/NedoHelper?style=flat-square) ![GitHub License](https://img.shields.io/github/license/ZhenyaYoratt/NedoHelper?style=flat-square) ![GitHub Issues or Pull Requests](https://img.shields.io/github/issues/ZhenyaYoratt/NedoHelper?style=flat-square) ![GitHub top language](https://img.shields.io/github/languages/top/ZhenyaYoratt/NedoHelper?style=flat-square)
+# YoHelper ![GitHub last commit](https://img.shields.io/github/last-commit/ZhenyaYoratt/YoHelper?style=flat-square) ![GitHub License](https://img.shields.io/github/license/ZhenyaYoratt/YoHelper?style=flat-square) ![GitHub Issues or Pull Requests](https://img.shields.io/github/issues/ZhenyaYoratt/YoHelper?style=flat-square) ![GitHub top language](https://img.shields.io/github/languages/top/ZhenyaYoratt/YoHelper?style=flat-square)
 
-The multitool program will allow you to remove viruses (may be) and restore Windows 10 to its perfect state. This program is designed exclusively for the [YouTube channel "NEDOHACKERS Lite"](https://youtube.com/@nedohackerslite).
+The multitool program will allow you to remove viruses (may be) and restore Windows 10 to its perfect state. This program is designed exclusively for [the YouTube channel "NEDOHACKERS Lite"](https://youtube.com/@nedohackerslite).
 
-![GitHub Downloads (all assets, latest release)](https://img.shields.io/github/downloads/ZhenyaYoratt/NedoHelper/latest/total?style=for-the-badge&logo=github) ![GitHub file size in bytes](https://img.shields.io/github/size/ZhenyaYoratt/NedoHelper/main.py)
+![GitHub Downloads (all assets, latest release)](https://img.shields.io/github/downloads/ZhenyaYoratt/YoHelper/latest/total?style=for-the-badge&logo=github) ![GitHub file size in bytes](https://img.shields.io/github/size/ZhenyaYoratt/YoHelper/main.py)
 
 > [!CAUTION]
 > This program needs to be improved to its ideal state. **Use it AT <ins>YOUR OWN RISK AND RISK</ins>, test it ONLY ON VIRTUAL MACHINES.** If you find problems, feel free to create a Issue and describe it!
