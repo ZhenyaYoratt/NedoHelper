@@ -99,7 +99,7 @@ class BrowserWindow(QMainWindow):
         central_widget.setLayout(layout)
         self.setCentralWidget(central_widget)
 
-        self.add_new_tab()
+        self.add_new_tab(self.get_qurl(url))
 
     def add_new_tab(self, qurl = QUrl('https://www.google.com/?hl=ru'), label ="Новая вкладка"):
         browser = QWebEngineView()
@@ -141,9 +141,11 @@ class BrowserWindow(QMainWindow):
         self.current_tab().setUrl(QUrl("https://www.google.com/?hl=ru"))
  
     def navigate_to_url(self):
-        url = self.urlbar.text()
         if not url:
             url = self.urlbar.text().strip()
+        self.current_tab().setUrl(self.get_qurl(url))
+
+    def get_qurl(self, url):
         if not validators.url(url):
             url = "https://www.google.com/search?q=" + url
         if not url.startswith("http://") and not url.startswith("https://"):
@@ -151,7 +153,7 @@ class BrowserWindow(QMainWindow):
         q = QUrl(url)
         if q.scheme() == "":
             q.setScheme("http")
-        self.current_tab().setUrl(q)
+        return q
  
     def update_urlbar(self, q, browser = None):
         if browser != self.current_tab():

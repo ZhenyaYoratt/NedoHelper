@@ -5,7 +5,7 @@ from modules.titles import make_title
 from ui.browser import BrowserWindow
 
 ABOUT_TEXT = """
-Программа multitool позволит вам удалить вирусы (наверное) и восстановить Windows 10 до её идеального состояния. Эта программа разработана эксклюзивно для YouTube-канала "НЕДОХАКЕРЫ Lite".
+Программа мультул позволит вам удалить вирусы (наверное) и восстановить Windows 10 до её идеального состояния. Эта программа разработана эксклюзивно для YouTube-канала "НЕДОХАКЕРЫ Lite".
 
 Для получения дополнительной информации посетите <a href="https://github.com/ZhenyaYoratt/NedoHelper">GitHub репозиторий</a>.
 """
