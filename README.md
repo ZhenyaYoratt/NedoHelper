@@ -15,7 +15,8 @@ The multitool program will allow you to remove viruses (may be) and restore Wind
 > This program is developed in Russian, but it does not yet have an international translation, including English. Please be patient!
 
 ## Download
-Download [the lastest release version](/releases/) of the program. There are also file hashes and links to antivirus scans.
+Download [the lastest release version](github.com/ZhenyaYoratt/YoHelper/releases) of the program. There are also file hashes and links to antivirus scans.
+[![VirusTotal results](https://img.shields.io/badge/VirusTotal-blue?style=flat-square)](virustotal.com)
 <!-- VirusTotal/Trag.le -->
 
 ## Features
@@ -30,7 +31,8 @@ The following features are built into the program:
 - User Manager
 
 ## Known issues
-- There are no issues at the moment. If you find problems, feel free to [create a Issue](/issues) and describe it.
+- The BitLocker status (Disk Manager) and the process type (Task Manager) are not displayed correctly.
+<!-- There are no issues at the moment. If you find problems, feel free to [create a Issue](github.com/ZhenyaYoratt/YoHelper/issues) and describe it.-->
 
 ## TODO
 - [ ] Fix detected bugs and known issues
