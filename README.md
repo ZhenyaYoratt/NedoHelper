@@ -36,6 +36,26 @@ The following features are built into the program:
 - [ ] Fix detected bugs and known issues
 - [ ] Translate to English
 
+## Build
+To build the program, just run this command:
+```
+python build.py
+```
+Or without using python:
+```
+pip install -r requirements.txt --upgrade
+
+python -m ensurepip --upgrade
+python -m pip install --upgrade setuptools
+
+pyinstaller .\modules\tts.py --onefile
+pyinstaller main.py --onefile -n NedoHelper --add-data dist:tts.exe
+pyinstaller installer.py --onefile --add-data dist:NedoHelper.exe
+```
+> [!NOTE]
+> You need to have the following dependencies installed before running without using python.
+
+
 ## Contributing Guidelines
 Please ensure to adhere to the coding standards and include comments where necessary. For larger changes, it's recommended to open an issue first to discuss potential alterations.
 
@@ -45,7 +65,6 @@ Please ensure to adhere to the coding standards and include comments where neces
 - `PyQtWebEngine` 5.15
 
 See the full list in the file [requirements.txt](requirements.txt).
-
 
 ## Acknowledgments
 Special thanks to the open-source community for providing libraries and tools that facilitate rapid development. This project leverages several community resources to enhance its functionality.
