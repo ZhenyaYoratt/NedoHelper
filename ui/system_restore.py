@@ -1,9 +1,10 @@
-from PyQt5.QtWidgets import QMainWindow, QVBoxLayout, QLabel, QPushButton, QWidget
-from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import *
+from PyQt5.QtCore import *
 from modules.system_restore import create_restore_point, restore_to_point
 from modules.titles import make_title
+from pyqt_windows_os_light_dark_theme_window.main import Window
 
-class SystemRestoreWindow(QMainWindow):
+class SystemRestoreWindow(QMainWindow, Window):
     def __init__(self, parent = None):
         super().__init__()
         self.setParent(parent)

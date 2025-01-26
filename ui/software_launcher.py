@@ -1,11 +1,12 @@
 import os
-import requests
-import subprocess
+import traceback
 import zipfile
 from PyQt5.QtWidgets import *
 from PyQt5.QtNetwork import QNetworkAccessManager, QNetworkRequest, QNetworkReply
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
+from modules.titles import make_title
+from pyqt_windows_os_light_dark_theme_window.main import Window
 
 # Ссылки для загрузки программ
 SOFTWARE_URLS = {
@@ -16,7 +17,7 @@ SOFTWARE_URLS = {
     },
     "AnVir Task Manager": {
         "url": "https://www.anvir.net/downloads/anvirrus.zip",
-        "path": "AnVir.exe",
+        "path": "anvirrus-portable/AnVir.exe",
         "zip": "anvirrus-portable.zip",
         "icon": "https://www.softportal.com/scr/9259/icons/anvir_task_manager_72.png"
     },
@@ -95,40 +96,32 @@ class AsyncQIcon(QObject):
         self.url = url
         self.placeholder_icon = placeholder_icon or QIcon()
         self.manager = QNetworkAccessManager(parent)
-        self.manager.finished.connect(self.on_finished)
-        self.download_icon()
 
     def download_icon(self):
-        print(f"Starting download from {self.url}")
         request = QNetworkRequest(QUrl(self.url))
         self.reply = self.manager.get(request)
         self.reply.finished.connect(self.on_finished)
 
     def on_finished(self):
         reply = self.reply
-        print('Request finished')
-        if reply.error() == QNetworkReply.NoError:
+        if reply.error() == QNetworkReply.NetworkError.NoError:
             pixmap = QPixmap()
-            data = reply.readAll()
-            print(reply.url(), data)
+            data: QByteArray = reply.readAll()
             if pixmap.loadFromData(data):
                 icon = QIcon(pixmap)
                 self.icon_downloaded.emit(icon)
-                print('Icon downloaded successfully')
             else:
-                print('Failed to load pixmap from data')
                 self.icon_downloaded.emit(self.placeholder_icon)
         else:
-            print(f"Error occurred: {reply.errorString()}")
             self.icon_downloaded.emit(self.placeholder_icon)
         reply.deleteLater()
 
-class SoftwareLauncher(QMainWindow):
+class SoftwareLauncher(QMainWindow, Window):
     def __init__(self, parent = None):
         super().__init__()
         self.setParent(parent)
         self.setParent(parent)
-        self.setWindowTitle("Запуск сторонних программ")
+        self.setWindowTitle(make_title("Запуск сторонних программ"))
         self.setMinimumSize(400, 250)
         self.setWindowFlags(Qt.WindowType.Dialog)
         self.setWindowFlag(Qt.WindowType.WindowContextHelpButtonHint, False)
@@ -153,6 +146,7 @@ class SoftwareLauncher(QMainWindow):
             if SOFTWARE_URLS[program_name].get('icon'):
                 icon = AsyncQIcon(SOFTWARE_URLS[program_name]['icon'], placeholder_icon, self.parent())
                 icon.icon_downloaded.connect(lambda icon, b=button: b.setIcon(icon))
+                icon.download_icon()
                 button.setIcon(placeholder_icon)
                 button.setIconSize(QSize(24, 24))
             button.clicked.connect(lambda checked, p=program_name: self.launch_program(p))
@@ -179,7 +173,14 @@ class SoftwareLauncher(QMainWindow):
         # Запускаем программу
         try:
             if program_path.endswith(".zip"):
-                os.startfile(os.path.abspath(os.path.join(SOFTWARE_DIR, os.path.basename(program['url']).replace('.zip', ''), program['path'])))
+                path = os.path.abspath(os.path.join(SOFTWARE_DIR, os.path.basename(program_path).replace('.zip', ''), program['path']))
+                print(SOFTWARE_DIR)
+                print(program_path)
+                print(os.path.basename(program_path))
+                print(os.path.basename(program_path).replace('.zip', ''))
+                print(os.path.join(SOFTWARE_DIR, os.path.basename(program_path).replace('.zip', ''), program['path']))
+                print(path)
+                os.startfile(path)
             else:
                 os.startfile(program_path)
         except Exception as e:
@@ -210,8 +211,9 @@ class SoftwareLauncher(QMainWindow):
         thread.started.connect(self.worker.run)
         thread.start()
 
-    def on_download_completed(self, file_path, program_name, program, progress_bar: QProgressBar):
-        progress_bar.destroy()
+    def on_download_completed(self, file_path: str, program_name: str, program: dict, progress_bar: QProgressBar):
+        print(progress_bar)
+        progress_bar.parentWidget().removeWidget(progress_bar)
 
         # Если это архив, распаковываем
         if file_path.endswith(".zip"):
@@ -230,12 +232,15 @@ class SoftwareLauncher(QMainWindow):
                 QMessageBox.information(self, "Успех", f"Программа {program_name} успешно загружена и распакована.")
                 self.launch_program(program_name)
             except Exception as e:
-                QMessageBox.critical(self, "Ошибка", f"Ошибка распаковки: {e}")
+                msg = QMessageBox()
+                msg.setDetailedText(traceback.format_exc())
+                msg.critical(self, "Ошибка", f"Ошибка распаковки: {e}")
         else:
             QMessageBox.information(self, "Успех", f"Программа {program_name} успешно загружена.")
 
     def on_download_error(self, error_message, progress_bar: QProgressBar):
-        progress_bar.destroy()
+        print(progress_bar)
+        progress_bar.deleteLater()
         QMessageBox.critical(self, "Ошибка", f"Ошибка загрузки: {error_message}")
 
 

@@ -34,7 +34,7 @@ class Process():
         self.memory_percent = memory_percent
         self.create_time = create_time
 
-    def get_process_icon(self):
+    def get_process_icon(self) -> None | QPixmap:
         try:
             if self.pid == 0:
                 return None

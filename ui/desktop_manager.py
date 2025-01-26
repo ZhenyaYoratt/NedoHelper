@@ -5,11 +5,12 @@ from modules.desktop_manager import set_wallpaper, reset_wallpaper
 from modules.titles import make_title
 from modules.logger import *
 import os
+from pyqt_windows_os_light_dark_theme_window.main import Window
 
 DEFAULT_WALLPAPER = "C:/Windows/Web/Wallpaper/Windows/img0.jpg"
 WALLPAPERS_FOLDER = "C:/Windows/Web/Wallpaper/"
 
-class DesktopManagerWindow(QMainWindow):
+class DesktopManagerWindow(QMainWindow, Window):
     def __init__(self, parent = None):
         super().__init__()
         self.setParent(parent)

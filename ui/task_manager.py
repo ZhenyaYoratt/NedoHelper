@@ -98,6 +98,10 @@ class TaskManagerWindow(QMainWindow):
         self.setStatusBar(QStatusBar())
         self.statusBar().showMessage("Диспетчер задач запущен.")
 
+        self.update_process_list(get_process_list())
+        self.process_table.resizeColumnsToContents()
+        self.process_table.resizeRowsToContents()
+
     def closeEvent(self, a0):
         self._thread.quit()
         return super().closeEvent(a0)
@@ -164,6 +168,3 @@ class TaskManagerWindow(QMainWindow):
             actions.setContentsMargins(0, 0, 0, 0)
             self.process_table.setItem(row, 6, QTableWidgetItem())
             self.process_table.setCellWidget(row, 6, actions)
-        self.process_table.resizeColumnsToContents()
-        self.process_table.resizeRowsToContents()
-

@@ -2,8 +2,9 @@ from PyQt5.QtWidgets import QMainWindow, QVBoxLayout, QLabel, QLineEdit, QPushBu
 from PyQt5.QtCore import Qt
 import json
 from modules.titles import make_title
+from pyqt_windows_os_light_dark_theme_window.main import Window
 
-class SettingsWindow(QMainWindow):
+class SettingsWindow(QMainWindow, Window):
     SETTINGS_FILE = "settings.json"
 
     def __init__(self, parent = None):

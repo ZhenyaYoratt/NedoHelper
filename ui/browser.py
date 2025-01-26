@@ -7,6 +7,7 @@ import validators
 from modules.titles import make_title
 import qtawesome
 import qtmdi
+from pyqt_windows_os_light_dark_theme_window.main import Window
 
 def spin_icon(self):
     animation = qtawesome.Spin(self, autostart=True, step=5, interval=10)
@@ -18,7 +19,7 @@ def spin_icon(self):
     animation._update = new_anim_update.__get__(animation, qtawesome.Spin)
     return spin_icon
 
-class BrowserWindow(QMainWindow):
+class BrowserWindow(QMainWindow, Window):
     def __init__(self, parent = None, url = "https://www.google.com/?hl=ru"):
         super().__init__()
         self.setParent(parent)
@@ -141,8 +142,7 @@ class BrowserWindow(QMainWindow):
         self.current_tab().setUrl(QUrl("https://www.google.com/?hl=ru"))
  
     def navigate_to_url(self):
-        if not url:
-            url = self.urlbar.text().strip()
+        url = self.urlbar.text().strip()
         self.current_tab().setUrl(self.get_qurl(url))
 
     def get_qurl(self, url):
@@ -160,7 +160,8 @@ class BrowserWindow(QMainWindow):
             return
         url = q.toString()
         self.urlbar.setText(url)
-        self.urlbar.setCursorPosition(0)
+        if not self.urlbar.hasFocus():
+            self.urlbar.setCursorPosition(0)
         if url.startswith("https://"):
             # Secure padlock icon
             self.httpsicon.setPixmap(qtawesome.icon("fa.lock").pixmap(16, 16))

@@ -2,8 +2,9 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from modules.antivirus import delete_file, UpdateWorker, ScanThread
 from modules.titles import make_title
+from pyqt_windows_os_light_dark_theme_window.main import Window
 
-class AntivirusWindow(QMainWindow):
+class AntivirusWindow(QMainWindow, Window):
     def __init__(self, parent = None):
         super().__init__()
         self.setParent(parent)

@@ -1,8 +1,9 @@
 import sys
 from PyQt5.QtWidgets import *
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import *
 from modules.titles import make_title
 from ui.browser import BrowserWindow
+from pyqt_windows_os_light_dark_theme_window.main import Window
 
 ABOUT_TEXT = """
 Программа мультул позволит вам удалить вирусы (наверное) и восстановить Windows 10 до её идеального состояния. Эта программа разработана эксклюзивно для YouTube-канала "НЕДОХАКЕРЫ Lite".
@@ -10,7 +11,7 @@ ABOUT_TEXT = """
 Для получения дополнительной информации посетите <a href="https://github.com/ZhenyaYoratt/NedoHelper">GitHub репозиторий</a>.
 """
 
-class AboutWindow(QMainWindow):
+class AboutWindow(QMainWindow, Window):
     def __init__(self, parent = None):
         super().__init__()
         self.setParent(parent)

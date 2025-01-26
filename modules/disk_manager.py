@@ -1,10 +1,12 @@
 import ctypes
 import win32com.client
+from ctypes import wintypes
 
 import psutil
 import os
 
 from .logger import *
+from PyQt5.QtGui import QPixmap, QImage
 
 def get_disk_type(drive_letter):
     """
@@ -91,8 +93,10 @@ def is_bitlocker_protected(drive_letter):
         # Подключение к WMI
         wmi = win32com.client.GetObject("winmgmts:\\\\.\\root\\CIMV2\\Security\\MicrosoftVolumeEncryption")
         
+        letter = drive_letter.replace('/', '').replace('\\', '')
+
         # Запрос состояния шифрования для всех дисков
-        query = f"SELECT * FROM Win32_EncryptableVolume WHERE DriveLetter = '{drive_letter}'"
+        query = f'SELECT * FROM Win32_EncryptableVolume WHERE DeviceID="{letter}"'
         volumes = wmi.ExecQuery(query)
         
         for volume in volumes:
@@ -102,6 +106,111 @@ def is_bitlocker_protected(drive_letter):
                 return True
         return False
     except Exception as e:
-        print(e)
         log(f"Ошибка проверки защиты BitLocker: {e}", ERROR)
+        return None
+
+def get_volume_name(drive_letter: str):
+    try:
+        # Подключение к WMI
+        wmi = win32com.client.GetObject("winmgmts:\\\\.\\root\\cimv2")
+        
+        letter = drive_letter.replace('/', '').replace('\\', '')
+
+        # Запрос имени тома для указанного диска
+        query = f'SELECT * FROM Win32_LogicalDisk WHERE DeviceID="{letter}"'
+        volumes = wmi.ExecQuery(query)
+
+        for volume in volumes:
+            return volume.VolumeName
+        return None
+    except Exception as e:
+        log(f"Ошибка получения имени тома диска: {e}", ERROR)
+        return None
+
+import win32ui
+import win32gui
+
+# Определение структуры BITMAP
+class BITMAP(ctypes.Structure):
+    _fields_ = [
+        ("bmType", wintypes.LONG),
+        ("bmWidth", wintypes.LONG),
+        ("bmHeight", wintypes.LONG),
+        ("bmWidthBytes", wintypes.LONG),
+        ("bmPlanes", wintypes.WORD),
+        ("bmBitsPixel", wintypes.WORD),
+        ("bmBits", ctypes.c_void_p),
+    ]
+
+# Определение структуры ICONINFO
+class ICONINFO(ctypes.Structure):
+    _fields_ = [
+        ("fIcon", wintypes.BOOL),
+        ("xHotspot", wintypes.DWORD),
+        ("yHotspot", wintypes.DWORD),
+        ("hbmMask", wintypes.HBITMAP),
+        ("hbmColor", wintypes.HBITMAP),
+    ]
+
+def iconToQImage(hIcon):
+    # Получаем информацию об иконке
+    icon_info = ICONINFO()
+    if not ctypes.windll.user32.GetIconInfo(hIcon, ctypes.byref(icon_info)):
+        raise ctypes.WinError()
+
+    # Получаем размеры иконки
+    bmp_info = BITMAP()
+    ctypes.windll.gdi32.GetObjectW(icon_info.hbmColor, ctypes.sizeof(BITMAP), ctypes.byref(bmp_info))
+
+    width = bmp_info.bmWidth
+    height = bmp_info.bmHeight
+
+    hdc = win32gui.GetDC(0)
+    hdc_mem = win32gui.CreateCompatibleDC(hdc)
+    hbmp = win32gui.CreateCompatibleBitmap(hdc, width, height)
+    win32gui.SelectObject(hdc_mem, hbmp)
+
+    win32gui.DrawIconEx(hdc_mem, 0, 0, hIcon, width, height, 0, None, 0x0003)
+
+    bmp_str = win32gui.GetBitmapBits(hbmp, True)
+
+    image = QImage(bmp_str, width, height, QImage.Format_ARGB32)
+
+    win32gui.DeleteObject(hbmp)
+    win32gui.DeleteDC(hdc_mem)
+    win32gui.ReleaseDC(0, hdc)
+
+    return image
+
+def get_disk_icon(drive_letter):
+    SHGFI_ICON = 0x000000100
+    SHGFI_LARGEICON = 0x000000000
+    SHGFI_USEFILEATTRIBUTES = 0x000000010
+
+    class SHFILEINFO(ctypes.Structure):
+        _fields_ = [
+            ("hIcon", ctypes.c_void_p),
+            ("iIcon", ctypes.c_int),
+            ("dwAttributes", ctypes.c_ulong),
+            ("szDisplayName", ctypes.c_wchar * 260),
+            ("szTypeName", ctypes.c_wchar * 80),
+        ]
+
+    shfileinfo = SHFILEINFO()
+    ctypes.windll.shell32.SHGetFileInfoW(
+        f"{drive_letter}",
+        0,
+        ctypes.byref(shfileinfo),
+        ctypes.sizeof(shfileinfo),
+        SHGFI_ICON | SHGFI_LARGEICON | SHGFI_USEFILEATTRIBUTES,
+    )
+
+    hIcon = shfileinfo.hIcon
+    if hIcon:
+        # Конвертация иконки в QPixmap
+        image = iconToQImage(hIcon)
+        icon = QPixmap.fromImage(image)
+        ctypes.windll.user32.DestroyIcon(hIcon)
+        return icon
+    else:
         return None
