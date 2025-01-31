@@ -1,5 +1,5 @@
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
+from PyQt5.QtCore import Qt, QThread, pyqtSignal
+from PyQt5.QtWidgets import QMainWindow, QVBoxLayout, QPushButton, QLabel, QProgressBar, QListWidget, QFileDialog, QWidget
 from modules.antivirus import delete_file, UpdateWorker, ScanThread
 from modules.titles import make_title
 from pyqt_windows_os_light_dark_theme_window.main import Window

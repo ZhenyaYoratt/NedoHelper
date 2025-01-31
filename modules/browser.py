@@ -1,11 +1,11 @@
-import webbrowser
+from webbrowser import open as webopen
 
 from .logger import *
 
 def open_browser(url="https://www.google.com"):
     """Открывает веб-браузер с указанным URL."""
     try:
-        webbrowser.open(url)
+        webopen(url)
         msg = f"Браузер открыт с URL: {url}"
         log(msg)
         return msg

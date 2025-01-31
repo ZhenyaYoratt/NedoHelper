@@ -1,11 +1,11 @@
-import subprocess
+from subprocess import run
 from modules.logger import *
-import psutil
+from psutil import users
 
 def list_users():
     """Получает список пользователей в системе."""
     try:
-        return psutil.users()
+        return users()
     except Exception as e:
         msg = f"Ошибка получения списка пользователей: {e}"
         log(msg, ERROR)
@@ -14,7 +14,7 @@ def list_users():
 def add_user(username, password):
     """Добавляет нового пользователя с паролем."""
     try:
-        subprocess.run(["net", "user", username, password, "/add"], check=True)
+        run(["net", "user", username, password, "/add"], check=True)
         msg = f"Пользователь {username} успешно добавлен."
         log(msg)
         return True, msg
@@ -26,7 +26,7 @@ def add_user(username, password):
 def delete_user(username):
     """Удаляет пользователя из системы."""
     try:
-        subprocess.run(["net", "user", username, "/delete"], check=True)
+        run(["net", "user", username, "/delete"], check=True)
         msg = f"Пользователь {username} успешно удалён."
         log(msg)
         return True, msg
@@ -38,7 +38,7 @@ def delete_user(username):
 def set_password(username, password):
     """Устанавливает пароль для пользователя."""
     try:
-        subprocess.run(["net", "user", username, password], check=True)
+        run(["net", "user", username, password], check=True)
         msg = f"Пароль для пользователя {username} успешно установлен."
         log(msg)
         return True, msg
@@ -50,7 +50,7 @@ def set_password(username, password):
 def remove_password(username):
     """Удаляет пароль у пользователя."""
     try:
-        subprocess.run(["net", "user", username, "*"], input="\n", text=True, check=True)
+        run(["net", "user", username, "*"], input="\n", text=True, check=True)
         msg = f"Пароль для пользователя {username} успешно удалён."
         log(msg)
         return msg

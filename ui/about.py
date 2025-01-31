@@ -1,6 +1,6 @@
 import sys
-from PyQt5.QtWidgets import *
-from PyQt5.QtCore import *
+from PyQt5.QtWidgets import QMainWindow, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QWidget, QApplication
+from PyQt5.QtCore import Qt
 from modules.titles import make_title
 from ui.browser import BrowserWindow
 from pyqt_windows_os_light_dark_theme_window.main import Window
@@ -27,6 +27,8 @@ class AboutWindow(QMainWindow, Window):
         self.header_label = QLabel('О программе', self)
         self.header_label.setObjectName('title')
         layout.addWidget(self.header_label)
+        
+        buttons_layout = QHBoxLayout()
 
         about_label = QLabel(self)
         about_label.setTextFormat(Qt.TextFormat.AutoText | Qt.TextFormat.RichText)
@@ -35,9 +37,15 @@ class AboutWindow(QMainWindow, Window):
         about_label.setWordWrap(True)
         layout.addWidget(about_label)
 
+        about_qt_button = QPushButton('О Qt', self)
+        about_qt_button.clicked.connect(QApplication.aboutQt)
+        buttons_layout.addWidget(about_qt_button)
+
         close_button = QPushButton('Закрыть', self)
         close_button.clicked.connect(self.close)
-        layout.addWidget(close_button)
+        buttons_layout.addWidget(close_button)
+        
+        layout.addLayout(buttons_layout)
 
         central_widget = QWidget()
         central_widget.setLayout(layout)

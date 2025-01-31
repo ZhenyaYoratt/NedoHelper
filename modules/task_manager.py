@@ -1,23 +1,25 @@
-import psutil
-import ctypes
+from psutil import STATUS_RUNNING, STATUS_SLEEPING, STATUS_DISK_SLEEP, STATUS_STOPPED, STATUS_TRACING_STOP, STATUS_ZOMBIE, STATUS_DEAD, STATUS_WAKING, STATUS_IDLE, STATUS_LOCKED, STATUS_WAITING, STATUS_LOCKED, STATUS_PARKED, Process as pProcess, NoSuchProcess, AccessDenied, process_iter, REALTIME_PRIORITY_CLASS, HIGH_PRIORITY_CLASS
+import ctypes, os
+from ctypes import wintypes
 from .logger import *
 from PyQt5.QtGui import QImage, QPixmap
+from PyQt5.QtWidgets import QMessageBox, QPushButton, QCheckBox
 
 class Process():
     STATUS = {
-        psutil.STATUS_RUNNING: "Выполняется",
-        psutil.STATUS_SLEEPING: "Спит",
-        psutil.STATUS_DISK_SLEEP: "Спит (диск)",
-        psutil.STATUS_STOPPED: "Остановлен",
-        psutil.STATUS_TRACING_STOP: "Остановлен (трассировка)",
-        psutil.STATUS_ZOMBIE: "Зомби",
-        psutil.STATUS_DEAD: "Мертв",
-        psutil.STATUS_WAKING: "Пробуждается",
-        psutil.STATUS_IDLE: "Простаивает",
-        psutil.STATUS_LOCKED: "Заблокирован",
-        psutil.STATUS_WAITING: "Ожидает",
-        psutil.STATUS_LOCKED: "Блокирован",
-        psutil.STATUS_PARKED: "Припаркован",
+        STATUS_RUNNING: "Выполняется",
+        STATUS_SLEEPING: "Спит",
+        STATUS_DISK_SLEEP: "Спит (диск)",
+        STATUS_STOPPED: "Остановлен",
+        STATUS_TRACING_STOP: "Остановлен (трассировка)",
+        STATUS_ZOMBIE: "Зомби",
+        STATUS_DEAD: "Мертв",
+        STATUS_WAKING: "Пробуждается",
+        STATUS_IDLE: "Простаивает",
+        STATUS_LOCKED: "Заблокирован",
+        STATUS_WAITING: "Ожидает",
+        STATUS_LOCKED: "Блокирован",
+        STATUS_PARKED: "Припаркован",
     }
     PROCESS_TYPE = {
         'system': 'Системный',
@@ -25,7 +27,7 @@ class Process():
         'normal': 'Обычный',
     }
 
-    def __init__(self, pid, name, status, cpu_percent, memory_percent, create_time):
+    def __init__(self, pid, name, status, cpu_percent, memory_percent, create_time, description, window_title):
         self.process_type = get_process_type(pid)
         self.pid = pid
         self.name = name
@@ -33,13 +35,15 @@ class Process():
         self.cpu_percent = cpu_percent
         self.memory_percent = memory_percent
         self.create_time = create_time
+        self.description = description
+        self.window_title = window_title
 
     def get_process_icon(self) -> None | QPixmap:
         try:
             if self.pid == 0:
                 return None
             # Получение пути к исполняемому файлу процесса
-            process = psutil.Process(self.pid)
+            process = pProcess(self.pid)
             exe_path = process.exe()
 
             # Извлечение иконки из исполняемого файла
@@ -53,6 +57,7 @@ class Process():
                 ctypes.windll.gdi32.SelectObject(hdc_mem, hbm_old)
                 ctypes.windll.gdi32.DeleteDC(hdc_mem)
                 ctypes.windll.user32.ReleaseDC(0, hdc)
+                ctypes.windll.user32.DestroyIcon(hicon)
 
                 # Преобразование Bitmap в QPixmap
                 class BITMAP(ctypes.Structure):
@@ -72,6 +77,7 @@ class Process():
                 ctypes.windll.gdi32.GetBitmapBits(hbm, len(bmpstr), bmpstr)
                 image = QImage(bmpstr, bmpinfo.bmWidth, bmpinfo.bmHeight, QImage.Format_ARGB32)
                 pixmap = QPixmap.fromImage(image)
+                ctypes.windll.gdi32.DeleteObject(hbm)
                 return pixmap
             return None
         except Exception as e:
@@ -81,15 +87,53 @@ class Process():
     def kill(self):
         """Завершает процесс по PID."""
         try:
-            process = psutil.Process(self.pid)
-            process.terminate()
-            msg = f"Процесс {self.name} ({self.pid}) завершен."
-            log(msg)
-            return msg
+            process = pProcess(self.pid)
+            # Подтверждение завершения самого себя
+            if self.pid == os.getpid():
+                msgBox = QMessageBox()
+                msgBox.setIcon(QMessageBox.Question)
+                msgBox.setWindowTitle("Диспетчер задач")
+                msgBox.setText(f"<b>Вы хотите завершить YoHelper?</b>")
+                msgBox.setInformativeText("Завершение этого процесса приведет к завершению работы программы. Вы действительно хотите продолжить?")
+                msgBox.addButton(QPushButton('Завершить'), QMessageBox.ButtonRole.YesRole)
+                msgBox.addButton(QPushButton('Отмена'), QMessageBox.ButtonRole.NoRole)
+                msgBox.exec_()
+                if msgBox.clickedButton().text() == 'Завершить':
+                    process.kill()
+                    msg = f"Процесс {self.name} ({self.pid}) завершен."
+                    log(msg)
+                    return msg, True
+                return "Отмена завершения процесса.", False
+            # Подтверждение завершения критического процесса
+            if self.process_type in [ProcessType.CRITICAL, ProcessType.SYSTEM]:
+                msgBox = QMessageBox()
+                msgBox.setIcon(QMessageBox.Question)
+                msgBox.setWindowTitle("Диспетчер задач")
+                msgBox.setText(f"<b>Вы хотите завершить системный процесс \"{self.name}\"?</b>")
+                msgBox.setInformativeText("Завершение этого процесса приведет к нестабильности работы Windows или завершению работы системы, и вы можете потерять несохраненные данные. Вы действительно хотите продолжить?")
+                checkbox = QCheckBox('Не сохранять данные и завершить работу.')
+                msgBox.setCheckBox(checkbox)
+                terminate_button = QPushButton('Завершить работу')
+                terminate_button.setEnabled(False)
+                checkbox.stateChanged.connect(lambda state: terminate_button.setEnabled(state))
+                msgBox.addButton(terminate_button, QMessageBox.ButtonRole.YesRole)
+                msgBox.addButton(QPushButton('Отмена'), QMessageBox.ButtonRole.NoRole)
+                msgBox.exec_()
+                if msgBox.clickedButton().text() == 'Завершить работу':
+                    process.kill()
+                    msg = f"Процесс {self.name} ({self.pid}) завершен."
+                    log(msg)
+                    return msg, True
+            else:
+                process.kill()
+                msg = f"Процесс {self.name} ({self.pid}) завершен."
+                log(msg)
+                return msg, True
+            return msg, False
         except Exception as e:
             msg = f"Ошибка завершения процесса {self.name}: {e}"
             log(msg, ERROR)
-            return msg
+            return msg, False
 
     def suspend(self):
         """
@@ -99,16 +143,16 @@ class Process():
         :return: Строка с результатом выполнения операции.
         """
         try:
-            process = psutil.Process(self.pid)
+            process = pProcess(self.pid)
             process.suspend()
             msg = f"Процесс с PID {self.pid} успешно приостановлен."
             log(msg)
             return msg
-        except psutil.NoSuchProcess:
+        except NoSuchProcess:
             msg = f"Ошибка: Процесс с PID {self.pid} не существует."
             log(msg, ERROR)
             return msg
-        except psutil.AccessDenied:
+        except AccessDenied:
             msg = f"Ошибка: Доступ к процессу с PID {self.pid} запрещён."
             log(msg, ERROR)
             return msg
@@ -125,16 +169,16 @@ class Process():
         :return: Строка с результатом выполнения операции.
         """
         try:
-            process = psutil.Process(self.pid)
+            process = pProcess(self.pid)
             process.resume()
             msg = f"Процесс с PID {self.pid} успешно возобновлён."
             log(msg)
             return msg
-        except psutil.NoSuchProcess:
+        except NoSuchProcess:
             msg = f"Ошибка: Процесс с PID {self.pid} не существует."
             log(msg, ERROR)
             return msg
-        except psutil.AccessDenied:
+        except AccessDenied:
             msg = f"Ошибка: Доступ к процессу с PID {self.pid} запрещён."
             log(msg, ERROR)
             return msg
@@ -153,14 +197,18 @@ class Process():
 def get_process_list():
     """Возвращает список активных процессов."""
     processes = []
-    for proc in psutil.process_iter(attrs=["pid", "name", "status", "cpu_percent", "memory_percent", "create_time"]):
+    for proc in process_iter(attrs=["pid", "name", "status", "cpu_percent", "memory_percent", "create_time", "username"]):
+        description = proc.info.get('description', '')
+        window_title = proc.info.get('window_title', '')
         processes.append(Process(
             proc.info['pid'],
             proc.info['name'],
             proc.info['status'],
             proc.info['cpu_percent'],
             proc.info['memory_percent'],
-            proc.info['create_time']
+            proc.info['create_time'],
+            description,
+            window_title
         ))
     return processes
 
@@ -169,18 +217,29 @@ class ProcessType:
     CRITICAL = 'critical'
     NORMAL = 'normal'
 
+def is_process_critical(pid: int):
+    try:
+        process = pProcess(pid)
+        return process.nice() in [REALTIME_PRIORITY_CLASS, HIGH_PRIORITY_CLASS]
+    except NoSuchProcess:
+        log(f"Процесс с PID {pid} не найден.", WARNING)
+        return False
+    except Exception as e:
+        log(f"Ошибка при определении критичности процесса с PID {pid}: {e}", ERROR)
+        return False
+
 def get_process_type(pid):
     try:
         if pid == 0:
             return ProcessType.SYSTEM
-        process = psutil.Process(pid)
+        process = pProcess(pid)
         if process.username() in ['SYSTEM', 'NT AUTHORITY\\SYSTEM', 'NT AUTHORITY\\СИСТЕМА', 'root', 'СИСТЕМА', 'NT AUTHORITY\\LOCAL SERVICE']:
-            return ProcessType.SYSTEM # Не стесняйтесь добавлять свои значения!
-        elif False: # TODO: Добавить проверку на критические процессы
+            return ProcessType.SYSTEM 
+        elif is_process_critical(process.pid):
             return ProcessType.CRITICAL
         else:
             return ProcessType.NORMAL
-    except psutil.NoSuchProcess:
+    except NoSuchProcess:
         log(f"Процесс с PID {pid} не найден.", WARNING)
         return None
     except Exception as e:

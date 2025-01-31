@@ -1,5 +1,5 @@
-from PyQt5.QtWidgets import *
-from PyQt5.QtCore import *
+from PyQt5.QtWidgets import QMainWindow, QVBoxLayout, QLabel, QListWidget, QLineEdit, QPushButton, QWidget, QInputDialog, QMessageBox, QListWidgetItem, QDialog
+from PyQt5.QtCore import Qt, QTimer, QDateTime
 from modules.user_manager import list_users, add_user, delete_user, set_password
 from modules.titles import make_title
 from modules.logger import *

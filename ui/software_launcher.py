@@ -1,10 +1,10 @@
 import os
 import traceback
 import zipfile
-from PyQt5.QtWidgets import *
+from PyQt5.QtWidgets import QMainWindow, QVBoxLayout, QLabel, QPushButton, QProgressBar, QMessageBox, QWidget
 from PyQt5.QtNetwork import QNetworkAccessManager, QNetworkRequest, QNetworkReply
-from PyQt5.QtCore import *
-from PyQt5.QtGui import *
+from PyQt5.QtCore import Qt, QUrl, pyqtSignal, QThread, QByteArray, QObject, QSize
+from PyQt5.QtGui import QIcon, QPixmap
 from modules.titles import make_title
 from pyqt_windows_os_light_dark_theme_window.main import Window
 
@@ -174,12 +174,6 @@ class SoftwareLauncher(QMainWindow, Window):
         try:
             if program_path.endswith(".zip"):
                 path = os.path.abspath(os.path.join(SOFTWARE_DIR, os.path.basename(program_path).replace('.zip', ''), program['path']))
-                print(SOFTWARE_DIR)
-                print(program_path)
-                print(os.path.basename(program_path))
-                print(os.path.basename(program_path).replace('.zip', ''))
-                print(os.path.join(SOFTWARE_DIR, os.path.basename(program_path).replace('.zip', ''), program['path']))
-                print(path)
                 os.startfile(path)
             else:
                 os.startfile(program_path)
@@ -212,8 +206,7 @@ class SoftwareLauncher(QMainWindow, Window):
         thread.start()
 
     def on_download_completed(self, file_path: str, program_name: str, program: dict, progress_bar: QProgressBar):
-        print(progress_bar)
-        progress_bar.parentWidget().removeWidget(progress_bar)
+        progress_bar.deleteLater()
 
         # Если это архив, распаковываем
         if file_path.endswith(".zip"):
@@ -239,7 +232,6 @@ class SoftwareLauncher(QMainWindow, Window):
             QMessageBox.information(self, "Успех", f"Программа {program_name} успешно загружена.")
 
     def on_download_error(self, error_message, progress_bar: QProgressBar):
-        print(progress_bar)
         progress_bar.deleteLater()
         QMessageBox.critical(self, "Ошибка", f"Ошибка загрузки: {error_message}")
 

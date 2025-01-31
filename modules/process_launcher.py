@@ -1,6 +1,6 @@
-import subprocess
+from subprocess import Popen, PIPE
 from .logger import *
-from PyQt5.QtCore import QObject, QThread
+from PyQt5.QtCore import QObject
 
 class ProcessLauncher(QObject):
     def __init__(self, parent, command):
@@ -11,7 +11,7 @@ class ProcessLauncher(QObject):
     def launch_process(self):
         """Запускает процесс с опциональными правами администратора."""
         try:
-            process = subprocess.Popen(self.command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+            process = Popen(self.command, shell=True, stdout=PIPE, stderr=PIPE, text=True)
             stdout, stderr = process.communicate()
             if stdout:
                 log(f"Процесс `{self.command}`: {stdout}")

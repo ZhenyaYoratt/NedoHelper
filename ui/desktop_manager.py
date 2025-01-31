@@ -1,6 +1,6 @@
-from PyQt5.QtWidgets import *
-from PyQt5.QtCore import *
-from PyQt5.QtGui import *
+from PyQt5.QtWidgets import QMainWindow, QVBoxLayout, QLabel, QListWidget, QListView, QPushButton, QHBoxLayout, QWidget, QFileDialog, QListWidgetItem, QStatusBar
+from PyQt5.QtCore import Qt, QSize
+from PyQt5.QtGui import QIcon
 from modules.desktop_manager import set_wallpaper, reset_wallpaper
 from modules.titles import make_title
 from modules.logger import *

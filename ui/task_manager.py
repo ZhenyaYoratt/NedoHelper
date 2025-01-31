@@ -1,34 +1,45 @@
-from PyQt5.QtWidgets import *
-from PyQt5.QtCore import *
-from PyQt5.QtGui import *
+from PyQt5.QtWidgets import QMainWindow, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QMenu, QLineEdit, QTableWidget, QTableWidgetItem, QStatusBar, QWidget
+from PyQt5.QtCore import Qt, QThread, QDateTime, pyqtSignal, QObject
+from PyQt5.QtGui import QIcon, QColor
 from modules.task_manager import get_process_list, get_process_type, Process
 from modules.titles import make_title
 from psutil import boot_time
 
 def parse_precents(value):
+    if value is not None and value > 100:
+        return f"{round(value)}wtf"
     return f"{value:.1f}%" if value is not None else "0.0%"
 
 def parse_create_time(value):
     return QDateTime.fromSecsSinceEpoch(int(value)).toString(Qt.DateFormat.ISODate)
 
+def set_item_color(item: QTableWidgetItem, value):
+    if value is not None:
+        color_intensity = min(255, int(value * 2.55))
+        item.setBackground(QColor(255, 255 - color_intensity, 0, min(255, 20 + color_intensity)))
+
 class ProcessListWorker(QObject):
     process_list_updated = pyqtSignal(list)
     update_interval = 1
 
+    def __init__(self):
+        super().__init__()
+        self._running = True
+
     def run(self):
-        while True:
-            self.refresh_process_list()
+        while self._running:
+            self.process_list_updated.emit(get_process_list())
             QThread.msleep(int(self.update_interval * 1000))
 
-    def refresh_process_list(self):
-        self.process_list_updated.emit(get_process_list())
+    def stop(self):
+        self._running = False
 
 class TaskManagerWindow(QMainWindow):
     def __init__(self, parent = None):
         super().__init__()
         self.setParent(parent)
         self.setWindowTitle(make_title("Диспетчер задач"))
-        self.resize(1000, 700)
+        self.resize(1200, 700)
         self.setWindowFlags(Qt.WindowType.Dialog)
         self.setWindowFlag(Qt.WindowType.WindowContextHelpButtonHint, False)
         self.setStyleSheet(self.styleSheet() + "QPushButton { padding: 0px 4px; }")
@@ -69,8 +80,8 @@ class TaskManagerWindow(QMainWindow):
 
         # Таблица процессов
         self.process_table = QTableWidget()
-        self.process_table.setColumnCount(8)
-        self.process_table.setHorizontalHeaderLabels(["Имя процесса", "ЦП", "ОЗУ", "Состояние", "PID", "Тип", "Действия с процессом", "Создано"])
+        self.process_table.setColumnCount(10)
+        self.process_table.setHorizontalHeaderLabels(["Имя процесса", "ЦП", "ОЗУ", "Состояние", "PID", "Тип", "Действия с процессом", "Создано", "Описание", "Название заголовка"])
         self.process_table.setSelectionBehavior(self.process_table.SelectRows)
         self.process_table.setEditTriggers(self.process_table.NoEditTriggers)
 
@@ -99,11 +110,18 @@ class TaskManagerWindow(QMainWindow):
         self.statusBar().showMessage("Диспетчер задач запущен.")
 
         self.update_process_list(get_process_list())
-        self.process_table.resizeColumnsToContents()
+
+        for col in range(self.process_table.columnCount()):
+            if col is not 1 or col is not 2:
+                self.process_table.resizeColumnToContents(col)
         self.process_table.resizeRowsToContents()
+        self.process_table.setColumnWidth(1, 65)
+        self.process_table.setColumnWidth(2, 65)
 
     def closeEvent(self, a0):
+        self._worker.stop()
         self._thread.quit()
+        self._thread.wait()
         return super().closeEvent(a0)
     
     def set_update_interval(self, interval):
@@ -120,7 +138,7 @@ class TaskManagerWindow(QMainWindow):
     def filter_process_list(self, search_text = None):
         """Фильтрует список процессов по имени процесса, имя файла или PID."""
         if search_text:
-            self.process_list_ui = [process for process in self.process_list if search_text.lower() in process.name.lower() or search_text in str(process.pid)]
+            self.process_list_ui = [process for process in self.process_list if search_text.lower() in process.window_title.lower() + ";" + process.name.lower() + ";" + process.description.lower() + ";" + str(process.pid)]
         if self.hide_critical_processes:
             self.process_list_ui = [process for process in self.process_list_ui if process.process_type != 'critical']
         if self.hide_system_processes:
@@ -146,12 +164,17 @@ class TaskManagerWindow(QMainWindow):
             item = QTableWidgetItem(process.name)
             item.setIcon(QIcon(process.get_process_icon()))
             self.process_table.setItem(row, 0, item)
-            self.process_table.setItem(row, 1, QTableWidgetItem(parse_precents(process.cpu_percent) if process.pid != 0 else None))
-            self.process_table.setItem(row, 2, QTableWidgetItem(parse_precents(process.memory_percent)))
+            cpu_item = QTableWidgetItem(parse_precents(process.cpu_percent) if process.pid != 0 else None)
+            self.process_table.setItem(row, 1, cpu_item)
+            ram_item = QTableWidgetItem(parse_precents(process.memory_percent) if process.pid != 0 else None)
+            self.process_table.setItem(row, 2, ram_item)
             self.process_table.setItem(row, 3, QTableWidgetItem(Process.STATUS[process.status]))
             self.process_table.setItem(row, 4, QTableWidgetItem(str(process.pid)))
             self.process_table.setItem(row, 5, QTableWidgetItem(Process.PROCESS_TYPE[process.process_type]))
             self.process_table.setItem(row, 7, QTableWidgetItem(parse_create_time(process.create_time)))
+            self.process_table.setItem(row, 8, QTableWidgetItem(process.description))
+            self.process_table.setItem(row, 9, QTableWidgetItem(process.window_title))
+            
             actions = QWidget()
             layout_actions = QHBoxLayout()
             terminate_button = QPushButton('Завершить')
@@ -168,3 +191,15 @@ class TaskManagerWindow(QMainWindow):
             actions.setContentsMargins(0, 0, 0, 0)
             self.process_table.setItem(row, 6, QTableWidgetItem())
             self.process_table.setCellWidget(row, 6, actions)
+            
+            # Set row color based on process type
+            if process.process_type == 'system':
+                for col in range(self.process_table.columnCount()):
+                    self.process_table.item(row, col).setBackground(QColor(36, 164, 255, 60))  # Light blue
+                    #self.process_table.item(row, col).setForeground(QColor(173, 216, 230))  # Light blue
+            elif process.process_type == 'critical':
+                for col in range(self.process_table.columnCount()):
+                    self.process_table.item(row, col).setBackground(QColor(255, 165, 0, 60))  # Orange
+            
+            set_item_color(cpu_item, process.cpu_percent)
+            set_item_color(ram_item, process.memory_percent)

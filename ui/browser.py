@@ -1,12 +1,10 @@
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
-from PyQt5.QtCore import *
-from PyQt5.QtWebEngineWidgets import QWebEngineView, QWebEnginePage
+from PyQt5.QtWidgets import QMainWindow, QVBoxLayout, QTabWidget, QHBoxLayout, QPushButton, QLineEdit, QLabel, QMenu, QWidget, QMessageBox
+from PyQt5.QtCore import Qt, QUrl, QSize
+from PyQt5.QtWebEngineWidgets import QWebEngineView
 import webbrowser
 import validators
 from modules.titles import make_title
 import qtawesome
-import qtmdi
 from pyqt_windows_os_light_dark_theme_window.main import Window
 
 def spin_icon(self):

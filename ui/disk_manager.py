@@ -1,6 +1,5 @@
-from PyQt5.QtWidgets import *
-from PyQt5.QtCore import *
-from PyQt5.QtGui import *
+from PyQt5.QtWidgets import QMainWindow, QVBoxLayout, QLabel, QTableWidget, QTableWidgetItem, QProgressBar, QDialog, QInputDialog, QMessageBox, QPushButton, QWidget, QListWidgetItem
+from PyQt5.QtCore import Qt
 import psutil
 from modules.disk_manager import *
 from modules.titles import make_title
@@ -52,17 +51,28 @@ class DiskManagerWindow(QMainWindow, Window):
         dialog.move(self.cursor().pos())
         layout = QVBoxLayout()
         icon_label = QLabel()
-        icon_label.setPixmap(get_disk_icon(disk_letter))
+        icon_label.setPixmap(get_disk_icon(disk_letter).scaled(64, 64))
         letter_label = QLabel(f"{disk_letter}")
         letter_label.setStyleSheet("font-size: 20px; font-weight: bold;")
         letter_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         unlock_bitlocker_button = QPushButton("Разблокировать BitLocker")
-        unlock_bitlocker_button.clicked.connect(lambda: unlock_bitlocker(disk_letter))
+        unlock_bitlocker_button.clicked.connect(lambda: self.unlock_bitlocker(disk_letter))
         layout.addWidget(icon_label)
         layout.addWidget(letter_label)
         layout.addWidget(unlock_bitlocker_button)
         dialog.setLayout(layout)
         dialog.exec()
+
+    def unlock_bitlocker(self, disk_letter):
+        """Разблокирует BitLocker на указанном диске."""
+        credential, ok = QInputDialog.getText(self, "Разблокировка BitLocker", "Введите пароль или ключ востановления:")
+        if ok:
+            result, ok = unlock_bitlocker(disk_letter, credential)
+            if ok:
+                QMessageBox.information(self, "Успешно", result)
+            else:
+                QMessageBox.warning(self, "Ошибка", result)
+            self.refresh_disk_list()
 
     def refresh_disk_list(self):
         """Обновляет список дисков."""

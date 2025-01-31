@@ -1,4 +1,4 @@
-import random
+from random import choice
 
 # Словари с заменами для латинских и русских символов с учетом регистра
 UNICODE_MAP = {
@@ -59,7 +59,7 @@ def encrypt_text(text):
     
     for char in text:
         if char in UNICODE_MAP:
-            encrypted_text += random.choice(UNICODE_MAP[char])
+            encrypted_text += choice(UNICODE_MAP[char])
         else:
             encrypted_text += char  # Если символ не найден в словаре, оставляем его как есть
     

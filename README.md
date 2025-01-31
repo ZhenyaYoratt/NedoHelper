@@ -31,12 +31,13 @@ The following features are built into the program:
 - User Manager
 
 ## Known issues
-- The BitLocker status (Disk Manager) and the process type (Task Manager) are not displayed correctly.
+- The process type (Task Manager) are not displayed correctly.
+- The program freezes while scanning the folder for viruses.
 <!-- There are no issues at the moment. If you find problems, feel free to [create a Issue](github.com/ZhenyaYoratt/YoHelper/issues) and describe it.-->
 
 ## TODO
-- [ ] Fix detected bugs and known issues
-- [ ] Translate to English
+- [ ] Add external authorization to NedoTube account
+- [ ] Translate program to English (i18n)
 
 ## Build
 To build the program, just run this command:

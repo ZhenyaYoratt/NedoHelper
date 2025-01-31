@@ -1,11 +1,11 @@
-import ctypes
+from ctypes import windll
 
 from .logger import *
 
 def set_wallpaper(image_path):
     """Устанавливает обои рабочего стола."""
     try:
-        ctypes.windll.user32.SystemParametersInfoW(20, 0, image_path, 3)
+        windll.user32.SystemParametersInfoW(20, 0, image_path, 3)
         msg = "Обои успешно установлены."
         log(msg)
         return msg
@@ -17,7 +17,7 @@ def set_wallpaper(image_path):
 def reset_wallpaper():
     """Сбрасывает обои рабочего стола на дефолтный цвет."""
     try:
-        ctypes.windll.user32.SystemParametersInfoW(20, 0, "", 3)
+        windll.user32.SystemParametersInfoW(20, 0, "", 3)
         msg = "Обои сброшены."
         log(msg)
         return log

@@ -1,8 +1,8 @@
 import hashlib
 import os, sys, requests
 from .logger import *
-from PyQt5.QtCore import *
-from PyQt5.QtNetwork import *
+from PyQt5.QtCore import pyqtSignal, QUrl, QEventLoop, QObject
+from PyQt5.QtNetwork import QNetworkRequest, QNetworkAccessManager, QNetworkReply
 
 if getattr(sys, 'frozen', False):
     application_path = os.path.dirname(sys.executable)
@@ -62,7 +62,7 @@ class UpdateWorker(QObject):
                         with open(file_path, 'wb') as f:
                             f.write(bytes_string.data())
                     else:
-                        log(f"Ошибка при загрузке файла {file_url}: {e}", ERROR)
+                        log(f"Ошибка при загрузке файла {file_url}:", ERROR)
                 i += 1
             self.completed.emit()
         else:
