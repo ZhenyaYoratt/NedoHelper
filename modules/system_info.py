@@ -20,7 +20,7 @@ def get_system_info():
 
     # Оперативная память
     mem_bytes = int(subprocess.check_output(['wmic', 'ComputerSystem', 'get', 'TotalPhysicalMemory']).split()[1])
-    info['Оперативная память'] = f"{mem_bytes / (1024 ** 3):.2f} ГБ"
+    info['ОЗУ (Всего)'] = f"{mem_bytes / (1024 ** 3):.2f} ГБ"
 
     # Код устройства и Код продукта
     device_id = subprocess.check_output(['wmic', 'csproduct', 'get', 'UUID']).decode().split('\n')[1].strip()
@@ -35,9 +35,9 @@ def get_system_info():
     # Перо и сенсорный ввод
     pen_touch = subprocess.check_output(['powershell', '(Get-PnpDevice -Class "HIDClass" | Where-Object { $_.FriendlyName -like "*Touch Screen*" }).FriendlyName']).decode().strip()
     if pen_touch:
-        info['Перо и сенсорный ввод'] = pen_touch
+        info['Перо и сенсор'] = pen_touch
     else:
-        info['Перо и сенсорный ввод'] = 'Для этого монитора недоступен ввод с помощью пера и сенсорный ввод'
+        info['Перо и сенсор'] = 'Для этого монитора недоступен'
 
     # Выпуск
     edition = subprocess.check_output(['wmic', 'os', 'get', 'Caption']).decode('cp866').split('\n')[1].strip()
@@ -57,8 +57,8 @@ def get_system_info():
     info['Сборка ОС'] = build_number
 
     # Взаимодействие
-    experience_pack = subprocess.check_output(['powershell', '(Get-ItemProperty -Path "HKLM:\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion").BuildLabEx']).decode().strip()
-    info['Взаимодействие'] = f"Windows Feature Experience Pack {experience_pack}"
+    #experience_pack = subprocess.check_output(['powershell', '(Get-ItemProperty -Path "HKLM:\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion").BuildLabEx']).decode().strip()
+    #info['Взаимодействие'] = f"Windows Feature Experience Pack {experience_pack}"
 
     return info
 

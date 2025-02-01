@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QMainWindow, QVBoxLayout, QLabel, QTableWidget, QTableWidgetItem, QProgressBar, QDialog, QInputDialog, QMessageBox, QPushButton, QWidget, QListWidgetItem
+from PyQt5.QtWidgets import QMainWindow, QVBoxLayout, QHBoxLayout, QLabel, QTableWidget, QTableWidgetItem, QProgressBar, QDialog, QInputDialog, QMessageBox, QPushButton, QWidget, QListWidgetItem
 from PyQt5.QtCore import Qt
 import psutil
 from modules.disk_manager import *
@@ -27,6 +27,7 @@ class DiskManagerWindow(QMainWindow, Window):
         self.disk_table.setSelectionBehavior(self.disk_table.SelectRows)
         self.disk_table.setSelectionMode(QTableWidget.SelectionMode.SingleSelection)
         self.disk_table.itemClicked.connect(self.open_disk_menu)
+        self.disk_table.verticalHeader().hide()
 
         layout.addWidget(self.header_label)
         layout.addWidget(self.click_label)
@@ -36,9 +37,17 @@ class DiskManagerWindow(QMainWindow, Window):
         central_widget.setLayout(layout)
         self.setCentralWidget(central_widget)
 
-        self.resize(1200, 400)
+        self.resize(750, 400)
+        self.center()
 
         self.refresh_disk_list()
+
+    def center(self):
+        """Центрирует окно по центру экрана."""
+        frame_geometry = self.frameGeometry()
+        center_point = self.screen().availableGeometry().center()
+        frame_geometry.moveCenter(center_point)
+        self.move(frame_geometry.topLeft())
 
     def open_disk_menu(self, item: QListWidgetItem):
         row = item.row()
@@ -46,19 +55,22 @@ class DiskManagerWindow(QMainWindow, Window):
         disk_name = self.disk_table.item(row, 1).text()
 
         dialog = QDialog(self)
-        dialog.setWindowTitle(f"Управление диском {disk_letter} ({disk_name})")
-        dialog.setFixedSize(400, 200)
+        dialog.setWindowTitle(f"Управление диском {disk_letter}")
+        dialog.setFixedSize(300, 100)
         dialog.move(self.cursor().pos())
         layout = QVBoxLayout()
+        hlayout = QHBoxLayout()
         icon_label = QLabel()
-        icon_label.setPixmap(get_disk_icon(disk_letter).scaled(64, 64))
-        letter_label = QLabel(f"{disk_letter}")
+        icon_label.setPixmap(get_disk_icon(disk_letter).scaled(32, 32))
+        icon_label.setMaximumSize(32, 32)
+        letter_label = QLabel(f"{disk_letter} {disk_name}")
         letter_label.setStyleSheet("font-size: 20px; font-weight: bold;")
         letter_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        unlock_bitlocker_button = QPushButton("Разблокировать BitLocker")
+        unlock_bitlocker_button = QPushButton("Разблокировать диск")
         unlock_bitlocker_button.clicked.connect(lambda: self.unlock_bitlocker(disk_letter))
-        layout.addWidget(icon_label)
-        layout.addWidget(letter_label)
+        hlayout.addWidget(icon_label)
+        hlayout.addWidget(letter_label)
+        layout.addLayout(hlayout)
         layout.addWidget(unlock_bitlocker_button)
         dialog.setLayout(layout)
         dialog.exec()
@@ -81,7 +93,9 @@ class DiskManagerWindow(QMainWindow, Window):
 
         for row, partition in enumerate(partitions):
             # Диск
-            self.disk_table.setItem(row, 0, QTableWidgetItem(partition.device))
+            item = QTableWidgetItem(partition.device)
+            item.setIcon(QIcon(get_disk_icon(partition.device, 16)))
+            self.disk_table.setItem(row, 0, item)
 
             # Название (имя устройства)
             self.disk_table.setItem(row, 1, QTableWidgetItem(get_volume_name(partition.device)))

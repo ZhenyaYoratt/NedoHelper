@@ -165,6 +165,7 @@ from ui.task_manager import TaskManagerWindow
 from ui.software_launcher import SoftwareLauncher
 from ui.settings import SettingsWindow
 from ui.about import AboutWindow
+from ui.unlocker import UnlockerWindow
 #from fp.fp import FreeProxy
 import qdarktheme
 from pyqt_windows_os_light_dark_theme_window.main import Window
@@ -230,7 +231,7 @@ class VirusProtectionApp(QMainWindow, Window):
 
         self.setStyleSheet("""
 * {
-    font-size: 16px;
+    font-size: 14px;
     font-family: 'Consolas';
 }
 QPushButton {
@@ -283,26 +284,27 @@ QPushButton {
         system_info_layout = QVBoxLayout()
         self.system_info_label = QLabel("Система: Загрузка...")
         self.disk_info_label = QLabel("Диски: Загрузка...")
-        update_system_info_button = QPushButton("Обновить")
-        update_system_info_button.clicked.connect(self.update_system_info)
+        self.update_system_info_button = QPushButton("Обновить")
+        self.update_system_info_button.clicked.connect(self.update_system_info)
         os_icon = QLabel()
         os_icon.setPixmap(get_os_icon())
         system_info_layout.addWidget(os_icon)
         system_info_layout.addWidget(self.system_info_label)
         system_info_layout.addWidget(self.disk_info_label)
-        system_info_layout.addWidget(update_system_info_button)
+        system_info_layout.addWidget(self.update_system_info_button)
         system_info_group.setLayout(system_info_layout)
         side_layout.addWidget(system_info_group)
 
         module_buttons = [
+            ("Разблокировка ограничений", self.open_unlocker, "mdi.lock-open"),
             ("Запуск сторонних программ", self.software_launcher.show, "mdi.apps"),
-            ("Антивирус", self.open_antivirus, "mdi.shield-bug"),
+            ("Диспетчер задач", self.open_task_manager, "mdi.apps"),
+            ("Браузер", lambda: self.open_browser(), "mdi.web"),
             ("Управление дисками", self.open_disk_manager, "mdi.harddisk"),
             ("Управление пользователями", self.open_user_manager, "mdi.account-group"),
             ("Персонализация", self.open_desktop_manager, "mdi.image"),
             ("Точка восстановления", self.open_system_restore, "mdi.restore"),
-            ("Браузер", lambda: self.open_browser(), "mdi.web"),
-            ("Диспетчер задач", self.open_task_manager, "mdi.apps"),
+            ("Антивирус", self.open_antivirus, "mdi.shield-bug"),
             ("Выход", qApp.quit, "mdi.exit-to-app"),
         ]
 
@@ -386,76 +388,146 @@ QPushButton {
         self.disk_info_label.setText(get_disk_info())
 
     def update_system_info(self):
+        self.update_system_info_button.setDisabled(True)
+        self.system_info_table.setModel(QStandardItemModel())
+        qApp.processEvents()
         system_info = get_system_info()
         model = QStandardItemModel(len(system_info), 2)
         model.setHorizontalHeaderLabels(["Параметр", "Значение"])
         for i, (key, value) in enumerate(system_info.items()):
-            model.setItem(i, 0, QStandardItem(key))
+            model.setItem(i, 0, QStandardItem(key + " "))
             model.setItem(i, 1, QStandardItem(value))
         self.system_info_table.setModel(model)
         self.system_info_table.resizeColumnsToContents()
+        self.update_system_info_button.setDisabled(False)
 
     def run_command(self):
         """Запускает команду из текстового поля."""
         command = self.command_input.text().strip()
         if not command:
             return
-        # запустить в отдельном потоке
         self.command_input.clear()
-        self.log_text_edit.append(f"<b>Введена комманда:</b> {command}")
+        log(f"<b>Введена комманда:</b> {command}")
 
-        self.threads.append(QThread()) 
+        self.threads.append(QThread())
         self.process_launcher = ProcessLauncher(self, command)
-        self.process_launcher.setParent(None)
         self.process_launcher.moveToThread(self.threads[-1])
-        self.process_launcher.setParent(self)
+        self.process_launcher.process_output.connect(self.handle_process_output)
         self.threads[-1].started.connect(self.process_launcher.launch_process)
         self.threads[-1].start()
 
+    def handle_process_output(self, stdout, stderr):
+        """Обрабатывает вывод процесса."""
+        if stdout:
+            log("<b>Вывод:</b>")
+            text = ""
+            for line in stdout.splitlines():
+                text += line + "<br>\n"
+            log(text)
+        if stderr:
+            log("<b>Ошибка:</b>", ERROR)
+            text = ""
+            for line in stdout.splitlines():
+                text += line + "<br>\n"
+            log(text, ERROR)
+
+    def open_unlocker(self):
+        """Открывает окно Разблокировки ограничений."""
+        btn: QPushButton = self.sender()
+        btn.setDisabled(True)
+        qApp.processEvents()
+        self.unlocker_window = UnlockerWindow(self)
+        self.unlocker_window.show()
+        btn.setDisabled(False)
+
     def open_antivirus(self):
         """Открывает окно Антивируса."""
+        btn: QPushButton = self.sender()
+        btn.setDisabled(True)
+        qApp.processEvents()
         self.antivirus_window = AntivirusWindow(self)
         self.antivirus_window.show()
+        btn.setDisabled(False)
 
     def open_disk_manager(self):
+        btn: QPushButton = self.sender()
+        btn.setDisabled(True)
+        qApp.processEvents()
         """Открывает окно Управления дисками."""
         self.disk_manager_window = DiskManagerWindow(self)
         self.disk_manager_window.show()
+        btn.setDisabled(False)
 
     def open_user_manager(self):
+        btn: QPushButton = self.sender()
+        btn.setDisabled(True)
+        qApp.processEvents()
         """Открывает окно Управления пользователями."""
         self.user_manager_window = UserManagerWindow(self)
         self.user_manager_window.show()
+        btn.setDisabled(False)
 
     def open_desktop_manager(self):
         """Открывает окно Управления обоями."""
+        btn: QPushButton = self.sender()
+        btn.setDisabled(True)
+        qApp.processEvents()
         self.desktop_manager_window = DesktopManagerWindow(self)
         self.desktop_manager_window.show()
+        btn.setDisabled(False)
 
     def open_system_restore(self):
         """Открывает окно Точки восстановления."""
+        btn: QPushButton = self.sender()
+        btn.setDisabled(True)
+        qApp.processEvents()
         self.system_restore_window = SystemRestoreWindow(self)
         self.system_restore_window.show()
+        btn.setDisabled(False)
 
     def open_browser(self, url = "https://www.google.com/?hl=ru"):
         """Открывает окно Встроенного браузера."""
+        btn: QPushButton = self.sender()
+        btn.setDisabled(True)
+        qApp.processEvents()
         self.browser_window = BrowserWindow(self, url)
         self.browser_window.show()
+        btn.setDisabled(False)
 
     def open_task_manager(self):
         """Открывает окно Диспетчера задач."""
+        btn: QPushButton = self.sender()
+        btn.setDisabled(True)
+        qApp.processEvents()
         self.task_manager_window = TaskManagerWindow(self)
         self.task_manager_window.show()
+        btn.setDisabled(False)
 
     def open_settings(self):
         """Открывает окно Настроек."""
+        btn: QPushButton = self.sender()
+        btn.setDisabled(True)
+        qApp.processEvents()
         self.settings_window = SettingsWindow(self)
         self.settings_window.show()
+        btn.setDisabled(False)
 
     def open_about(self):
         """Открывает окно О программе."""
+        btn: QPushButton = self.sender()
+        btn.setDisabled(True)
+        qApp.processEvents()
         self.about_window = AboutWindow(self)
         self.about_window.show()
+        btn.setDisabled(False)
+
+    def run_unlocker(self):
+        """Запускает разблокировку ограничений."""
+        btn: QPushButton = self.sender()
+        btn.setDisabled(True)
+        qApp.processEvents()
+        run_unlocker()
+        btn.setDisabled(False)
 
     #def make_process_critical(self):  # Ненадёжный вариант, т.к. вирусы могут крашнуть систему из-за простого закрытия программы :P
     #    """Устанавливает процесс как критический."""

@@ -15,8 +15,8 @@ The multitool program will allow you to remove viruses (may be) and restore Wind
 > This program is developed in Russian, but it does not yet have an international translation, including English. Please be patient!
 
 ## Download
-Download [the lastest release version](github.com/ZhenyaYoratt/YoHelper/releases) of the program. There are also file hashes and links to antivirus scans.
-[![VirusTotal results](https://img.shields.io/badge/VirusTotal-blue?style=flat-square)](virustotal.com)
+Download [the lastest release version](https://github.com/ZhenyaYoratt/YoHelper/releases) of the program. There are also file hashes and links to antivirus scans.
+[![VirusTotal results](https://img.shields.io/badge/VirusTotal-blue?style=flat-square)](https://virustotal.com)
 <!-- VirusTotal/Trag.le -->
 
 ## Features
@@ -75,6 +75,8 @@ Special thanks to the open-source community for providing libraries and tools th
 ## License
 This project is licensed under the terms of GNU General Public License version 3.0 or newer. You can see full license text in [LICENSE](LICENSE) file.
 
+## Star History
+[![Star History Chart](https://api.star-history.com/svg?repos=ZhenyaYoratt/YoHelper&type=Date)](https://star-history.com/#ZhenyaYoratt/YoHelper&Date)
 
 ---
 

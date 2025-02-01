@@ -20,8 +20,8 @@ def reset_wallpaper():
         windll.user32.SystemParametersInfoW(20, 0, "", 3)
         msg = "Обои сброшены."
         log(msg)
-        return log
+        return msg
     except Exception as e:
         msg = f"Ошибка сброса обоев: {e}"
         log(msg, ERROR)
-        return log
+        return msg

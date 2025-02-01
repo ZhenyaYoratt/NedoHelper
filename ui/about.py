@@ -54,9 +54,3 @@ class AboutWindow(QMainWindow, Window):
     def link_clicked(self, url):
         self.browser_window = BrowserWindow(self.parent(), url)
         self.browser_window.show()
-
-if __name__ == '__main__':
-    app = QApplication(sys.argv)
-    about_window = AboutWindow()
-    about_window.show()
-    sys.exit(app.exec_())

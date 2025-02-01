@@ -1,19 +1,25 @@
 import os
 import traceback
 import zipfile
-from PyQt5.QtWidgets import QMainWindow, QVBoxLayout, QLabel, QPushButton, QProgressBar, QMessageBox, QWidget
+from PyQt5.QtWidgets import QMainWindow, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QProgressBar, QMessageBox, QWidget
 from PyQt5.QtNetwork import QNetworkAccessManager, QNetworkRequest, QNetworkReply
 from PyQt5.QtCore import Qt, QUrl, pyqtSignal, QThread, QByteArray, QObject, QSize
 from PyQt5.QtGui import QIcon, QPixmap
 from modules.titles import make_title
 from pyqt_windows_os_light_dark_theme_window.main import Window
+import qtawesome
 
 # Ссылки для загрузки программ
 SOFTWARE_URLS = {
     "ProcessHacker": {
         "url": "https://raw.githubusercontent.com/ZhenyaYoratt/NedoHelper/refs/heads/main/hosted_softwares/processhacker-2.39-bin.zip",
-        "path": "/x64/ProcessHacker.exe",
+        "path": "x64/ProcessHacker.exe",
         "icon": "https://www.softportal.com/scr/14593/icons/process_hacker_72.png"
+    },
+    "Explorer++": {
+        "url": "https://download.explorerplusplus.com/stable/1.4.0/explorerpp_x64.zip",
+        "path": "Explorer++.exe",
+        "icon": "https://explorerplusplus.com/images/favicon.ico"
     },
     "AnVir Task Manager": {
         "url": "https://www.anvir.net/downloads/anvirrus.zip",
@@ -120,7 +126,6 @@ class SoftwareLauncher(QMainWindow, Window):
     def __init__(self, parent = None):
         super().__init__()
         self.setParent(parent)
-        self.setParent(parent)
         self.setWindowTitle(make_title("Запуск сторонних программ"))
         self.setMinimumSize(400, 250)
         self.setWindowFlags(Qt.WindowType.Dialog)
@@ -140,8 +145,10 @@ class SoftwareLauncher(QMainWindow, Window):
 
         placeholder_icon = QIcon("ui/icons/placeholder.png")
 
-        # Кнопки для запуска программ
+        # Кнопки для запуска и удаления программ
+        self.buttons = {}
         for program_name in SOFTWARE_URLS.keys():
+            button_layout = QHBoxLayout()
             button = QPushButton(program_name)
             if SOFTWARE_URLS[program_name].get('icon'):
                 icon = AsyncQIcon(SOFTWARE_URLS[program_name]['icon'], placeholder_icon, self.parent())
@@ -150,14 +157,30 @@ class SoftwareLauncher(QMainWindow, Window):
                 button.setIcon(placeholder_icon)
                 button.setIconSize(QSize(24, 24))
             button.clicked.connect(lambda checked, p=program_name: self.launch_program(p))
-            layout.addWidget(button)
+            button_layout.addWidget(button)
+
+            delete_button = QPushButton()
+            delete_button.setIcon(qtawesome.icon("fa.trash", color="red"))
+            delete_button.clicked.connect(lambda checked, p=program_name: self.delete_program(p))
+            delete_button.setMaximumSize(28, 28)
+            button_layout.addWidget(delete_button)
+
+            layout.addLayout(button_layout)
+            self.buttons[program_name] = (button, delete_button)
+            self.update_delete_button_state(program_name)
+
+    def update_delete_button_state(self, program_name):
+        program = SOFTWARE_URLS.get(program_name)
+        program_dir = os.path.abspath(os.path.join(SOFTWARE_DIR, os.path.basename(program['url']).replace('.zip', '')))
+        delete_button = self.buttons[program_name][1]
+        delete_button.setEnabled(os.path.exists(program_dir))
 
     def launch_program(self, program_name):
         program = SOFTWARE_URLS.get(program_name)
-        program_path = os.path.abspath(os.path.join(SOFTWARE_DIR, os.path.basename(program['url'])))
+        program_dir = os.path.abspath(os.path.join(SOFTWARE_DIR, os.path.basename(program['url']).replace('.zip', '')))
 
         # Проверяем наличие программы
-        if not os.path.exists(program_path):
+        if not os.path.exists(program_dir):
             reply = QMessageBox.question(
                 self,
                 "Программа отсутствует",
@@ -172,13 +195,10 @@ class SoftwareLauncher(QMainWindow, Window):
 
         # Запускаем программу
         try:
-            if program_path.endswith(".zip"):
-                path = os.path.abspath(os.path.join(SOFTWARE_DIR, os.path.basename(program_path).replace('.zip', ''), program['path']))
-                os.startfile(path)
-            else:
-                os.startfile(program_path)
+            path = os.path.join(program_dir, program['path'])
+            os.startfile(path)
         except Exception as e:
-            QMessageBox.critical(self, "Ошибка", f"Не удалось запустить программу {program_name}.\n{e}")
+            QMessageBox.critical(self, "Ошибка", f"Не удалось запустить программу {program_name}.\n{e}\n\nПопробуйте удалить и скачать завоно.")
 
     def download_program(self, program_name):
         program = SOFTWARE_URLS.get(program_name)
@@ -194,6 +214,7 @@ class SoftwareLauncher(QMainWindow, Window):
         progress_bar = QProgressBar()
         self.centralWidget().layout().addWidget(progress_bar)
         progress_bar.setValue(0)
+        progress_bar.setFormat(f"Загрузка {program_name}... %p%")
 
         self.worker = DownloadSoftwareWorker(self, program['url'], file_path)
         self.worker.set_max.connect(progress_bar.setMaximum)
@@ -215,13 +236,7 @@ class SoftwareLauncher(QMainWindow, Window):
                     extract_path = os.path.join(SOFTWARE_DIR, os.path.basename(program['url']).replace('.zip', ''))
                     os.makedirs(extract_path, exist_ok=True)
                     zip_ref.extractall(extract_path)
-                has_zip = program.get('zip')
-                if has_zip:
-                    with zipfile.ZipFile(os.path.join(SOFTWARE_DIR, os.path.basename(program['url'])).replace('.zip', ''), "r") as zip_ref:
-                        extract_path = os.path.join(SOFTWARE_DIR, os.path.basename(program['url']).replace('.zip', ''), has_zip)
-                        os.makedirs(extract_path, exist_ok=True)
-                        zip_ref.extractall(extract_path)
-                    
+                os.remove(file_path)  # Удаляем архив после распаковки
                 QMessageBox.information(self, "Успех", f"Программа {program_name} успешно загружена и распакована.")
                 self.launch_program(program_name)
             except Exception as e:
@@ -230,10 +245,30 @@ class SoftwareLauncher(QMainWindow, Window):
                 msg.critical(self, "Ошибка", f"Ошибка распаковки: {e}")
         else:
             QMessageBox.information(self, "Успех", f"Программа {program_name} успешно загружена.")
+        self.update_delete_button_state(program_name)
 
     def on_download_error(self, error_message, progress_bar: QProgressBar):
         progress_bar.deleteLater()
         QMessageBox.critical(self, "Ошибка", f"Ошибка загрузки: {error_message}")
+
+    def delete_program(self, program_name):
+        program = SOFTWARE_URLS.get(program_name)
+        program_dir = os.path.abspath(os.path.join(SOFTWARE_DIR, os.path.basename(program['url']).replace('.zip', '')))
+
+        if os.path.exists(program_dir):
+            try:
+                for root, dirs, files in os.walk(program_dir, topdown=False):
+                    for name in files:
+                        os.remove(os.path.join(root, name))
+                    for name in dirs:
+                        os.rmdir(os.path.join(root, name))
+                os.rmdir(program_dir)
+                QMessageBox.information(self, "Успех", f"Программа {program_name} успешно удалена.")
+            except Exception as e:
+                QMessageBox.critical(self, "Ошибка", f"Не удалось удалить программу {program_name}.\n{e}\n\nВозможно, программа запущена.")
+        else:
+            QMessageBox.information(self, "Информация", f"Программа {program_name} не найдена.")
+        self.update_delete_button_state(program_name)
 
 
 
