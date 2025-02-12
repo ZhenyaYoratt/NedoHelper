@@ -1,18 +1,29 @@
 import os
 import traceback
 import zipfile
-from PyQt5.QtWidgets import QMainWindow, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QProgressBar, QMessageBox, QWidget
+from PyQt5.QtWidgets import QMainWindow, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QProgressBar, QMessageBox, QWidget, QScrollArea
 from PyQt5.QtNetwork import QNetworkAccessManager, QNetworkRequest, QNetworkReply
 from PyQt5.QtCore import Qt, QUrl, pyqtSignal, QThread, QByteArray, QObject, QSize
 from PyQt5.QtGui import QIcon, QPixmap
 from modules.titles import make_title
+from modules.browser import open_browser
+from modules.logger import log
+from ui.browser import BrowserWindow
 from pyqt_windows_os_light_dark_theme_window.main import Window
 import qtawesome
 
-# Ссылки для загрузки программ
+# Ссылки для загрузки программ (Скоро список будет перемещён в онлайн формат)
 SOFTWARE_URLS = {
+    "SimpleUnlocker": {
+        "url": "https://mirror.ds1nc.ru/su/release/simpleunlocker_release.zip",
+        "path": "simpleunlocker_release/SU.exe",
+    },
+    "SimpleUnlocker (c утилитами)": {
+        "url": "https://mirror.ds1nc.ru/su/release/simpleunlocker_release-u.zip",
+        "path": "simpleunlocker_release/SU.exe",
+    },
     "ProcessHacker": {
-        "url": "https://raw.githubusercontent.com/ZhenyaYoratt/NedoHelper/refs/heads/main/hosted_softwares/processhacker-2.39-bin.zip",
+        "url": "",
         "path": "x64/ProcessHacker.exe",
         "icon": "https://www.softportal.com/scr/14593/icons/process_hacker_72.png"
     },
@@ -32,21 +43,15 @@ SOFTWARE_URLS = {
         "path": "Autoruns.exe",
         "icon": "https://www.softportal.com/scr/7891/icons/autoruns_72.png"
     },
-    "SimpleUnlocker": {
-        "url": "https://mirror.ds1nc.ru/su/release/simpleunlocker_release.zip",
-        "path": "simpleunlocker_release/SU.exe",
-    },
-    "SimpleUnlocker (c утилитами)": {
-        "url": "https://mirror.ds1nc.ru/su/release/simpleunlocker_release-u.zip",
-        "path": "simpleunlocker_release/SU.exe",
-    },
     "RegCool": {
         "url": "https://kurtzimmermann.com/files/RegCoolX64.zip",
         "path": "RegCool.exe",
         "icon": "https://www.softportal.com/scr/47453/icons/regcool_64.png"
     },
     "RegAlyzer": {
-        "url": "https://download2.portableapps.com/portableapps/RegAlyzerPortable/RegAlyzerPortable_1.6.2.16.paf.exe",
+        "url": "https://raw.githubusercontent.com/ZhenyaYoratt/NedoHelper/refs/heads/main/hosted_softwares/RegAlyzerPortable.zip",
+        "path": "RegAlyzerPortable/RegAlyzer.exe",
+        "icon": "https://cdn2.portableapps.com/RegAlyzerPortable_128.png"
     },
     "Total Commander": {
         "url": "https://totalcommander.ch/1103/tcmd1103x32_64.exe",
@@ -57,6 +62,42 @@ SOFTWARE_URLS = {
         "path": "CCleaner.exe",
         "icon": "https://www.softportal.com/scr/14259/icons/ccleaner_portable_72.png"
     },
+    "ZSoft Uninstaller": {
+        "url": "https://download2.portableapps.com/portableapps/ZSoftUninstallerPortable/ZSoftUninstallerPortable_2.5_Rev_3.paf.exe",
+        "icon": "https://cdn2.portableapps.com/ZSoftUninstallerPortable_128.png"
+    },
+    "Command Prompt Portable": {
+        "url": "https://download2.portableapps.com/portableapps/CommandPromptPortable/CommandPromptPortable_2.6.paf.exe",
+        "icon": "https://cdn2.portableapps.com/CommandPromptPortable_128.png"
+    },
+    "7-Zip": {
+        "url": "https://download2.portableapps.com/portableapps/7-ZipPortable/7-ZipPortable_24.09.paf.exe",
+        "icon": "https://cdn2.portableapps.com/7-ZipPortable_128.png"
+    },
+    "ccPortable": {
+        "url": "https://download2.portableapps.com/portableapps/ccPortable/ccPortable_6.31.11415_online.paf.exe",
+        "icon": "https://cdn2.portableapps.com/ccPortable_128.png"
+    },
+    "DTaskManager": {
+        "url": "https://download2.portableapps.com/portableapps/DTaskManagerPortable/DTaskManagerPortable_1.57.31.paf.exe",
+        "icon": "https://cdn2.portableapps.com/DTaskManagerPortable_128.png"
+    },
+    "WizTree": {
+        "url": "https://download2.portableapps.com/portableapps/WizTreePortable/WizTreePortable_4.20.paf.exe",
+        "icon": "https://cdn2.portableapps.com/WizTreePortable_128.png"
+    },
+    "Run-Command Portable": {
+        "url": "https://download2.portableapps.com/portableapps/Run-CommandPortable/Run-CommandPortable_6.23.paf.exe",
+        "icon": "https://cdn2.portableapps.com/Run-CommandPortable_128.png"
+    },
+    "Process Explorer": {
+        "url": "https://download2.portableapps.com/portableapps/ProcessExplorerPortable/ProcessExplorerPortable_17.06_online.paf.exe",
+        "icon": "https://cdn2.portableapps.com/ProcessExplorerPortable_128.png"
+    },
+    "Process Monitor": {
+        "url": "https://download2.portableapps.com/portableapps/ProcessMonitorPortable/ProcessMonitorPortable_4.01_online.paf.exe",
+        "icon": "https://cdn2.portableapps.com/ProcessMonitorPortable_128.png"
+    }
 }
 
 SOFTWARE_DIR = "software"
@@ -126,7 +167,7 @@ class SoftwareLauncher(QMainWindow, Window):
     def __init__(self, parent = None):
         super().__init__()
         self.setParent(parent)
-        self.setWindowTitle(make_title("Запуск сторонних программ"))
+        self.setWindowTitle(make_title(self.tr("Запуск сторонних программ")))
         self.setMinimumSize(400, 250)
         self.setWindowFlags(Qt.WindowType.Dialog)
         self.setWindowFlag(Qt.WindowType.WindowContextHelpButtonHint, False)
@@ -134,14 +175,22 @@ class SoftwareLauncher(QMainWindow, Window):
         # Основной виджет
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
-
-        # Макет
         layout = QVBoxLayout(central_widget)
 
         # Заголовок
-        header_label = QLabel("Выберите программу для запуска:")
+        header_label = QLabel(self.tr("Запуск сторонних программ"))
         header_label.setObjectName("title")
         layout.addWidget(header_label)
+
+        # Добавляем область прокрутки
+        scroll_area = QScrollArea()
+        scroll_area.setWidgetResizable(True)
+        layout.addWidget(scroll_area)
+
+        # Виджет содержимого для области прокрутки
+        scroll_content = QWidget()
+        scroll_area.setWidget(scroll_content)
+        scroll_layout = QVBoxLayout(scroll_content)
 
         placeholder_icon = QIcon("ui/icons/placeholder.png")
 
@@ -165,9 +214,34 @@ class SoftwareLauncher(QMainWindow, Window):
             delete_button.setMaximumSize(28, 28)
             button_layout.addWidget(delete_button)
 
-            layout.addLayout(button_layout)
+            scroll_layout.addLayout(button_layout)
             self.buttons[program_name] = (button, delete_button)
             self.update_delete_button_state(program_name)
+
+        # Кнопка для предложения программы
+        self.suggest_button = QPushButton(self.tr("Предложить программу"))
+        self.suggest_button.setIcon(qtawesome.icon("fa.plus", color="green"))
+        self.suggest_button.clicked.connect(self.suggest_program)
+        layout.addWidget(self.suggest_button)
+
+    def retranslateUi(self):
+        self.setWindowTitle(make_title(self.tr("Запуск сторонних программ")))
+        self.suggest_button.setText(self.tr("Предложить программу"))
+
+    def suggest_program(self):
+        url = "https://github.com/ZhenyaYoratt/YoHelper/discussions/new?category=suggest-programs"
+        msg = QMessageBox()
+        msg.setWindowTitle(self.tr("Открытие ссылки"))
+        msg.setText(self.tr('Открыть ссылку во встроенном браузере? Нажмите "Нет", чтобы открыть в браузере по умолчанию.'))
+        msg.setInformativeText(url)
+        msg.setStandardButtons(QMessageBox.Yes | QMessageBox.No | QMessageBox.Cancel)
+        msg.setDefaultButton(QMessageBox.Yes)
+        ret = msg.exec_()
+        if ret == QMessageBox.Yes:
+            self.browser_window = BrowserWindow(self, url)
+            self.browser_window.show()
+        elif ret == QMessageBox.No:
+            open_browser(url)
 
     def update_delete_button_state(self, program_name):
         program = SOFTWARE_URLS.get(program_name)
@@ -183,8 +257,8 @@ class SoftwareLauncher(QMainWindow, Window):
         if not os.path.exists(program_dir):
             reply = QMessageBox.question(
                 self,
-                "Программа отсутствует",
-                f"Программа {program_name} отсутствует. Хотите загрузить ее?",
+                self.tr("Программа отсутствует"),
+                self.tr("Программа {0} отсутствует. Хотите загрузить ее?").format(program_name),
                 QMessageBox.Yes | QMessageBox.No
             )
             if reply == QMessageBox.Yes:
@@ -195,16 +269,22 @@ class SoftwareLauncher(QMainWindow, Window):
 
         # Запускаем программу
         try:
-            path = os.path.join(program_dir, program['path'])
-            os.startfile(path)
+            if program['url'].endswith(".exe"):
+                try:
+                    os.startfile(os.path.abspath(os.path.join(SOFTWARE_DIR, os.path.basename(program['url']))))
+                except Exception as e:
+                    QMessageBox.critical(self, self.tr("Ошибка"), self.tr("Не удалось запустить программу {0}.\n{1}\n\nПопробуйте удалить и скачать завоно.").format(program_name, e))
+            else:
+                path = os.path.join(program_dir, program['path'])
+                os.startfile(path)
         except Exception as e:
-            QMessageBox.critical(self, "Ошибка", f"Не удалось запустить программу {program_name}.\n{e}\n\nПопробуйте удалить и скачать завоно.")
+            QMessageBox.critical(self, self.tr("Ошибка"), self.tr("Не удалось запустить программу {0}.\n{1}\n\nПопробуйте удалить и скачать завоно.").format(program_name, e))
 
     def download_program(self, program_name):
         program = SOFTWARE_URLS.get(program_name)
 
         if not program:
-            QMessageBox.critical(self, "Ошибка", f"Ссылка для загрузки {program_name} отсутствует.")
+            QMessageBox.critical(self, self.tr("Ошибка"), self.tr("Ссылка для загрузки {0} отсутствует.").format(program_name))
             return
 
         os.makedirs(SOFTWARE_DIR, exist_ok=True)
@@ -214,7 +294,7 @@ class SoftwareLauncher(QMainWindow, Window):
         progress_bar = QProgressBar()
         self.centralWidget().layout().addWidget(progress_bar)
         progress_bar.setValue(0)
-        progress_bar.setFormat(f"Загрузка {program_name}... %p%")
+        progress_bar.setFormat(self.tr("Загрузка") + " " + program_name + "... %p%")
 
         self.worker = DownloadSoftwareWorker(self, program['url'], file_path)
         self.worker.set_max.connect(progress_bar.setMaximum)
@@ -233,23 +313,39 @@ class SoftwareLauncher(QMainWindow, Window):
         if file_path.endswith(".zip"):
             try:
                 with zipfile.ZipFile(file_path, "r") as zip_ref:
-                    extract_path = os.path.join(SOFTWARE_DIR, os.path.basename(program['url']).replace('.zip', ''))
+                    extract_path = os.path.abspath(os.path.join(SOFTWARE_DIR, os.path.basename(program['url']).replace('.zip', '')))
                     os.makedirs(extract_path, exist_ok=True)
                     zip_ref.extractall(extract_path)
                 os.remove(file_path)  # Удаляем архив после распаковки
-                QMessageBox.information(self, "Успех", f"Программа {program_name} успешно загружена и распакована.")
-                self.launch_program(program_name)
+                print(program)
+                if "zip" in program:
+                    # Снова распокавать распокованный zip файл
+                    try:
+                        file_path = os.path.join(SOFTWARE_DIR, os.path.basename(program['url']).replace('.zip', ''), program['zip'])
+                        with zipfile.ZipFile(file_path, "r") as zip_ref:
+                            extract_path = os.path.join(SOFTWARE_DIR, os.path.basename(program['url']).replace('.zip', ''), program['zip'].replace('.zip', ''))
+                            os.makedirs(extract_path, exist_ok=True)
+                            zip_ref.extractall(extract_path)
+                        os.remove(file_path)
+                    except Exception as e:
+                        msg = QMessageBox()
+                        msg.setDetailedText(traceback.format_exc())
+                        msg.critical(self, self.tr("Ошибка"), self.tr("Ошибка второй распаковки программы {0}: {1}").format(program_name, e))
+                        return
+                QMessageBox.information(self, self.tr("Успех"), self.tr("Программа {0} успешно загружена и распакована.").format(program_name))
             except Exception as e:
                 msg = QMessageBox()
                 msg.setDetailedText(traceback.format_exc())
-                msg.critical(self, "Ошибка", f"Ошибка распаковки: {e}")
+                msg.critical(self, self.tr("Ошибка"), self.tr("Ошибка распаковки программы {0}: {1}").format(program_name, e))
+                return
         else:
-            QMessageBox.information(self, "Успех", f"Программа {program_name} успешно загружена.")
+            QMessageBox.information(self, self.tr("Успех"), self.tr("Программа {0} успешно загружена.").format(program_name))
+        self.launch_program(program_name)
         self.update_delete_button_state(program_name)
 
     def on_download_error(self, error_message, progress_bar: QProgressBar):
         progress_bar.deleteLater()
-        QMessageBox.critical(self, "Ошибка", f"Ошибка загрузки: {error_message}")
+        QMessageBox.critical(self, self.tr("Ошибка"), self.tr("Ошибка загрузки") + ": " + error_message)
 
     def delete_program(self, program_name):
         program = SOFTWARE_URLS.get(program_name)
@@ -263,21 +359,9 @@ class SoftwareLauncher(QMainWindow, Window):
                     for name in dirs:
                         os.rmdir(os.path.join(root, name))
                 os.rmdir(program_dir)
-                QMessageBox.information(self, "Успех", f"Программа {program_name} успешно удалена.")
+                QMessageBox.information(self, self.tr("Успех"), self.tr("Программа {0} успешно удалена.").format(program_name))
             except Exception as e:
-                QMessageBox.critical(self, "Ошибка", f"Не удалось удалить программу {program_name}.\n{e}\n\nВозможно, программа запущена.")
+                QMessageBox.critical(self, self.tr("Ошибка"), self.tr("Не удалось удалить программу {0}.\n{1}\n\nВозможно, программа запущена.").format(program_name, e))
         else:
-            QMessageBox.information(self, "Информация", f"Программа {program_name} не найдена.")
+            QMessageBox.information(self, self.tr("Информация"), self.tr("Программа {0} не найдена.").format(program_name))
         self.update_delete_button_state(program_name)
-
-
-
-
-
-
-
-
-
-
-
-

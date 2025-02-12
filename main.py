@@ -139,22 +139,23 @@ if __name__ == "__main__":
 is_pyi_splash = False
 
 try:
-    import pyi_splash
-    is_pyi_splash = True
+    import pyi_splash # type: ignore
     pyi_splash.update_text("Loading GUI...")
+    is_pyi_splash = True
 except:
     pass
 
 import sys, traceback
 from PyQt5.QtWidgets import QMainWindow, QApplication, QVBoxLayout, QHBoxLayout, QLabel, QGroupBox, QPushButton, QCompleter, QLineEdit, QWidget, QMessageBox, qApp, QErrorMessage, QTableView
-from PyQt5.QtCore import Qt, QSize, QTimer, QThread, QCoreApplication
-from PyQt5.QtGui import QIcon, QPixmap, QStandardItemModel, QStandardItem
+from PyQt5.QtCore import Qt, QSize, QTimer, QThread, QCoreApplication, QTranslator, QLocale
+from PyQt5.QtGui import QIcon, QStandardItemModel, QStandardItem, QColor
 from PyQt5.QtWinExtras import QWinTaskbarButton
 from modules.system_info import get_system_info, get_disk_info, get_load_info, get_os_icon
 from modules.process_launcher import ProcessLauncher
 from modules.logger import *
 from modules.titles import make_title
 from modules.tts import say_async
+from modules.browser import open_browser
 from ui.antivirus import AntivirusWindow
 from ui.disk_manager import DiskManagerWindow
 from ui.user_manager import UserManagerWindow
@@ -247,8 +248,6 @@ QPushButton {
 
         self.initUI()
 
-        self.move(QApplication.desktop().screen().rect().center() - self.rect().center())
-
         self.threads = list()
 
     def initUI(self):
@@ -267,8 +266,8 @@ QPushButton {
         side_layout = QVBoxLayout()
 
         # Система
-        system_group = QGroupBox()
-        system_group.setTitle("Система")
+        self.system_group = QGroupBox()
+        self.system_group.setTitle(self.tr("Система"))
         system_layout = QVBoxLayout()
         self.system_info_table = QTableView()
         self.system_info_table.setEditTriggers(QTableView.NoEditTriggers)
@@ -277,14 +276,14 @@ QPushButton {
         self.system_info_table.verticalHeader().hide()
         self.system_info_table.horizontalHeader().hide()
         system_layout.addWidget(self.system_info_table)
-        system_group.setLayout(system_layout)
+        self.system_group.setLayout(system_layout)
 
         # Системная информация
-        system_info_group = QGroupBox("Информация")
+        self.system_info_group = QGroupBox(self.tr("Информация о системе"))
         system_info_layout = QVBoxLayout()
-        self.system_info_label = QLabel("Система: Загрузка...")
-        self.disk_info_label = QLabel("Диски: Загрузка...")
-        self.update_system_info_button = QPushButton("Обновить")
+        self.system_info_label = QLabel("...")
+        self.disk_info_label = QLabel("...")
+        self.update_system_info_button = QPushButton(self.tr("Обновить"))
         self.update_system_info_button.clicked.connect(self.update_system_info)
         os_icon = QLabel()
         os_icon.setPixmap(get_os_icon())
@@ -292,63 +291,70 @@ QPushButton {
         system_info_layout.addWidget(self.system_info_label)
         system_info_layout.addWidget(self.disk_info_label)
         system_info_layout.addWidget(self.update_system_info_button)
-        system_info_group.setLayout(system_info_layout)
-        side_layout.addWidget(system_info_group)
+        self.system_info_group.setLayout(system_info_layout)
+        side_layout.addWidget(self.system_info_group)
 
         module_buttons = [
-            ("Разблокировка ограничений", self.open_unlocker, "mdi.lock-open"),
-            ("Запуск сторонних программ", self.software_launcher.show, "mdi.apps"),
-            ("Диспетчер задач", self.open_task_manager, "mdi.apps"),
-            ("Браузер", lambda: self.open_browser(), "mdi.web"),
-            ("Управление дисками", self.open_disk_manager, "mdi.harddisk"),
-            ("Управление пользователями", self.open_user_manager, "mdi.account-group"),
-            ("Персонализация", self.open_desktop_manager, "mdi.image"),
-            ("Точка восстановления", self.open_system_restore, "mdi.restore"),
-            ("Антивирус", self.open_antivirus, "mdi.shield-bug"),
-            ("Выход", qApp.quit, "mdi.exit-to-app"),
+            ("Разблокировка ограничений", self.tr("Разблокировка ограничений"), self.open_unlocker, "mdi.lock-open"),
+            ("Запуск сторонних программ", self.tr("Запуск сторонних программ"), self.software_launcher.show, "mdi.apps"),
+            ("Диспетчер задач", self.tr("Диспетчер задач"), self.open_task_manager, "mdi.apps"),
+            ("Браузер", self.tr("Браузер"), lambda: self.open_browser(), "mdi.web"),
+            ("Управление дисками", self.tr("Управление дисками"), self.open_disk_manager, "mdi.harddisk"),
+            ("Управление пользователями", self.tr("Управление пользователями"), self.open_user_manager, "mdi.account-group"),
+            ("Персонализация", self.tr("Персонализация"), self.open_desktop_manager, "mdi.image"),
+            ("Точка восстановления", self.tr("Точка восстановления"), self.open_system_restore, "mdi.restore"),
+            ("Антивирус", self.tr("Антивирус"), self.open_antivirus, "mdi.shield-bug"),
+            ("Выход", self.tr("Выход"), qApp.quit, "mdi.exit-to-app"),
         ]
 
-        for text, action, icon in module_buttons:
+        self.module_buttons = []
+        for original_text, text, action, icon in module_buttons:
             btn = QPushButton(text)
             btn.setIcon(qtawesome.icon(icon))
             btn.setIconSize(QSize(24, 24))
             btn.clicked.connect(action)
             side_layout.addWidget(btn)
             btn.setMinimumHeight(35)
+            btn.icon_ = icon
+            btn.original_text = original_text
+            self.module_buttons.append(btn)
 
         # Логирование
-        log_group = QGroupBox("Логирование")
+        self.log_group = QGroupBox(self.tr("Логирование"))
         log_layout = QVBoxLayout()
         self.log_text_edit = QTextEdit()
         self.log_text_edit.setReadOnly(True)
-        setup_logger(self.log_text_edit)       
+        setup_logger(self.log_text_edit)
         self.log_text_edit.setHtml(f'<pre style="font-size:8pt;white-space: pre;">{BANNER_TEXT}</pre>')
         self.log_text_edit.setStyleSheet("font-size: 11px;")
         log_layout.addWidget(self.log_text_edit)
-        log_group.setLayout(log_layout)
+        self.log_group.setLayout(log_layout)
 
         # Поле запуска команд
         command_layout = QHBoxLayout()
         self.command_input = QLineEdit()
         completer = QCompleter(CMD_PROGRAMS_LIST, self.command_input)
         self.command_input.setCompleter(completer) 
-        self.command_input.setPlaceholderText("Введите команду...")
+        self.command_input.setPlaceholderText(self.tr("Введите команду..."))
         self.command_input.returnPressed.connect(self.run_command)
-        command_run_button = QPushButton("Запустить")
-        command_run_button.clicked.connect(self.run_command)
+        self.command_run_button = QPushButton(self.tr("Запустить"))
+        self.command_run_button.clicked.connect(self.run_command)
         command_layout.addWidget(self.command_input)
-        command_layout.addWidget(command_run_button)
+        command_layout.addWidget(self.command_run_button)
 
         other_layout = QHBoxLayout()
         other_buttons = [
-            ("Настройки", self.open_settings),
-            ("Сайт NedoTube", lambda: self.open_browser('https://nedotube.vercel.app/')),
-            ("О программе", self.open_about),
+            ("Настройки", self.tr("Настройки"), self.open_settings),
+            ("Сайт NedoTube", self.tr("Сайт NedoTube"), lambda: self.open_browser('https://nedotube.vercel.app/')),
+            ("О программе", self.tr("О программе"), self.open_about),
         ]
 
-        for text, action in other_buttons:
+        self.other_buttons = []
+        for original_text, text, action in other_buttons:
             btn = QPushButton(text)
             btn.clicked.connect(action)
+            btn.original_text = original_text
+            self.other_buttons.append(btn)
             other_layout.addWidget(btn)
 
         # Добавление компонентов в макеты
@@ -356,9 +362,9 @@ QPushButton {
         mains_layout.addLayout(side_layout)
 
         main_layout.addLayout(mains_layout)
-        premain_layout.addWidget(system_group)
+        premain_layout.addWidget(self.system_group)
         premain_layout.addLayout(command_layout)
-        premain_layout.addWidget(log_group)
+        premain_layout.addWidget(self.log_group)
         premain_layout.addLayout(other_layout)
 
         central_widget = QWidget()
@@ -379,6 +385,11 @@ QPushButton {
         self.taskbar_progress.setValue(50)
         self.taskbar_progress.show()
 
+        self.move(QApplication.desktop().screen().rect().center() - self.rect().center())
+        self.show()
+        
+        self.settings_window = SettingsWindow(self)
+
     def on_timer(self):
         self.update_info()
 
@@ -393,7 +404,7 @@ QPushButton {
         qApp.processEvents()
         system_info = get_system_info()
         model = QStandardItemModel(len(system_info), 2)
-        model.setHorizontalHeaderLabels(["Параметр", "Значение"])
+        model.setHorizontalHeaderLabels([self.tr("Параметр"), self.tr("Значение")])
         for i, (key, value) in enumerate(system_info.items()):
             model.setItem(i, 0, QStandardItem(key + " "))
             model.setItem(i, 1, QStandardItem(value))
@@ -407,7 +418,8 @@ QPushButton {
         if not command:
             return
         self.command_input.clear()
-        log(f"<b>Введена комманда:</b> {command}")
+        t = self.tr("Введена комманда")
+        log(f"<b>{t}:</b> {command}")
 
         self.threads.append(QThread())
         self.process_launcher = ProcessLauncher(self, command)
@@ -419,13 +431,15 @@ QPushButton {
     def handle_process_output(self, stdout, stderr):
         """Обрабатывает вывод процесса."""
         if stdout:
-            log("<b>Вывод:</b>")
+            t = self.tr("Вывод")
+            log(f"<b>{t}:</b>")
             text = ""
             for line in stdout.splitlines():
                 text += line + "<br>\n"
             log(text)
         if stderr:
-            log("<b>Ошибка:</b>", ERROR)
+            t = self.tr("Ошибка")
+            log(f"<b>{t}:</b>", ERROR)
             text = ""
             for line in stdout.splitlines():
                 text += line + "<br>\n"
@@ -485,13 +499,28 @@ QPushButton {
         self.system_restore_window.show()
         btn.setDisabled(False)
 
-    def open_browser(self, url = "https://www.google.com/?hl=ru"):
+    def open_browser(self, url = None):
         """Открывает окно Встроенного браузера."""
         btn: QPushButton = self.sender()
         btn.setDisabled(True)
         qApp.processEvents()
-        self.browser_window = BrowserWindow(self, url)
-        self.browser_window.show()
+        if url is None:
+            url = "https://www.google.com/?hl=ru"
+            self.browser_window = BrowserWindow(self, url)
+            self.browser_window.show()
+        else:
+            msg = QMessageBox()
+            msg.setWindowTitle(self.tr("Открытие ссылки"))
+            msg.setText(self.tr('Открыть ссылку во встроенном браузере? Нажмите "Нет", чтобы открыть в браузере по умолчанию.'))
+            msg.setInformativeText(url)
+            msg.setStandardButtons(QMessageBox.Yes | QMessageBox.No | QMessageBox.Cancel)
+            msg.setDefaultButton(QMessageBox.Yes)
+            ret = msg.exec_()
+            if ret == QMessageBox.Yes:
+                self.browser_window = BrowserWindow(self, url)
+                self.browser_window.show()
+            elif ret == QMessageBox.No:
+                open_browser(url)
         btn.setDisabled(False)
 
     def open_task_manager(self):
@@ -508,7 +537,6 @@ QPushButton {
         btn: QPushButton = self.sender()
         btn.setDisabled(True)
         qApp.processEvents()
-        self.settings_window = SettingsWindow(self)
         self.settings_window.show()
         btn.setDisabled(False)
 
@@ -521,13 +549,26 @@ QPushButton {
         self.about_window.show()
         btn.setDisabled(False)
 
-    def run_unlocker(self):
-        """Запускает разблокировку ограничений."""
-        btn: QPushButton = self.sender()
-        btn.setDisabled(True)
-        qApp.processEvents()
-        run_unlocker()
-        btn.setDisabled(False)
+    def update_button_icons(self, theme):
+        """Обновляет цвет иконок кнопок в зависимости от темы."""
+        icon_color = "white" if theme == "dark" else "black"
+        for btn in self.module_buttons:
+            icon = qtawesome.icon(btn.icon_, color=icon_color)
+            btn.setIcon(icon)
+
+    def retranslateUi(self):
+        self.system_group.setTitle(self.tr("Система"))
+        self.log_group.setTitle(self.tr("Логирование"))
+        self.system_info_group.setTitle(self.tr("Информация о системе"))
+        self.update_system_info_button.setText(self.tr("Обновить"))
+        self.command_run_button.setText(self.tr("Запустить"))
+        self.command_input.setPlaceholderText(self.tr("Введите команду..."))
+        for btn in self.module_buttons:
+            btn.setText(self.tr(btn.original_text))
+        for btn in self.other_buttons:
+            btn.setText(self.tr(btn.original_text))
+        self.software_launcher.retranslateUi()
+        self.update_system_info()
 
     #def make_process_critical(self):  # Ненадёжный вариант, т.к. вирусы могут крашнуть систему из-за простого закрытия программы :P
     #    """Устанавливает процесс как критический."""
@@ -542,14 +583,14 @@ QPushButton {
 
     def closeEvent(self, event):
         """Предотвращает закрытие программы."""
-        QMessageBox.warning(self, "Предупреждение", "Закрытие программы заблокировано! Используйте кнопку выхода.")
+        QMessageBox.warning(self, self.tr("Предупреждение"), self.tr("Закрытие программы заблокировано! Используйте кнопку выхода."))
         event.ignore()
 
 from urllib.parse import urlparse
 
 def main():
     def trying_close(**k):
-        log('Произошла попытка завершения процесса программы!', WARNING)
+        log(window.tr("Произошла попытка завершения процесса программы!"), WARNING)
 
     #free_proxy = urlparse(FreeProxy(anonym=True).get())
     #print(free_proxy)
@@ -561,13 +602,13 @@ def main():
 
     app = QApplication(sys.argv)
     qdarktheme.setup_theme()
-
+    
     #say_async("Примечание: Чтобы сделать окно поверх всех окон, нажмите сочетание клавиш: Shift + F10")
 
     QCoreApplication.setQuitLockEnabled(True)  # Включаем блокировку выхода
     window = VirusProtectionApp()
-    window.show()
     app.aboutToQuit.connect(trying_close)
+
 
     if is_pyi_splash:
         pyi_splash.close()
@@ -577,10 +618,10 @@ def main():
 if __name__ == "__main__":
     error_code = ctypes.windll.kernel32.GetLastError()
     if error_code != 0:
-        log(f"Ошибка установки обработчика: {error_code}", ERROR)
+        log(f"Error setup the handler: {error_code}", ERROR)
 
     if not is_admin():
-        print("Попытка запустить с правами администратора...")
+        print("Attempt to run with administrator rights...")
         run_as_admin()
     else:
         print('\n\n\n')

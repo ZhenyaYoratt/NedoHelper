@@ -55,17 +55,17 @@ class UserManagerWindow(QMainWindow, Window):
     def show_user_info(self, item: QListWidgetItem):
         user = item.data(Qt.ItemDataRole.UserRole)
         dialog = QDialog(self)
-        dialog.setWindowTitle(f"Информация о пользователе {user.name}")
+        dialog.setWindowTitle(self.tr("Информация о пользователе {0}").format(user.name))
         dialog.setFixedSize(400, 200)
         dialog.move(self.cursor().pos())
         layout = QVBoxLayout()
-        username_label = QLabel(f"Имя пользователя: {user.name}")
-        terminal_label = QLabel(f"Терминал: {user.terminal if user.terminal else 'Неизвестно'}")
-        host_label = QLabel(f"Хост: {user.host if user.host else 'Неизвестно'}")
-        started_label = QLabel(f"Запущен: {QDateTime.fromSecsSinceEpoch(int(user.started)).toString()}")
-        delete_user_button = QPushButton("Удалить пользователя")
+        username_label = QLabel(self.tr("Имя пользователя") + ": " + user.name)
+        terminal_label = QLabel(self.tr("Терминал") + ": " + user.terminal if user.terminal else 'Неизвестно')
+        host_label = QLabel(self.tr("Хост") + ": " + user.host if user.host else 'Неизвестно')
+        started_label = QLabel(self.tr("Запущен") + ": " + QDateTime.fromSecsSinceEpoch(int(user.started)).toString())
+        delete_user_button = QPushButton(self.tr("Удалить пользователя"))
         delete_user_button.clicked.connect(lambda: self.delete_user(user.name))
-        set_password_button = QPushButton("Установить пароль")
+        set_password_button = QPushButton(self.tr("Установить пароль"))
         set_password_button.clicked.connect(lambda: self.set_password(user.name))
         layout.addWidget(username_label)
         layout.addWidget(terminal_label)
@@ -78,12 +78,12 @@ class UserManagerWindow(QMainWindow, Window):
 
     def update_users(self):
         users = list_users()
-        log(f"Пользователи: {users}", DEBUG)
+        log(self.tr("Пользователи") + ": " + users, DEBUG)
         self.users_view.clear()
         for user in users:
             item = QListWidgetItem()
             item.setData(Qt.ItemDataRole.UserRole, user)
-            item.setText(f"{user.name}")
+            item.setText(user.name)
             self.users_view.addItem(item)
 
     def add_user(self):
@@ -94,28 +94,28 @@ class UserManagerWindow(QMainWindow, Window):
         self.username_input.clear()
         self.password_input.clear()
         if ok:
-            QMessageBox.information(self, "Успешно", f"Пользователь {username} успешно добавлен. Однако требуется инциализация пользователя, чтобы показался в списке.")
+            QMessageBox.information(self, self.tr("Успешно"), self.tr("Пользователь {0} успешно добавлен. Однако требуется инциализация пользователя, чтобы показался в списке.").format(username))
         else:
-            QMessageBox.warning(self, "Ошибка", f"Ошибка добавления пользователя {username}.")
+            QMessageBox.warning(self, self.tr("Ошибка"), self.tr("Ошибка добавления пользователя {0}.").format(username))
         self.update_users()
 
     def delete_user(self, username: str):
-        if QMessageBox.question(self, "Подтверждение", f"Удалить пользователя {username}?", QMessageBox.Yes | QMessageBox.No) == QMessageBox.Yes:
+        if QMessageBox.question(self, self.tr("Подтверждение"), self.tr("Удалить пользователя {0}?").format(username), QMessageBox.Yes | QMessageBox.No) == QMessageBox.Yes:
             ok, result = delete_user(username)
             self.statusbar.showMessage(result)
             self.update_users()
             if ok:
-                QMessageBox.information(self, "Успешно", f"Пользователь {username} успешно удален. Может потребоваться перезагрузить компьютер.")
+                QMessageBox.information(self, self.tr("Успешно"), self.tr("Пользователь {0} успешно удален. Может потребоваться перезагрузка компьютера.").format(username))
             else:
-                QMessageBox.warning(self, "Ошибка", f"Ошибка удаления пользователя {username}.")
+                QMessageBox.warning(self, self.tr("Ошибка"), self.tr("Ошибка удаления пользователя {0}.").format(username))
 
     def set_password(self, username: str):
-        password, ok = QInputDialog.getText(self, "Установка пароля", f"Введите новый пароль для пользователя {username}")
+        password, ok = QInputDialog.getText(self, "Установка пароля", self.tr("Введите новый пароль для пользователя {0}").format(username))
         if ok:
             ok, result = set_password(username, password)
             self.statusbar.showMessage(result)
             self.update_users()
             if ok:
-                QMessageBox.information(self, "Успешно", f"Пароль для пользователя {username} успешно установлен.")
+                QMessageBox.information(self, self.tr("Успешно"), self.tr("Пароль для пользователя {0} успешно установлен.").format(username))
             else:
-                QMessageBox.warning(self, "Ошибка", f"Ошибка установки пароля для пользователя {username}.")
+                QMessageBox.warning(self, self.tr("Ошибка"), self.tr("Ошибка установки пароля для пользователя {0}.").format(username))

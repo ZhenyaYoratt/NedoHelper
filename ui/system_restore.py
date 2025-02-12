@@ -8,18 +8,20 @@ class SystemRestoreWindow(QMainWindow, Window):
     def __init__(self, parent = None):
         super().__init__()
         self.setParent(parent)
-        self.setWindowTitle(make_title("Точка восстановления"))
+        self.setWindowTitle(make_title(self.tr("Точка восстановления")))
         self.setFixedSize(400, 300)
         self.setWindowFlags(Qt.WindowType.Dialog)
         self.setWindowFlag(Qt.WindowType.WindowContextHelpButtonHint, False)
 
+        self.statusbar = self.statusBar()
+
         layout = QVBoxLayout()
-        self.header_label = QLabel("Управление точками восстановления.")
+        self.header_label = QLabel(self.tr("Управление точками восстановления"))
         self.header_label.setObjectName("title")
-        create_restore_button = QPushButton("Создать точку восстановления")
+        create_restore_button = QPushButton(self.tr("Создать точку восстановления"))
         create_restore_button.clicked.connect(self.create_restore_point)
 
-        restore_button = QPushButton("Восстановить систему")
+        restore_button = QPushButton(self.tr("Восстановить систему"))
         restore_button.clicked.connect(self.restore_system)
 
         layout.addWidget(self.header_label)
@@ -39,3 +41,9 @@ class SystemRestoreWindow(QMainWindow, Window):
         """Восстанавливает систему к точке восстановления."""
         result = restore_to_point()
         self.statusbar.showMessage(result)
+
+    def retranslateUi(self):
+        self.setWindowTitle(make_title(self.tr("Точка восстановления")))
+        self.header_label.setText(self.tr("Управление точками восстановления"))
+        self.create_restore_button.setText(self.tr("Создать точку восстановления"))
+        self.restore_button.setText(self.tr("Восстановить систему"))

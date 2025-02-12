@@ -76,7 +76,13 @@ Special thanks to the open-source community for providing libraries and tools th
 This project is licensed under the terms of GNU General Public License version 3.0 or newer. You can see full license text in [LICENSE](LICENSE) file.
 
 ## Star History
-[![Star History Chart](https://api.star-history.com/svg?repos=ZhenyaYoratt/YoHelper&type=Date)](https://star-history.com/#ZhenyaYoratt/YoHelper&Date)
+<a href="https://star-history.com/#ZhenyaYoratt/YoHelper&Date">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=ZhenyaYoratt/YoHelper&type=Date&theme=dark" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=ZhenyaYoratt/YoHelper&type=Date" />
+   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=ZhenyaYoratt/YoHelper&type=Date" />
+ </picture>
+</a>
 
 ---
 

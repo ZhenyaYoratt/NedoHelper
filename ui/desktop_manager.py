@@ -14,16 +14,16 @@ class DesktopManagerWindow(QMainWindow, Window):
     def __init__(self, parent = None):
         super().__init__()
         self.setParent(parent)
-        self.setWindowTitle(make_title("Управление обоями"))
+        self.setWindowTitle(make_title(self.tr("Управление обоями")))
         self.resize(700, 700)
         self.setWindowFlags(Qt.WindowType.Dialog)
         self.setWindowFlag(Qt.WindowType.WindowContextHelpButtonHint, False)
 
         self.statusbar = self.statusBar()
-        self.statusbar.showMessage("Готов к работе")
+        self.statusbar.showMessage(self.tr("Готов к работе"))
 
         layout = QVBoxLayout()
-        self.header_label = QLabel("Управление обоями рабочего стола.")
+        self.header_label = QLabel(self.tr("Управление обоями"))
         self.header_label.setObjectName("title")
 
         # A list of all wallpapers in folder with previews; clicking on a preview sets the wallpaper
@@ -32,13 +32,13 @@ class DesktopManagerWindow(QMainWindow, Window):
         self.list_widget.setIconSize(QSize(320, 200))
         self.list_widget.doubleClicked.connect(lambda: set_wallpaper(self.list_widget.currentItem().path))
 
-        change_wallpaper_button = QPushButton("Выбрать файл обоев")
+        change_wallpaper_button = QPushButton(self.tr("Выбрать файл обоев"))
         change_wallpaper_button.clicked.connect(self.change_wallpaper)
 
-        reset_wallpaper_button = QPushButton("Поставить дефолтные обои")
+        reset_wallpaper_button = QPushButton(self.tr("Поставить обои по умолчанию"))
         reset_wallpaper_button.clicked.connect(lambda: set_wallpaper(DEFAULT_WALLPAPER))
 
-        black_color_wallpaper_button = QPushButton("Удалить обои")
+        black_color_wallpaper_button = QPushButton(self.tr("Удалить обои"))
         black_color_wallpaper_button.clicked.connect(self.reset_wallpaper)
 
         buttons_layout = QHBoxLayout()
@@ -72,7 +72,7 @@ class DesktopManagerWindow(QMainWindow, Window):
         """Меняет обои рабочего стола."""
         image_path, _ = QFileDialog.getOpenFileName(self, "Выберите изображение", "", "Images (*.png *.jpg *.jpeg *.bmp)")
         if not image_path:
-            log("Обои не выбраны.", WARN)
+            log(self.tr("Операция отменена пользователем") + ": " + self.tr("Обои не выбраны."), WARN)
             return
 
         self.statusbar.showMessage(set_wallpaper(image_path))
@@ -80,3 +80,7 @@ class DesktopManagerWindow(QMainWindow, Window):
     def reset_wallpaper(self):
         """Сбрасывает обои рабочего стола."""
         self.statusbar.showMessage(reset_wallpaper())
+
+    def retranslateUi(self):
+        self.setWindowTitle(make_title(self.tr("Управление обоями")))
+        self.header_label.setText(self.tr("Управление обоями"))

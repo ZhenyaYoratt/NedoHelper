@@ -8,26 +8,26 @@ class AntivirusWindow(QMainWindow, Window):
     def __init__(self, parent = None):
         super().__init__()
         self.setParent(parent)
-        self.setWindowTitle(make_title("Антивирус"))
+        self.setWindowTitle(make_title(self.tr("Антивирус")))
         self.setMaximumSize(800, 1000)
         self.resize(450, 350)
         self.setWindowFlags(Qt.WindowType.Dialog)
         self.setWindowFlag(Qt.WindowType.WindowContextHelpButtonHint, False)
 
         self.statusbar = self.statusBar()
-        self.statusbar.showMessage("Готов к работе")
+        self.statusbar.showMessage(self.tr("Готов к работе"))
 
         layout = QVBoxLayout()
-        update_db_button = QPushButton("Обновить базы данных")
+        update_db_button = QPushButton(self.tr("Обновить базы данных"))
         update_db_button.clicked.connect(self.update_db)
 
-        self.header_label = QLabel("Антивирус")
+        self.header_label = QLabel(self.tr("Антивирус"))
         self.header_label.setObjectName("title")
 
         self.progress_bar = QProgressBar()
-        self.results_label = QLabel("Результаты сканирования:")
+        self.results_label = QLabel(self.tr("Результаты сканирования")+"")
         self.results_list = QListWidget()
-        start_scan_button = QPushButton("Сканировать папку")
+        start_scan_button = QPushButton(self.tr("Сканировать папку"))
         start_scan_button.clicked.connect(self.start_scan)
 
         self.statusbar.addPermanentWidget(self.progress_bar)
@@ -43,13 +43,13 @@ class AntivirusWindow(QMainWindow, Window):
         self.setCentralWidget(central_widget)
 
     def update_db(self):
-        self.statusbar.showMessage("Обновление базы данных...")
+        self.statusbar.showMessage(self.tr("Обновление базы данных..."))
         self.progress_bar.setValue(0)
         self.worker = UpdateWorker()
         self.worker.set_max.connect(self.progress_bar.setMaximum)
         self.worker.progress.connect(self.progress_bar.setValue)
         self.worker.completed.connect(lambda: (
-            self.statusbar.showMessage("Базы данных обновлены!"),
+            self.statusbar.showMessage(self.tr("Базы данных обновлены!")),
             self.progress_bar.setMaximum(1),
             self.progress_bar.reset()
         ))
@@ -60,12 +60,13 @@ class AntivirusWindow(QMainWindow, Window):
 
     def start_scan(self):
         """Начинает сканирование выбранной папки."""
-        directory = QFileDialog.getExistingDirectory(self, "Выберите папку для сканирования")
+        directory = QFileDialog.getExistingDirectory(self, self.tr("Выберите папку для сканирования"))
         if not directory:
-            self.statusbar.showMessage("Сканирование отменено.")
+            self.statusbar.showMessage(self.tr("Сканирование отменено пользователем."))
             return
 
-        self.statusbar.showMessage(f"Сканирование: {directory}...")
+        t = self.tr("Сканирование")
+        self.statusbar.showMessage(f"{t}: {directory}...")
         self.progress_bar.setValue(0)
         self._thread = ScanThread(directory)
         self._thread.set_max.connect(self.progress_bar.setMaximum)
@@ -78,11 +79,17 @@ class AntivirusWindow(QMainWindow, Window):
         self.progress_bar.setMaximum(1)
         self.progress_bar.reset()
         if not suspicious_files:
-            self.statusbar.showMessage("Угроз не обнаружено.")
+            self.statusbar.showMessage(self.tr("Угроз не обнаружено."))
         else:
-            self.statusbar.showMessage("Сканирование завершено.")
-            results_text = "Найдены подозрительные файлы:"
+            self.statusbar.showMessage(self.tr("Сканирование завершено."))
             self.results_list.clear()
             self.results_list.addItems(suspicious_files)
             #for file in suspicious_files:
             #    delete_file(file)  # Удаляем подозрительные файлы
+
+    def retranslateUi(self):
+        self.setWindowTitle(make_title(self.tr("Антивирус")))
+        self.header_label.setText(self.tr("Антивирус"))
+        self.results_label.setText(self.tr("Результаты сканирования"))
+        self.update_db_button.setText(self.tr("Обновить базы данных"))
+        self.start_scan_button.setText(self.tr("Сканировать папку"))

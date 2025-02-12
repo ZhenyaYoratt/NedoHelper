@@ -9,20 +9,20 @@ class DiskManagerWindow(QMainWindow, Window):
     def __init__(self, parent = None):
         super().__init__()
         self.setParent(parent)
-        self.setWindowTitle(make_title('Управление дисками'))
+        self.setWindowTitle(make_title(self.tr("Управление дисками")))
         self.setWindowFlags(Qt.WindowType.Dialog)
         self.setWindowFlag(Qt.WindowType.WindowContextHelpButtonHint, False)
 
         layout = QVBoxLayout()
 
-        self.header_label = QLabel("Список дисков")
+        self.header_label = QLabel(self.tr("Список дисков"))
         self.header_label.setObjectName("title")
 
-        self.click_label = QLabel("Клик по диску для открытия меню")
+        self.click_label = QLabel(self.tr("Нажмите на диск, чтобы открыть меню"))
 
         self.disk_table = QTableWidget()
         self.disk_table.setColumnCount(6)
-        self.disk_table.setHorizontalHeaderLabels(["Буква", "Наименование", "BitLocker", "Занято/Свободно", "Статус", "Тип"])
+        self.disk_table.setHorizontalHeaderLabels([self.tr("Буква"), self.tr("Наименование"), "BitLocker", self.tr("Занято/Свободно"), self.tr("Статус"), self.tr("Тип")])
         self.disk_table.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
         self.disk_table.setSelectionBehavior(self.disk_table.SelectRows)
         self.disk_table.setSelectionMode(QTableWidget.SelectionMode.SingleSelection)
@@ -55,7 +55,7 @@ class DiskManagerWindow(QMainWindow, Window):
         disk_name = self.disk_table.item(row, 1).text()
 
         dialog = QDialog(self)
-        dialog.setWindowTitle(f"Управление диском {disk_letter}")
+        dialog.setWindowTitle(self.tr("Управление диском") + " " + disk_letter)
         dialog.setFixedSize(300, 100)
         dialog.move(self.cursor().pos())
         layout = QVBoxLayout()
@@ -66,7 +66,7 @@ class DiskManagerWindow(QMainWindow, Window):
         letter_label = QLabel(f"{disk_letter} {disk_name}")
         letter_label.setStyleSheet("font-size: 20px; font-weight: bold;")
         letter_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        unlock_bitlocker_button = QPushButton("Разблокировать диск")
+        unlock_bitlocker_button = QPushButton(self.tr("Разблокировать диск"))
         unlock_bitlocker_button.clicked.connect(lambda: self.unlock_bitlocker(disk_letter))
         hlayout.addWidget(icon_label)
         hlayout.addWidget(letter_label)
@@ -77,13 +77,13 @@ class DiskManagerWindow(QMainWindow, Window):
 
     def unlock_bitlocker(self, disk_letter):
         """Разблокирует BitLocker на указанном диске."""
-        credential, ok = QInputDialog.getText(self, "Разблокировка BitLocker", "Введите пароль или ключ востановления:")
+        credential, ok = QInputDialog.getText(self, self.tr("Разблокировка диска с BitLocker"), self.tr("Введите пароль или ключ востановления") + ":")
         if ok:
             result, ok = unlock_bitlocker(disk_letter, credential)
             if ok:
-                QMessageBox.information(self, "Успешно", result)
+                QMessageBox.information(self, self.tr("Успешно"), result)
             else:
-                QMessageBox.warning(self, "Ошибка", result)
+                QMessageBox.warning(self, self.tr("Ошибка"), result)
             self.refresh_disk_list()
 
     def refresh_disk_list(self):
@@ -102,7 +102,7 @@ class DiskManagerWindow(QMainWindow, Window):
 
             # Проверка на защиту BitLocker
             bitlocker_status = is_bitlocker_protected(partition.device)  
-            self.disk_table.setItem(row, 2, QTableWidgetItem("Да" if bitlocker_status == True else "Нет" if bitlocker_status == False else "N/A"))
+            self.disk_table.setItem(row, 2, QTableWidgetItem(self.tr("Да") if bitlocker_status == True else self.tr("Нет") if bitlocker_status == False else "N/A"))
 
             # Прогресс бар
             progress = QProgressBar()
@@ -116,10 +116,16 @@ class DiskManagerWindow(QMainWindow, Window):
                 progress.setDisabled(True)
             
             # Доступность
-            self.disk_table.setItem(row, 4, QTableWidgetItem("ОК" if disk_status else "Недоступен"))
+            self.disk_table.setItem(row, 4, QTableWidgetItem("ОК" if disk_status else self.tr("Недоступен")))
             
             # Тип
             self.disk_table.setItem(row, 5, QTableWidgetItem(get_disk_type(partition.mountpoint)))
 
         self.disk_table.resizeColumnsToContents()
         self.disk_table.resizeRowsToContents()
+
+    def retranslateUi(self):
+        self.setWindowTitle(make_title(self.tr("Управление дисками")))
+        self.header_label.setText(self.tr("Список дисков"))
+        self.click_label.setText(self.tr("Нажмите на диск, чтобы открыть меню"))
+        self.disk_table.setHorizontalHeaderLabels([self.tr("Буква"), self.tr("Наименование"), self.tr("BitLocker"), self.tr("Занято/Свободно"), self.tr("Статус"), self.tr("Тип")])

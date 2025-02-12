@@ -21,7 +21,7 @@ class BrowserWindow(QMainWindow, Window):
     def __init__(self, parent = None, url = "https://www.google.com/?hl=ru"):
         super().__init__()
         self.setParent(parent)
-        self.setWindowTitle(make_title("Встроенный браузер"))
+        self.setWindowTitle(make_title(self.tr("Встроенный браузер")))
         self.resize(1300, 840)
         self.setWindowFlags(Qt.WindowType.Dialog)
         self.setWindowFlag(Qt.WindowType.WindowContextHelpButtonHint, False)
@@ -36,60 +36,66 @@ class BrowserWindow(QMainWindow, Window):
         # Панель управления
         control_layout = QHBoxLayout()
 
-        back_button = QPushButton()
-        back_button.setIcon(qtawesome.icon("mdi.arrow-left"))
-        back_button.setIconSize(QSize(28, 28))
-        back_button.clicked.connect(lambda: self.current_tab().back())
+        self.back_button = QPushButton()
+        self.back_button.setIcon(qtawesome.icon("mdi.arrow-left"))
+        self.back_button.setIconSize(QSize(28, 28))
+        self.back_button.clicked.connect(lambda: self.current_tab().back())
 
-        forward_button = QPushButton()
-        forward_button.setIcon(qtawesome.icon("mdi.arrow-right"))
-        forward_button.setIconSize(QSize(28, 28))
-        forward_button.clicked.connect(lambda: self.current_tab().forward())
+        self.forward_button = QPushButton()
+        self.forward_button.setIcon(qtawesome.icon("mdi.arrow-right"))
+        self.forward_button.setIconSize(QSize(28, 28))
+        self.forward_button.clicked.connect(lambda: self.current_tab().forward())
 
-        reload_button = QPushButton()
-        reload_button.setIcon(qtawesome.icon("mdi.reload"))
-        reload_button.setIconSize(QSize(28, 28))
-        reload_button.clicked.connect(lambda: self.current_tab().reload())
+        self.reload_button = QPushButton()
+        self.reload_button.setIcon(qtawesome.icon("mdi.reload"))
+        self.reload_button.setIconSize(QSize(28, 28))
+        self.reload_button.clicked.connect(lambda: self.current_tab().reload())
 
-        home_button = QPushButton()
-        home_button.setIcon(qtawesome.icon("mdi.home"))
-        home_button.setIconSize(QSize(28, 28))
-        home_button.clicked.connect(self.navigate_home)
+        self.home_button = QPushButton()
+        self.home_button.setIcon(qtawesome.icon("mdi.home"))
+        self.home_button.setIconSize(QSize(28, 28))
+        self.home_button.clicked.connect(self.navigate_home)
 
         self.urlbar = QLineEdit()
-        self.urlbar.setPlaceholderText("Введите URL...")
+        self.urlbar.setPlaceholderText(self.tr("Введите URL..."))
         self.urlbar.returnPressed.connect(self.navigate_to_url)
         self.httpsicon = QLabel()
 
-        go_button = QPushButton()
-        go_button.setIcon(qtawesome.icon("mdi.arrow-right"))
-        go_button.setIconSize(QSize(28, 28))
-        go_button.clicked.connect(self.navigate_to_url)
+        self.go_button = QPushButton()
+        self.go_button.setIcon(qtawesome.icon("mdi.arrow-right"))
+        self.go_button.setIconSize(QSize(28, 28))
+        self.go_button.clicked.connect(self.navigate_to_url)
 
-        add_new_tab_button = QPushButton()
-        add_new_tab_button.setIcon(qtawesome.icon("mdi.plus"))
-        add_new_tab_button.setIconSize(QSize(28, 28))
-        add_new_tab_button.clicked.connect(lambda: self.add_new_tab())
+        self.add_new_tab_button = QPushButton()
+        self.add_new_tab_button.setIcon(qtawesome.icon("mdi.plus"))
+        self.add_new_tab_button.setIconSize(QSize(28, 28))
+        self.add_new_tab_button.clicked.connect(lambda: self.add_new_tab())
 
 
         # Кнопка с меню
-        menu_button = QPushButton()
-        menu_button.setIcon(qtawesome.icon("mdi.dots-vertical"))
-        menu_button.setIconSize(QSize(28, 28))
-        menu_button.setMenu(QMenu())
-        menu_button.menu().addAction(qtawesome.icon("mdi.tab"), "Новая вкладка", lambda: self.add_new_tab())
-        menu_button.menu().addAction(qtawesome.icon("mdi.shape-square-rounded-plus"), "Новое окно", lambda: BrowserWindow().show())
-        menu_button.menu().addAction(qtawesome.icon("mdi.open-in-new"), "Открыть в стороннем браузере", self.open_in_external_browser)
-        menu_button.menu().addAction(qtawesome.icon("mdi.exit-to-app"), "Закрыть", self.close)
+        self.menu_button = QPushButton()
+        self.menu_button.setIcon(qtawesome.icon("mdi.dots-vertical"))
+        self.menu_button.setIconSize(QSize(28, 28))
+        self.menu_button.setMenu(QMenu())
+        self.menu_button.menu().addAction(qtawesome.icon("mdi.tab"), self.tr("Новая вкладка"), lambda: self.add_new_tab())
+        self.menu_button.menu().addAction(qtawesome.icon("mdi.shape-square-rounded-plus"), self.tr("Новое окно"), lambda: BrowserWindow().show())
+        self.menu_button.menu().addAction(qtawesome.icon("mdi.incognito"), self.tr("Новое окно в режиме инкогнито"), self.open_incognito_mode)
+        self.menu_button.menu().addSeparator()
+        self.menu_button.menu().addAction(qtawesome.icon("mdi.history"), self.tr("История"), self.show_history)
+        self.menu_button.menu().addAction(qtawesome.icon("mdi.bookmark"), self.tr("Закладки"), self.show_bookmarks)
+        self.menu_button.menu().addAction(qtawesome.icon("mdi.download"), self.tr("Загрузки"), self.show_downloads)
+        self.menu_button.menu().addSeparator()
+        self.menu_button.menu().addAction(qtawesome.icon("mdi.open-in-new"), self.tr("Открыть в стороннем браузере"), self.open_in_external_browser)
+        self.menu_button.menu().addAction(qtawesome.icon("mdi.exit-to-app"), self.tr("Выход"), self.close)
 
-        control_layout.addWidget(back_button)
-        control_layout.addWidget(forward_button)
-        control_layout.addWidget(reload_button)
+        control_layout.addWidget(self.back_button)
+        control_layout.addWidget(self.forward_button)
+        control_layout.addWidget(self.reload_button)
         control_layout.addWidget(self.httpsicon)
         control_layout.addWidget(self.urlbar)
-        control_layout.addWidget(go_button)
-        control_layout.addWidget(add_new_tab_button)
-        control_layout.addWidget(menu_button)
+        control_layout.addWidget(self.go_button)
+        control_layout.addWidget(self.add_new_tab_button)
+        control_layout.addWidget(self.menu_button)
 
         layout.addLayout(control_layout)
         layout.addWidget(self.tabs)
@@ -100,7 +106,7 @@ class BrowserWindow(QMainWindow, Window):
 
         self.add_new_tab(self.get_qurl(url))
 
-    def add_new_tab(self, qurl = QUrl('https://www.google.com/?hl=ru'), label ="Новая вкладка"):
+    def add_new_tab(self, qurl = QUrl('https://www.google.com/?hl=ru'), label ="New Tab"):
         browser = QWebEngineView()
  
         browser.setUrl(qurl)
@@ -156,7 +162,7 @@ class BrowserWindow(QMainWindow, Window):
     def update_urlbar(self, q, browser = None):
         if browser != self.current_tab():
             return
-        url = q.toString()
+        url: str = q.toString()
         self.urlbar.setText(url)
         if not self.urlbar.hasFocus():
             self.urlbar.setCursorPosition(0)
@@ -172,14 +178,14 @@ class BrowserWindow(QMainWindow, Window):
             QMessageBox.question(
                 self,
                 "а?",
-                "Ваш сайт не работает... Потому что, вы напоставили капчов на всех устройствах",
+                "Ваш сайт не работает... Потому что, вы напоставили капчов везде",
                 QMessageBox.StandardButton.Ignore | QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Help
             )
-        if url.replace('+', '').replace('%20', '').find("simpleunlocker") != -1:
+        if url.replace('+', '').replace('%20', '').replace(' ', '').lower().find("simpleunlocker") != -1:
             QMessageBox.question(
                 self,
                 "зачееем",
-                "Э! Я для кого запихнул SimpleUnlocker в прогу?! Посмотри в \"Запуске стороних программ\"!1",
+                "Э! Я для кого запихнул SimpleUnlocker в прогу?! Посмотри в \"Запуске стороних программ\"!!1",
                 QMessageBox.StandardButton.Ignore | QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Help
             )
 
@@ -192,3 +198,34 @@ class BrowserWindow(QMainWindow, Window):
         if not url.startswith("http://") and not url.startswith("https://"):
             url = "http://" + url
         webbrowser.open(url)
+
+    def open_incognito_mode(self):
+        """Открывает новое окно в режиме инкогнито."""
+        incognito_window = BrowserWindow()
+        QMessageBox.information(self, self.tr("Режим инкогнито"), self.tr("Данная функция еще не реализована."))
+        incognito_window.setWindowTitle(make_title(self.tr("Режим инкогнито")))
+        incognito_window.show()
+
+    def show_history(self):
+        """Показывает историю браузера."""
+        QMessageBox.information(self, self.tr("История"), self.tr("Данная функция еще не реализована."))
+
+    def show_bookmarks(self):
+        """Показывает закладки браузера."""
+        QMessageBox.information(self, self.tr("Закладки"), self.tr("Данная функция еще не реализована."))
+
+    def show_downloads(self):
+        """Показывает загрузки браузера."""
+        QMessageBox.information(self, self.tr("Загрузки"), self.tr("Данная функция еще не реализована."))
+
+    def retranslateUi(self):
+        self.setWindowTitle(make_title(self.tr("Встроенный браузер")))
+        self.menu_button.setText(self.tr("Меню"))
+        self.menu_button.menu().actionAt(0).setText(self.tr("Новая вкладка"))
+        self.menu_button.menu().actionAt(1).setText(self.tr("Новое окно"))
+        self.menu_button.menu().actionAt(2).setText(self.tr("Новое окно в режиме инкогнито"))
+        self.menu_button.menu().actionAt(3).setText(self.tr("История"))
+        self.menu_button.menu().actionAt(4).setText(self.tr("Закладки"))
+        self.menu_button.menu().actionAt(5).setText(self.tr("Загрузки"))
+        self.menu_button.menu().actionAt(6).setText(self.tr("Открыть в стороннем браузере"))
+        self.menu_button.menu().actionAt(7).setText(self.tr("Выход"))

@@ -7,7 +7,7 @@ from psutil import boot_time
 
 def parse_precents(value):
     if value is not None and value > 100:
-        return f"{round(value)}wtf"
+        return f"{int(value)}%WTF"
     return f"{value:.1f}%" if value is not None else "0.0%"
 
 def parse_create_time(value):
@@ -38,7 +38,7 @@ class TaskManagerWindow(QMainWindow):
     def __init__(self, parent = None):
         super().__init__()
         self.setParent(parent)
-        self.setWindowTitle(make_title("Диспетчер задач"))
+        self.setWindowTitle(make_title(self.tr("Диспетчер задач")))
         self.resize(1200, 700)
         self.setWindowFlags(Qt.WindowType.Dialog)
         self.setWindowFlag(Qt.WindowType.WindowContextHelpButtonHint, False)
@@ -47,32 +47,32 @@ class TaskManagerWindow(QMainWindow):
         layout = QVBoxLayout()
 
         top_layout = QHBoxLayout()
-        top_layout.addWidget(QLabel("Диспетчер задач"))
+        top_layout.addWidget(QLabel(self.tr("Диспетчер задач")))
 
-        view_button = QPushButton("Вид")
+        view_button = QPushButton(self.tr("Вид"))
         view_button.setMenu(QMenu(self))
-        view_button.menu().addAction("Обновить сейчас", self.refresh_process_list)
-        update_interval_menu = view_button.menu().addMenu("Скорость обновления")
-        update_interval_menu.addAction("Очень быстро — 0.1 сек", lambda: self.set_update_interval(0.5))
-        update_interval_menu.addAction("Быстро — 0.5 секунд", lambda: self.set_update_interval(0.5))
-        update_interval_menu.addAction("Обычная — 1 секунд", lambda: self.set_update_interval(1))
-        update_interval_menu.addAction("Низкая — 3 секунд", lambda: self.set_update_interval(5))
-        update_interval_menu.addAction("Очень низкая — 5 секунд", lambda: self.set_update_interval(5))
-        update_interval_menu.addAction("Черепаха — 10 секунд", lambda: self.set_update_interval(10))
+        view_button.menu().addAction(self.tr("Обновить сейчас"), self.refresh_process_list)
+        update_interval_menu = view_button.menu().addMenu(self.tr("Скорость обновления"))
+        update_interval_menu.addAction(self.tr("Очень быстро — 0.1 сек"), lambda: self.set_update_interval(0.5))
+        update_interval_menu.addAction(self.tr("Быстро — 0.5 секунд"), lambda: self.set_update_interval(0.5))
+        update_interval_menu.addAction(self.tr("Обычная — 1 секунд"), lambda: self.set_update_interval(1))
+        update_interval_menu.addAction(self.tr("Низкая — 3 секунд"), lambda: self.set_update_interval(5))
+        update_interval_menu.addAction(self.tr("Очень низкая — 5 секунд"), lambda: self.set_update_interval(5))
+        update_interval_menu.addAction(self.tr("Черепаха — 10 секунд"), lambda: self.set_update_interval(10))
         view_button.menu().addSeparator()
-        hide_critical_processes_action = view_button.menu().addAction("Скрыть критические процессы", self.toggle_critical_processes)
+        hide_critical_processes_action = view_button.menu().addAction(self.tr("Скрыть критические процессы"), self.toggle_critical_processes)
         hide_critical_processes_action.setCheckable(True)
-        hide_system_processes_action = view_button.menu().addAction("Скрыть системные процессы", self.toggle_system_processes)
+        hide_system_processes_action = view_button.menu().addAction(self.tr("Скрыть системные процессы"), self.toggle_system_processes)
         hide_system_processes_action.setCheckable(True)
         hide_system_processes_action.setChecked(True)
 
         # Поиск
         self.search_bar = QLineEdit()
-        self.search_bar.setPlaceholderText('Поиск названия, файла, PID...')
+        self.search_bar.setPlaceholderText(self.tr('Поиск процесса, файла, названия, PID...'))
         self.search_bar.setClearButtonEnabled(True)
         self.search_bar.textChanged.connect(lambda text: self.filter_process_list(text))
 
-        boot_time_label = QLabel(f"Время загрузки: {QDateTime.fromSecsSinceEpoch(int(boot_time())).toString(Qt.DateFormat.ISODate)}")
+        boot_time_label = QLabel(self.tr("Время загрузки") + ": " + QDateTime.fromSecsSinceEpoch(int(boot_time())).toString(Qt.DateFormat.ISODate))
 
         top_layout.addWidget(view_button)
         top_layout.addWidget(self.search_bar)
@@ -81,7 +81,7 @@ class TaskManagerWindow(QMainWindow):
         # Таблица процессов
         self.process_table = QTableWidget()
         self.process_table.setColumnCount(10)
-        self.process_table.setHorizontalHeaderLabels(["Имя процесса", "ЦП", "ОЗУ", "Состояние", "PID", "Тип", "Действия с процессом", "Создано", "Описание", "Название заголовка"])
+        self.process_table.setHorizontalHeaderLabels([self.tr("Имя процесса"), self.tr("ЦП"), self.tr("ОЗУ"), self.tr("Состояние"), "PID", self.tr("Тип"), self.tr("Действия с процессом"), self.tr("Создано"), self.tr("Описание"), self.tr("Название заголовка")])
         self.process_table.setSelectionBehavior(self.process_table.SelectRows)
         self.process_table.setEditTriggers(self.process_table.NoEditTriggers)
 
@@ -107,7 +107,7 @@ class TaskManagerWindow(QMainWindow):
         self.hide_system_processes = True
 
         self.setStatusBar(QStatusBar())
-        self.statusBar().showMessage("Диспетчер задач запущен.")
+        self.statusBar().showMessage(self.tr("Диспетчер задач запущен."))
 
         self.update_process_list(get_process_list())
 
@@ -157,7 +157,7 @@ class TaskManagerWindow(QMainWindow):
         """Обновляет список процессов."""
         count = len(self.process_list)
         count_ui = len(self.process_list_ui)
-        self.statusBar().showMessage("Всего: " + str(count) + ". Показано процессов: " + str(count_ui) + " (из них скрыты: " + str(count - count_ui) + ")")
+        self.statusBar().showMessage(self.tr("Всего: {0}. Показано процессов: {1} (из них скрыты: {2})").format(str(count), str(count_ui), str(count - count_ui)))
         self.process_table.setRowCount(count_ui)
         for row, process in enumerate(self.process_list_ui):
             process: Process = process
@@ -177,11 +177,11 @@ class TaskManagerWindow(QMainWindow):
             
             actions = QWidget()
             layout_actions = QHBoxLayout()
-            terminate_button = QPushButton('Завершить')
+            terminate_button = QPushButton(self.tr('Завершить'))
             terminate_button.clicked.connect(process.kill)
-            suspend_button = QPushButton('Приостановить')
+            suspend_button = QPushButton(self.tr('Приостановить'))
             suspend_button.clicked.connect(process.suspend)
-            resume_button = QPushButton('Возобновить')
+            resume_button = QPushButton(self.tr('Возобновить'))
             resume_button.clicked.connect(process.resume)
             layout_actions.addWidget(terminate_button)
             layout_actions.addWidget(suspend_button)
@@ -203,3 +203,7 @@ class TaskManagerWindow(QMainWindow):
             
             set_item_color(cpu_item, process.cpu_percent)
             set_item_color(ram_item, process.memory_percent)
+
+    def retranslateUi(self):
+        self.setWindowTitle(make_title(self.tr("Диспетчер задач")))
+        self.process_table.setHorizontalHeaderLabels([self.tr("Имя процесса"), self.tr("CPU"), self.tr("RAM"), self.tr("Статус"), "PID", self.tr("Тип"), self.tr("Действия")])
