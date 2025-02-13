@@ -105,6 +105,7 @@ class ScanThread(QObject):
     set_max = pyqtSignal(int)
     suspicious_file = pyqtSignal(str)
     completed = pyqtSignal(list)  # Для завершения
+    progress_text = pyqtSignal(str)
 
     def __init__(self, directory):
         super().__init__()
@@ -119,7 +120,8 @@ class ScanThread(QObject):
             i = 1
             for root, _, files in os.walk(self.directory):
                 for file_name in files:
-                    file_path = os.path.join(root, file_name)
+                    file_path = os.path.abspath(os.path.join(root, file_name))
+                    self.progress_text.emit(file_name)
                     file_hash = calculate_md5(file_path)
                     if file_hash in malicious_hashes:
                         suspicious_files.append(file_path)

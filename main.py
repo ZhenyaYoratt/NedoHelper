@@ -386,7 +386,6 @@ QPushButton {
         self.taskbar_progress.show()
 
         self.move(QApplication.desktop().screen().rect().center() - self.rect().center())
-        self.show()
         
         self.settings_window = SettingsWindow(self)
 
@@ -609,9 +608,10 @@ def main():
     window = VirusProtectionApp()
     app.aboutToQuit.connect(trying_close)
 
-
     if is_pyi_splash:
         pyi_splash.close()
+
+    window.show()
 
     sys.exit(app.exec_())
 

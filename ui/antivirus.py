@@ -1,8 +1,11 @@
-from PyQt5.QtCore import Qt, QThread, pyqtSignal
-from PyQt5.QtWidgets import QMainWindow, QVBoxLayout, QPushButton, QLabel, QProgressBar, QListWidget, QFileDialog, QWidget
+from PyQt5.QtCore import Qt, QThread
+from PyQt5.QtWidgets import QMainWindow, QVBoxLayout, QHBoxLayout, QPushButton, QLabel, QProgressBar, QListWidget, QFileDialog, QWidget, QCheckBox, QListWidgetItem
 from modules.antivirus import delete_file, UpdateWorker, ScanThread
 from modules.titles import make_title
 from pyqt_windows_os_light_dark_theme_window.main import Window
+import os
+
+application_path = os.path.dirname(os.path.abspath(__file__))
 
 class AntivirusWindow(QMainWindow, Window):
     def __init__(self, parent = None):
@@ -18,25 +21,45 @@ class AntivirusWindow(QMainWindow, Window):
         self.statusbar.showMessage(self.tr("Готов к работе"))
 
         layout = QVBoxLayout()
-        update_db_button = QPushButton(self.tr("Обновить базы данных"))
-        update_db_button.clicked.connect(self.update_db)
 
         self.header_label = QLabel(self.tr("Антивирус"))
         self.header_label.setObjectName("title")
 
-        self.progress_bar = QProgressBar()
+        top_layout = QHBoxLayout()
+        self.start_scan_button = QPushButton(self.tr("Сканировать папку"))
+        self.start_scan_button.clicked.connect(self.start_scan)
+        self.update_db_button = QPushButton(self.tr("Обновить базы данных"))
+        self.update_db_button.clicked.connect(self.update_db)
+        top_layout.addWidget(self.start_scan_button)
+        top_layout.addWidget(self.update_db_button)
+
         self.results_label = QLabel(self.tr("Результаты сканирования")+"")
         self.results_list = QListWidget()
-        start_scan_button = QPushButton(self.tr("Сканировать папку"))
-        start_scan_button.clicked.connect(self.start_scan)
 
+        self.progress_label = QLabel()
+
+        bottom_layout = QHBoxLayout()
+
+        self.select_all_checkbox = QCheckBox(self.tr("Выделить всё"))
+        self.select_all_checkbox.stateChanged.connect(self.select_all_items)
+        self.delete_button = QPushButton(self.tr("Удалить выделенные"))
+        self.delete_button.clicked.connect(self.delete_selected_items)
+        self.quarantine_button = QPushButton(self.tr("Переместить в карантин"))
+        self.quarantine_button.clicked.connect(self.quarantine_selected_items)
+
+        bottom_layout.addWidget(self.select_all_checkbox)
+        bottom_layout.addWidget(self.delete_button)
+        bottom_layout.addWidget(self.quarantine_button)
+
+        self.progress_bar = QProgressBar()
         self.statusbar.addPermanentWidget(self.progress_bar)
 
         layout.addWidget(self.header_label)
-        layout.addWidget(update_db_button)
-        layout.addWidget(start_scan_button)
+        layout.addLayout(top_layout)
         layout.addWidget(self.results_label)
         layout.addWidget(self.results_list)
+        layout.addWidget(self.progress_label)
+        layout.addLayout(bottom_layout)
 
         central_widget = QWidget()
         central_widget.setLayout(layout)
@@ -62,17 +85,17 @@ class AntivirusWindow(QMainWindow, Window):
         """Начинает сканирование выбранной папки."""
         directory = QFileDialog.getExistingDirectory(self, self.tr("Выберите папку для сканирования"))
         if not directory:
-            self.statusbar.showMessage(self.tr("Сканирование отменено пользователем."))
+            self.statusbar.showMessage(self.parent().tr("Операция отменена пользователем"))
             return
 
-        t = self.tr("Сканирование")
-        self.statusbar.showMessage(f"{t}: {directory}...")
+        self.statusbar.showMessage(self.tr("Сканирование")+"...")
         self.progress_bar.setValue(0)
         self._thread = QThread(self)
         self._worker = ScanThread(directory)
         self._worker.moveToThread(self._thread)
         self._worker.set_max.connect(self.progress_bar.setMaximum)
         self._worker.progress.connect(self.progress_bar.setValue)
+        self._worker.progress_text.connect(self.progress_label.setText)
         self._worker.suspicious_file.connect(self.results_list.addItem)
         self._worker.completed.connect(self.complete_scan)
         self._thread.started.connect(self._worker.run)
@@ -81,14 +104,42 @@ class AntivirusWindow(QMainWindow, Window):
     def complete_scan(self, suspicious_files):
         self.progress_bar.setMaximum(1)
         self.progress_bar.reset()
+        self.progress_label.setText("")
         if not suspicious_files:
             self.statusbar.showMessage(self.tr("Угроз не обнаружено."))
         else:
             self.statusbar.showMessage(self.tr("Сканирование завершено."))
             self.results_list.clear()
-            self.results_list.addItems(suspicious_files)
-            #for file in suspicious_files:
-            #    delete_file(file)  # Удаляем подозрительные файлы
+            for file in suspicious_files:
+                item = QListWidgetItem(file)
+                item.setCheckState(Qt.Unchecked)
+                self.results_list.addItem(item)
+
+    def select_all_items(self, state):
+        for index in range(self.results_list.count()):
+            item = self.results_list.item(index)
+            item.setCheckState(Qt.Checked if state == Qt.Checked else Qt.Unchecked)
+
+    def delete_selected_items(self):
+        for index in range(self.results_list.count() - 1, -1, -1):
+            item = self.results_list.item(index)
+            if item.checkState() == Qt.Checked:
+                delete_file(item.text())
+                self.results_list.takeItem(index)
+        self.statusbar.showMessage(self.tr("Выделенные файлы удалены."))
+
+    def quarantine_selected_items(self):
+        quarantine_folder = os.path.join(application_path, 'quarantine')
+        if not os.path.exists(quarantine_folder):
+            os.makedirs(quarantine_folder)
+        for index in range(self.results_list.count() - 1, -1, -1):
+            item = self.results_list.item(index)
+            if item.checkState() == Qt.Checked:
+                file_path = item.text()
+                quarantine_path = os.path.join(quarantine_folder, os.path.basename(file_path))
+                os.rename(file_path, quarantine_path)
+                self.results_list.takeItem(index)
+        self.statusbar.showMessage(self.tr("Выделенные файлы перемещены в карантин."))
 
     def retranslateUi(self):
         self.setWindowTitle(make_title(self.tr("Антивирус")))
@@ -96,3 +147,6 @@ class AntivirusWindow(QMainWindow, Window):
         self.results_label.setText(self.tr("Результаты сканирования"))
         self.update_db_button.setText(self.tr("Обновить базы данных"))
         self.start_scan_button.setText(self.tr("Сканировать папку"))
+        self.select_all_checkbox.setText(self.tr("Выделить всё"))
+        self.delete_button.setText(self.tr("Удалить выделенные"))
+        self.quarantine_button.setText(self.tr("Переместить в карантин"))
