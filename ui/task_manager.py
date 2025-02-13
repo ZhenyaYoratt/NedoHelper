@@ -205,4 +205,4 @@ class TaskManagerWindow(QMainWindow):
 
     def retranslateUi(self):
         self.setWindowTitle(make_title(self.parent().tr("Диспетчер задач")))
-        self.process_table.setHorizontalHeaderLabels([self.tr("Имя процесса"), self.tr("CPU"), self.tr("RAM"), self.tr("Статус"), "PID", self.tr("Тип"), self.tr("Действия")])
+        self.process_table.setHorizontalHeaderLabels([self.tr("Имя процесса"), self.tr("ЦП"), self.tr("ОЗУ"), self.tr("Состояние"), "PID", self.tr("Тип"), self.tr("Действия с процессом"), self.tr("Создано"), self.tr("Описание"), self.tr("Название заголовка")])

@@ -5,12 +5,6 @@ from modules.browser import open_browser
 from ui.browser import BrowserWindow
 from pyqt_windows_os_light_dark_theme_window.main import Window
 
-ABOUT_TEXT = """
-Программа мультул позволит вам удалить вирусы (наверное) и восстановить Windows 10 до её идеального состояния. Эта программа разработана эксклюзивно для YouTube-канала "НЕДОХАКЕРЫ Lite".
-
-Для получения дополнительной информации посетите <a href="https://github.com/ZhenyaYoratt/NedoHelper">GitHub репозиторий</a>.
-"""
-
 class AboutWindow(QMainWindow, Window):
     def __init__(self, parent = None):
         super().__init__()
@@ -32,7 +26,11 @@ class AboutWindow(QMainWindow, Window):
 
         self.about_label = QLabel(self)
         self.about_label.setTextFormat(Qt.TextFormat.AutoText | Qt.TextFormat.RichText)
-        self.about_label.setText(self.tr(ABOUT_TEXT))
+        self.about_label.setText(self.tr("""
+Программа мультул позволит вам удалить вирусы (наверное) и восстановить Windows 10 до её идеального состояния. Эта программа разработана эксклюзивно для YouTube-канала "НЕДОХАКЕРЫ Lite".
+
+Для получения дополнительной информации посетите <a href="https://github.com/ZhenyaYoratt/NedoHelper">GitHub репозиторий</a>.
+"""))
         self.about_label.linkActivated.connect(self.link_clicked)
         self.about_label.setWordWrap(True)
         layout.addWidget(self.about_label)
@@ -69,6 +67,10 @@ class AboutWindow(QMainWindow, Window):
     def retranslateUi(self):
         self.setWindowTitle(make_title(self.tr("О программе")))
         self.header_label.setText(self.tr("О программе"))
-        self.about_label.setText(self.tr(ABOUT_TEXT))
+        self.about_label.setText(self.tr("""
+Программа мультул позволит вам удалить вирусы (наверное) и восстановить Windows 10 до её идеального состояния. Эта программа разработана эксклюзивно для YouTube-канала "НЕДОХАКЕРЫ Lite".
+
+Для получения дополнительной информации посетите <a href="https://github.com/ZhenyaYoratt/NedoHelper">GitHub репозиторий</a>.
+"""))
         self.about_qt_button.setText(self.tr("О Qt"))
         self.close_button.setText(self.parent().tr("Закрыть"))

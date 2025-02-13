@@ -128,4 +128,4 @@ class DiskManagerWindow(QMainWindow, Window):
         self.setWindowTitle(make_title(self.parent().tr("Управление дисками")))
         self.header_label.setText(self.parent().tr("Управление дисками"))
         self.click_label.setText(self.tr("Нажмите на диск, чтобы открыть меню"))
-        self.disk_table.setHorizontalHeaderLabels([self.tr("Буква"), self.tr("Наименование"), self.tr("BitLocker"), self.tr("Занято/Свободно"), self.tr("Статус"), self.tr("Тип")])
+        self.disk_table.setHorizontalHeaderLabels([self.tr("Буква"), self.tr("Наименование"), "BitLocker", self.tr("Занято/Свободно"), self.tr("Статус"), self.tr("Тип")])

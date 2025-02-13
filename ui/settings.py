@@ -1,11 +1,9 @@
 from PyQt5.QtWidgets import QMainWindow, QVBoxLayout, QLabel, QPushButton, QWidget, QMessageBox, QStyleFactory, QDialog, QComboBox, QHBoxLayout, qApp
 from PyQt5.QtGui import QPalette, QColor
 from PyQt5.QtCore import Qt, QTranslator
-import json
 from modules.titles import make_title
-from modules.logger import log
-from pyqt_windows_os_light_dark_theme_window.main import Window
 import qdarktheme
+import json
 
 LOCALIZATIONS_DIR = "localizations"
 
@@ -54,7 +52,7 @@ class Settings:
         self.data[key] = value
         self.save_settings()
 
-class SettingsWindow(QMainWindow, Window):
+class SettingsWindow(QMainWindow):
     SETTINGS_FILE = "settings.json"
 
     def __init__(self, parent = None):
@@ -246,7 +244,6 @@ class SettingsWindow(QMainWindow, Window):
             self.theme_combobox.setDisabled(True)
             qApp.setStyle(QStyleFactory.create("Windows"))
             self.parent().update_button_icons("light")
-        self.statusbar.showMessage(self.tr("Тема успешно применена."))
 
     def load_settings(self, apply = True):
         """Загружает настройки из файла."""
@@ -280,7 +277,7 @@ class SettingsWindow(QMainWindow, Window):
         self.theme_combobox.setItemText(2, self.tr("Светлая тема"))
         self.theme_style_combobox.setItemText(0, self.tr("Современная тема"))
         self.theme_style_combobox.setItemText(1, self.tr("Fusion тема"))
-        self.theme_style_combobox.setItemText(2, self.tr("Плоская тема (Windows 110)"))
+        self.theme_style_combobox.setItemText(2, self.tr("Плоская тема (Windows 10)"))
         self.theme_style_combobox.setItemText(3, self.tr("Windows 95 тема"))
         self.language_label.setText(self.tr("Язык"))
         self.save_button.setText(self.tr("Сохранить"))

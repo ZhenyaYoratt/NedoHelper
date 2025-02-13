@@ -101,7 +101,7 @@ class UserManagerWindow(QMainWindow, Window):
         self.username_input.clear()
         self.password_input.clear()
         if ok:
-            QMessageBox.information(self, self.parent().tr("Успешно"), self.tr("Пользователь {0} успешно добавлен. Однако требуется инциализация пользователя, чтобы показался в списке.").format(username))
+            QMessageBox.information(self, self.parent().tr("Успешно"), self.tr("Пользователь {0} успешно добавлен. Однако требуется инициализация пользователя, чтобы показался в списке.").format(username))
         else:
             QMessageBox.warning(self, self.parent().tr("Ошибка"), self.tr("Ошибка добавления пользователя {0}.").format(username))
         self.update_users()

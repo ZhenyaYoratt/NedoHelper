@@ -14,7 +14,7 @@
         <translation>Open the link in the embedded browser? Click &quot;No&quot; to open in the default browser.</translation>
     </message>
     <message>
-        <location filename="../ui/about.py" line="76"/>
+        <location filename="../ui/about.py" line="74"/>
         <source>Закрыть</source>
         <translation>Close</translation>
     </message>
@@ -34,7 +34,7 @@
         <translation>The operation was canceled by the user</translation>
     </message>
     <message>
-        <location filename="../ui/browser.py" line="230"/>
+        <location filename="../ui/browser.py" line="231"/>
         <source>Выход</source>
         <translation>Exit</translation>
     </message>
@@ -127,28 +127,19 @@
 <context>
     <name>AboutWindow</name>
     <message>
-        <location filename="../ui/about.py" line="69"/>
+        <location filename="../ui/about.py" line="71"/>
         <source>О программе</source>
         <translation>About the program</translation>
     </message>
     <message>
-        <location filename="../ui/about.py" line="75"/>
+        <location filename="../ui/about.py" line="73"/>
         <source>О Qt</source>
         <translation>About Qt</translation>
     </message>
     <message>
-        <location filename="../ui/about.py" line="42"/>
+        <location filename="../ui/about.py" line="44"/>
         <source>Закрыть</source>
         <translation>Close</translation>
-    </message>
-    <message>
-        <location filename="../ui/about.py" line="70"/>
-        <source>
-Программа мультул позволит вам удалить вирусы (наверное) и восстановить Windows 10 до её идеального состояния. Эта программа разработана эксклюзивно для YouTube-канала &quot;НЕДОХАКЕРЫ Lite&quot;.
-
-Для получения дополнительной информации посетите &lt;a href=&quot;https://github.com/ZhenyaYoratt/NedoHelper&quot;&gt;GitHub репозиторий&lt;/a&gt;.
-</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -237,37 +228,37 @@
         <translation>Enter the URL...</translation>
     </message>
     <message>
-        <location filename="../ui/browser.py" line="223"/>
+        <location filename="../ui/browser.py" line="224"/>
         <source>Новая вкладка</source>
         <translation>New Tab</translation>
     </message>
     <message>
-        <location filename="../ui/browser.py" line="224"/>
+        <location filename="../ui/browser.py" line="225"/>
         <source>Новое окно</source>
         <translation>New window</translation>
     </message>
     <message>
-        <location filename="../ui/browser.py" line="225"/>
+        <location filename="../ui/browser.py" line="226"/>
         <source>Новое окно в режиме инкогнито</source>
         <translation>New window in incognito mode</translation>
     </message>
     <message>
-        <location filename="../ui/browser.py" line="226"/>
+        <location filename="../ui/browser.py" line="227"/>
         <source>История</source>
         <translation>History</translation>
     </message>
     <message>
-        <location filename="../ui/browser.py" line="227"/>
+        <location filename="../ui/browser.py" line="228"/>
         <source>Закладки</source>
         <translation>Bookmarks</translation>
     </message>
     <message>
-        <location filename="../ui/browser.py" line="228"/>
+        <location filename="../ui/browser.py" line="229"/>
         <source>Загрузки</source>
         <translation>Downloads</translation>
     </message>
     <message>
-        <location filename="../ui/browser.py" line="229"/>
+        <location filename="../ui/browser.py" line="230"/>
         <source>Открыть в стороннем браузере</source>
         <translation>Open in a third-party browser</translation>
     </message>
@@ -361,7 +352,7 @@
 <context>
     <name>SettingsWindow</name>
     <message>
-        <location filename="../ui/settings.py" line="276"/>
+        <location filename="../ui/settings.py" line="277"/>
         <source>Настройки программы</source>
         <translation>Program Settings</translation>
     </message>
@@ -371,17 +362,17 @@
         <translation>Theme</translation>
     </message>
     <message>
-        <location filename="../ui/settings.py" line="277"/>
+        <location filename="../ui/settings.py" line="278"/>
         <source>Системная тема</source>
         <translation>System theme</translation>
     </message>
     <message>
-        <location filename="../ui/settings.py" line="278"/>
+        <location filename="../ui/settings.py" line="279"/>
         <source>Темная тема</source>
         <translation>Dark theme</translation>
     </message>
     <message>
-        <location filename="../ui/settings.py" line="279"/>
+        <location filename="../ui/settings.py" line="280"/>
         <source>Светлая тема</source>
         <translation>Light theme</translation>
     </message>
@@ -391,32 +382,32 @@
         <translation>Theme style</translation>
     </message>
     <message>
-        <location filename="../ui/settings.py" line="280"/>
+        <location filename="../ui/settings.py" line="281"/>
         <source>Современная тема</source>
         <translation>Modern theme</translation>
     </message>
     <message>
-        <location filename="../ui/settings.py" line="281"/>
+        <location filename="../ui/settings.py" line="282"/>
         <source>Fusion тема</source>
         <translation>Fusion theme</translation>
     </message>
     <message>
-        <location filename="../ui/settings.py" line="282"/>
+        <location filename="../ui/settings.py" line="88"/>
         <source>Плоская тема (Windows 10)</source>
         <translation>Flat theme (Windows 10)</translation>
     </message>
     <message>
-        <location filename="../ui/settings.py" line="283"/>
+        <location filename="../ui/settings.py" line="284"/>
         <source>Windows 95 тема</source>
         <translation>Windows 95 theme</translation>
     </message>
     <message>
-        <location filename="../ui/settings.py" line="284"/>
+        <location filename="../ui/settings.py" line="285"/>
         <source>Язык</source>
         <translation>Language</translation>
     </message>
     <message>
-        <location filename="../ui/settings.py" line="285"/>
+        <location filename="../ui/settings.py" line="286"/>
         <source>Сохранить</source>
         <translation>Save</translation>
     </message>
@@ -448,15 +439,15 @@
     <message>
         <location filename="../ui/settings.py" line="249"/>
         <source>Тема успешно применена.</source>
-        <translation type="obsolete">The theme has been successfully applied.</translation>
+        <translation>The theme has been successfully applied.</translation>
     </message>
     <message>
-        <location filename="../ui/settings.py" line="272"/>
+        <location filename="../ui/settings.py" line="273"/>
         <source>Настройки успешно сохранены.</source>
         <translation>The settings have been saved successfully.</translation>
     </message>
     <message>
-        <location filename="../ui/settings.py" line="275"/>
+        <location filename="../ui/settings.py" line="276"/>
         <source>Настройки</source>
         <translation>Settings</translation>
     </message>
@@ -530,7 +521,7 @@ Try deleting it and downloading it again.</translation>
 {1}
 
 Возможно, программа запущена.</source>
-        <translation>Couldn't delete the program {0}.
+        <translation>Couldn&apos;t delete the program {0}.
 {1}
 
 The program may be running.</translation>
@@ -632,17 +623,17 @@ The program may be running.</translation>
         <translation>Process name</translation>
     </message>
     <message>
-        <location filename="../ui/task_manager.py" line="208"/>
+        <location filename="../ui/task_manager.py" line="84"/>
         <source>ЦП</source>
         <translation>CPU</translation>
     </message>
     <message>
-        <location filename="../ui/task_manager.py" line="208"/>
+        <location filename="../ui/task_manager.py" line="84"/>
         <source>ОЗУ</source>
         <translation>RAM</translation>
     </message>
     <message>
-        <location filename="../ui/task_manager.py" line="208"/>
+        <location filename="../ui/task_manager.py" line="84"/>
         <source>Состояние</source>
         <translation>State</translation>
     </message>
@@ -652,22 +643,22 @@ The program may be running.</translation>
         <translation>Type</translation>
     </message>
     <message>
-        <location filename="../ui/task_manager.py" line="208"/>
+        <location filename="../ui/task_manager.py" line="84"/>
         <source>Действия с процессом</source>
         <translation>Actions with the process</translation>
     </message>
     <message>
-        <location filename="../ui/task_manager.py" line="208"/>
+        <location filename="../ui/task_manager.py" line="84"/>
         <source>Создано</source>
         <translation>Created</translation>
     </message>
     <message>
-        <location filename="../ui/task_manager.py" line="208"/>
+        <location filename="../ui/task_manager.py" line="84"/>
         <source>Описание</source>
         <translation>Description</translation>
     </message>
     <message>
-        <location filename="../ui/task_manager.py" line="208"/>
+        <location filename="../ui/task_manager.py" line="84"/>
         <source>Название заголовка</source>
         <translation>Name of the window title</translation>
     </message>
@@ -819,7 +810,7 @@ The program may be running.</translation>
     </message>
     <message>
         <location filename="../ui/user_manager.py" line="104"/>
-        <source>Пользователь {0} успешно добавлен. Однако требуется инициализация пользователя, чтобы показался в списке.</source>
+        <source>Пользователь {0} успешно добавлен. Однако требуется инциализация пользователя, чтобы показался в списке.</source>
         <translation>User {0} has been successfully added. However, user initialization is required to appear in the list.</translation>
     </message>
     <message>

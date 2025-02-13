@@ -220,7 +220,6 @@ class BrowserWindow(QMainWindow, Window):
 
     def retranslateUi(self):
         self.setWindowTitle(make_title(self.tr("Встроенный браузер")))
-        self.menu_button.setText(self.tr("Меню"))
         self.menu_button.menu().actionAt(0).setText(self.tr("Новая вкладка"))
         self.menu_button.menu().actionAt(1).setText(self.tr("Новое окно"))
         self.menu_button.menu().actionAt(2).setText(self.tr("Новое окно в режиме инкогнито"))

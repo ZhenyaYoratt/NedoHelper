@@ -567,6 +567,10 @@ QPushButton {
         for btn in self.other_buttons:
             btn.setText(self.tr(btn.original_text))
         self.software_launcher.retranslateUi()
+        if hasattr(self, "antivirus_window"):
+            self.antivirus_window.retranslateUi()
+        if hasattr(self, "task_manager_window"):
+            self.task_manager_window.retranslateUi()
 
     #def make_process_critical(self):  # Ненадёжный вариант, т.к. вирусы могут крашнуть систему из-за простого закрытия программы :P
     #    """Устанавливает процесс как критический."""
