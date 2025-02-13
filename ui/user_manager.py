@@ -9,26 +9,26 @@ class UserManagerWindow(QMainWindow, Window):
     def __init__(self, parent = None):
         super().__init__()
         self.setParent(parent)
-        self.setWindowTitle(make_title("Управление пользователями"))
+        self.setWindowTitle(make_title(self.parent().tr("Управление пользователями")))
         self.setFixedSize(500, 500)
         self.setWindowFlags(Qt.WindowType.Dialog)
 
         self.statusbar = self.statusBar()
-        self.statusbar.showMessage("Готов к работе")
+        self.statusbar.showMessage(self.parent().tr("Готов к работе"))
 
         layout = QVBoxLayout()
-        self.header_label = QLabel("Управление пользователями")
+        self.header_label = QLabel(self.parent().tr("Управление пользователями"))
         self.header_label.setObjectName("title")
-        label = QLabel("Клик по пользователю для просмотра информации")
+        label = QLabel(self.tr("Нажмите на пользователя, чтобы просмотреть информацию о нём"))
         self.users_view = QListWidget()
         self.users_view.itemClicked.connect(self.show_user_info)
 
         # Добавление пользователя
         self.username_input = QLineEdit()
-        self.username_input.setPlaceholderText("Имя пользователя")
+        self.username_input.setPlaceholderText(self.tr("Имя пользователя"))
         self.password_input = QLineEdit()
-        self.password_input.setPlaceholderText("Пароль")
-        add_user_button = QPushButton("Добавить пользователя")
+        self.password_input.setPlaceholderText(self.tr("Пароль"))
+        add_user_button = QPushButton(self.tr("Добавить пользователя"))
         add_user_button.clicked.connect(self.add_user)
 
         layout.addWidget(self.header_label)
@@ -42,11 +42,19 @@ class UserManagerWindow(QMainWindow, Window):
         central_widget.setLayout(layout)
         self.setCentralWidget(central_widget)
 
+        self.center()
+
         self.update_users()
 
         self.timer = QTimer()
         self.timer.timeout.connect(self.update_users)
         self.timer.start(5000)
+    def center(self):
+        """Центрирует окно по центру экрана."""
+        frame_geometry = self.frameGeometry()
+        center_point = self.screen().availableGeometry().center()
+        frame_geometry.moveCenter(center_point)
+        self.move(frame_geometry.topLeft())
 
     def closeEvent(self, a0):
         self.timer.stop()
@@ -78,7 +86,6 @@ class UserManagerWindow(QMainWindow, Window):
 
     def update_users(self):
         users = list_users()
-        log(self.tr("Пользователи") + ": " + users, DEBUG)
         self.users_view.clear()
         for user in users:
             item = QListWidgetItem()
@@ -94,20 +101,20 @@ class UserManagerWindow(QMainWindow, Window):
         self.username_input.clear()
         self.password_input.clear()
         if ok:
-            QMessageBox.information(self, self.tr("Успешно"), self.tr("Пользователь {0} успешно добавлен. Однако требуется инциализация пользователя, чтобы показался в списке.").format(username))
+            QMessageBox.information(self, self.parent().tr("Успешно"), self.tr("Пользователь {0} успешно добавлен. Однако требуется инциализация пользователя, чтобы показался в списке.").format(username))
         else:
-            QMessageBox.warning(self, self.tr("Ошибка"), self.tr("Ошибка добавления пользователя {0}.").format(username))
+            QMessageBox.warning(self, self.parent().tr("Ошибка"), self.tr("Ошибка добавления пользователя {0}.").format(username))
         self.update_users()
 
     def delete_user(self, username: str):
-        if QMessageBox.question(self, self.tr("Подтверждение"), self.tr("Удалить пользователя {0}?").format(username), QMessageBox.Yes | QMessageBox.No) == QMessageBox.Yes:
+        if QMessageBox.question(self, self.parent().tr("Подтверждение"), self.tr("Удалить пользователя {0}?").format(username), QMessageBox.Yes | QMessageBox.No) == QMessageBox.Yes:
             ok, result = delete_user(username)
             self.statusbar.showMessage(result)
             self.update_users()
             if ok:
-                QMessageBox.information(self, self.tr("Успешно"), self.tr("Пользователь {0} успешно удален. Может потребоваться перезагрузка компьютера.").format(username))
+                QMessageBox.information(self, self.parent().tr("Успешно"), self.tr("Пользователь {0} успешно удален. Может потребоваться перезагрузка компьютера.").format(username))
             else:
-                QMessageBox.warning(self, self.tr("Ошибка"), self.tr("Ошибка удаления пользователя {0}.").format(username))
+                QMessageBox.warning(self, self.parent().tr("Ошибка"), self.tr("Ошибка удаления пользователя {0}.").format(username))
 
     def set_password(self, username: str):
         password, ok = QInputDialog.getText(self, "Установка пароля", self.tr("Введите новый пароль для пользователя {0}").format(username))
@@ -116,6 +123,6 @@ class UserManagerWindow(QMainWindow, Window):
             self.statusbar.showMessage(result)
             self.update_users()
             if ok:
-                QMessageBox.information(self, self.tr("Успешно"), self.tr("Пароль для пользователя {0} успешно установлен.").format(username))
+                QMessageBox.information(self, self.parent().tr("Успешно"), self.tr("Пароль для пользователя {0} успешно установлен.").format(username))
             else:
-                QMessageBox.warning(self, self.tr("Ошибка"), self.tr("Ошибка установки пароля для пользователя {0}.").format(username))
+                QMessageBox.warning(self, self.parent().tr("Ошибка"), self.tr("Ошибка установки пароля для пользователя {0}.").format(username))

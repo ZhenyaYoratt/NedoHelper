@@ -1,7 +1,7 @@
 import hashlib
 import os, sys, requests
 from .logger import *
-from PyQt5.QtCore import pyqtSignal, QUrl, QEventLoop, QObject
+from PyQt5.QtCore import pyqtSignal, QUrl, QEventLoop, QObject, QThread
 from PyQt5.QtNetwork import QNetworkRequest, QNetworkAccessManager, QNetworkReply
 
 if getattr(sys, 'frozen', False):
@@ -60,7 +60,7 @@ class UpdateWorker(QObject):
                     loop.exec_()
                     if reply.error() == QNetworkReply.NoError:
                         with open(file_path, 'wb') as f:
-                            f.write(bytes_string.data())
+                            f.write(reply.readAll().data())
                     else:
                         log(f"Ошибка при загрузке файла {file_url}:", ERROR)
                 i += 1
@@ -115,7 +115,7 @@ class ScanThread(QObject):
             """Сканирует папку на наличие файлов с хешами из базы данных."""
             malicious_hashes = load_database()
             suspicious_files = []
-            self.set_max.emit(len([name for name in os.listdir(self.directory) if os.path.isfile(name)]))
+            self.set_max.emit(len([name for name in os.listdir(self.directory) if os.path.isfile(os.path.join(self.directory, name))]))
             i = 1
             for root, _, files in os.walk(self.directory):
                 for file_name in files:
@@ -130,6 +130,8 @@ class ScanThread(QObject):
             self.completed.emit(suspicious_files)
         except requests.RequestException as e:
             log(f"Ошибка при получении списка файлов: {e}", ERROR)
+        finally:
+            QThread.currentThread().quit()
 
 def calculate_md5(file_path):
     """Вычисляет MD5 хеш файла."""

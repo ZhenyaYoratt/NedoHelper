@@ -13,6 +13,7 @@ class UnlockerWindow(QMainWindow, Window):
         self.setWindowFlag(Qt.WindowType.WindowContextHelpButtonHint, False)
         self.initUI()
         self.resize(800, 600)
+        self.center()
 
     def initUI(self):
         self.central_widget = QWidget()
@@ -33,6 +34,13 @@ class UnlockerWindow(QMainWindow, Window):
 
         self.status_bar = QStatusBar()
         self.setStatusBar(self.status_bar)
+
+    def center(self):
+        """Центрирует окно по центру экрана."""
+        frame_geometry = self.frameGeometry()
+        center_point = self.screen().availableGeometry().center()
+        frame_geometry.moveCenter(center_point)
+        self.move(frame_geometry.topLeft())
 
     def init_scan_tab(self):
         scan_layout = QVBoxLayout()
