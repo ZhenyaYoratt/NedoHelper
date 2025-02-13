@@ -11,18 +11,18 @@ class AntivirusWindow(QMainWindow, Window):
     def __init__(self, parent = None):
         super().__init__()
         self.setParent(parent)
-        self.setWindowTitle(make_title(self.tr("Антивирус")))
+        self.setWindowTitle(make_title(self.parent().tr("Антивирус")))
         self.setMaximumSize(800, 1000)
         self.resize(450, 350)
         self.setWindowFlags(Qt.WindowType.Dialog)
         self.setWindowFlag(Qt.WindowType.WindowContextHelpButtonHint, False)
 
         self.statusbar = self.statusBar()
-        self.statusbar.showMessage(self.tr("Готов к работе"))
+        self.statusbar.showMessage(self.parent().tr("Готов к работе"))
 
         layout = QVBoxLayout()
 
-        self.header_label = QLabel(self.tr("Антивирус"))
+        self.header_label = QLabel(self.parent().tr("Антивирус"))
         self.header_label.setObjectName("title")
 
         top_layout = QHBoxLayout()
@@ -88,7 +88,7 @@ class AntivirusWindow(QMainWindow, Window):
             self.statusbar.showMessage(self.parent().tr("Операция отменена пользователем"))
             return
 
-        self.statusbar.showMessage(self.tr("Сканирование")+"...")
+        self.statusbar.showMessage(self.tr("Сканирование..."))
         self.progress_bar.setValue(0)
         self._thread = QThread(self)
         self._worker = ScanThread(directory)
@@ -142,8 +142,8 @@ class AntivirusWindow(QMainWindow, Window):
         self.statusbar.showMessage(self.tr("Выделенные файлы перемещены в карантин."))
 
     def retranslateUi(self):
-        self.setWindowTitle(make_title(self.tr("Антивирус")))
-        self.header_label.setText(self.tr("Антивирус"))
+        self.setWindowTitle(make_title(self.parent().tr("Антивирус")))
+        self.header_label.setText(self.parent().tr("Антивирус"))
         self.results_label.setText(self.tr("Результаты сканирования"))
         self.update_db_button.setText(self.tr("Обновить базы данных"))
         self.start_scan_button.setText(self.tr("Сканировать папку"))

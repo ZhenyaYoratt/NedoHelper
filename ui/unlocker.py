@@ -8,7 +8,7 @@ class UnlockerWindow(QMainWindow, Window):
     def __init__(self, parent = None):
         super().__init__()
         self.setParent(parent)
-        self.setWindowTitle(make_title(self.tr("Разблокировка ограничений")))
+        self.setWindowTitle(make_title(self.parent().tr("Разблокировка ограничений")))
         self.setWindowFlags(Qt.WindowType.Dialog)
         self.setWindowFlag(Qt.WindowType.WindowContextHelpButtonHint, False)
         self.initUI()

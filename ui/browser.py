@@ -86,7 +86,7 @@ class BrowserWindow(QMainWindow, Window):
         self.menu_button.menu().addAction(qtawesome.icon("mdi.download"), self.tr("Загрузки"), self.show_downloads)
         self.menu_button.menu().addSeparator()
         self.menu_button.menu().addAction(qtawesome.icon("mdi.open-in-new"), self.tr("Открыть в стороннем браузере"), self.open_in_external_browser)
-        self.menu_button.menu().addAction(qtawesome.icon("mdi.exit-to-app"), self.tr("Выход"), self.close)
+        self.menu_button.menu().addAction(qtawesome.icon("mdi.exit-to-app"), self.parent().tr("Выход"), self.close)
 
         control_layout.addWidget(self.back_button)
         control_layout.addWidget(self.forward_button)
@@ -228,4 +228,4 @@ class BrowserWindow(QMainWindow, Window):
         self.menu_button.menu().actionAt(4).setText(self.tr("Закладки"))
         self.menu_button.menu().actionAt(5).setText(self.tr("Загрузки"))
         self.menu_button.menu().actionAt(6).setText(self.tr("Открыть в стороннем браузере"))
-        self.menu_button.menu().actionAt(7).setText(self.tr("Выход"))
+        self.menu_button.menu().actionAt(7).setText(self.parent().tr("Выход"))

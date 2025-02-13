@@ -38,7 +38,7 @@ class TaskManagerWindow(QMainWindow):
     def __init__(self, parent = None):
         super().__init__()
         self.setParent(parent)
-        self.setWindowTitle(make_title(self.tr("Диспетчер задач")))
+        self.setWindowTitle(make_title(self.parent().tr("Диспетчер задач")))
         self.resize(1200, 700)
         self.setWindowFlags(Qt.WindowType.Dialog)
         self.setWindowFlag(Qt.WindowType.WindowContextHelpButtonHint, False)
@@ -47,7 +47,7 @@ class TaskManagerWindow(QMainWindow):
         layout = QVBoxLayout()
 
         top_layout = QHBoxLayout()
-        top_layout.addWidget(QLabel(self.tr("Диспетчер задач")))
+        top_layout.addWidget(QLabel(self.parent().tr("Диспетчер задач")))
 
         view_button = QPushButton(self.tr("Вид"))
         view_button.setMenu(QMenu(self))
@@ -107,7 +107,6 @@ class TaskManagerWindow(QMainWindow):
         self.hide_system_processes = True
 
         self.setStatusBar(QStatusBar())
-        self.statusBar().showMessage(self.tr("Диспетчер задач запущен."))
 
         self.update_process_list(get_process_list())
 
@@ -205,5 +204,5 @@ class TaskManagerWindow(QMainWindow):
             set_item_color(ram_item, process.memory_percent)
 
     def retranslateUi(self):
-        self.setWindowTitle(make_title(self.tr("Диспетчер задач")))
+        self.setWindowTitle(make_title(self.parent().tr("Диспетчер задач")))
         self.process_table.setHorizontalHeaderLabels([self.tr("Имя процесса"), self.tr("CPU"), self.tr("RAM"), self.tr("Статус"), "PID", self.tr("Тип"), self.tr("Действия")])

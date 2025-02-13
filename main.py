@@ -567,7 +567,6 @@ QPushButton {
         for btn in self.other_buttons:
             btn.setText(self.tr(btn.original_text))
         self.software_launcher.retranslateUi()
-        self.update_system_info()
 
     #def make_process_critical(self):  # Ненадёжный вариант, т.к. вирусы могут крашнуть систему из-за простого закрытия программы :P
     #    """Устанавливает процесс как критический."""

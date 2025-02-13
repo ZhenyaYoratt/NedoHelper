@@ -14,16 +14,16 @@ class DesktopManagerWindow(QMainWindow, Window):
     def __init__(self, parent = None):
         super().__init__()
         self.setParent(parent)
-        self.setWindowTitle(make_title(self.tr("Управление обоями")))
+        self.setWindowTitle(make_title(self.parent().tr("Управление обоями")))
         self.resize(700, 700)
         self.setWindowFlags(Qt.WindowType.Dialog)
         self.setWindowFlag(Qt.WindowType.WindowContextHelpButtonHint, False)
 
         self.statusbar = self.statusBar()
-        self.statusbar.showMessage(self.tr("Готов к работе"))
+        self.statusbar.showMessage(self.parent().tr("Готов к работе"))
 
         layout = QVBoxLayout()
-        self.header_label = QLabel(self.tr("Управление обоями"))
+        self.header_label = QLabel(self.parent().tr("Управление обоями"))
         self.header_label.setObjectName("title")
 
         # A list of all wallpapers in folder with previews; clicking on a preview sets the wallpaper
@@ -72,7 +72,7 @@ class DesktopManagerWindow(QMainWindow, Window):
         """Меняет обои рабочего стола."""
         image_path, _ = QFileDialog.getOpenFileName(self, "Выберите изображение", "", "Images (*.png *.jpg *.jpeg *.bmp)")
         if not image_path:
-            log(self.tr("Операция отменена пользователем") + ": " + self.tr("Обои не выбраны."), WARN)
+            log(self.parent().tr("Операция отменена пользователем") + ": " + self.tr("Обои не выбраны."), WARN)
             return
 
         self.statusbar.showMessage(set_wallpaper(image_path))
@@ -82,5 +82,5 @@ class DesktopManagerWindow(QMainWindow, Window):
         self.statusbar.showMessage(reset_wallpaper())
 
     def retranslateUi(self):
-        self.setWindowTitle(make_title(self.tr("Управление обоями")))
-        self.header_label.setText(self.tr("Управление обоями"))
+        self.setWindowTitle(make_title(self.parent().tr("Управление обоями")))
+        self.header_label.setText(self.parent().tr("Управление обоями"))

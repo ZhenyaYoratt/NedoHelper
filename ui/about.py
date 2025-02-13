@@ -54,8 +54,8 @@ class AboutWindow(QMainWindow, Window):
     def link_clicked(self, url):        
         url = "https://github.com/ZhenyaYoratt/YoHelper/discussions/new?category=suggest-programs"
         msg = QMessageBox()
-        msg.setWindowTitle(self.tr("Открытие ссылки"))
-        msg.setText(self.tr('Открыть ссылку во встроенном браузере? Нажмите "Нет", чтобы открыть в браузере по умолчанию.'))
+        msg.setWindowTitle(self.parent().tr("Открытие ссылки"))
+        msg.setText(self.parent().tr('Открыть ссылку во встроенном браузере? Нажмите "Нет", чтобы открыть в браузере по умолчанию.'))
         msg.setInformativeText(url)
         msg.setStandardButtons(QMessageBox.Yes | QMessageBox.No | QMessageBox.Cancel)
         msg.setDefaultButton(QMessageBox.Yes)
@@ -71,4 +71,4 @@ class AboutWindow(QMainWindow, Window):
         self.header_label.setText(self.tr("О программе"))
         self.about_label.setText(self.tr(ABOUT_TEXT))
         self.about_qt_button.setText(self.tr("О Qt"))
-        self.close_button.setText(self.tr("Закрыть"))
+        self.close_button.setText(self.parent().tr("Закрыть"))

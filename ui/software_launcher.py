@@ -167,7 +167,7 @@ class SoftwareLauncher(QMainWindow, Window):
     def __init__(self, parent = None):
         super().__init__()
         self.setParent(parent)
-        self.setWindowTitle(make_title(self.tr("Запуск сторонних программ")))
+        self.setWindowTitle(make_title(self.parent().tr("Запуск сторонних программ")))
         self.setMinimumSize(400, 250)
         self.setWindowFlags(Qt.WindowType.Dialog)
         self.setWindowFlag(Qt.WindowType.WindowContextHelpButtonHint, False)
@@ -178,7 +178,7 @@ class SoftwareLauncher(QMainWindow, Window):
         layout = QVBoxLayout(central_widget)
 
         # Заголовок
-        header_label = QLabel(self.tr("Запуск сторонних программ"))
+        header_label = QLabel(self.parent().tr("Запуск сторонних программ"))
         header_label.setObjectName("title")
         layout.addWidget(header_label)
 
@@ -225,14 +225,14 @@ class SoftwareLauncher(QMainWindow, Window):
         layout.addWidget(self.suggest_button)
 
     def retranslateUi(self):
-        self.setWindowTitle(make_title(self.tr("Запуск сторонних программ")))
+        self.setWindowTitle(make_title(self.parent().tr("Запуск сторонних программ")))
         self.suggest_button.setText(self.tr("Предложить программу"))
 
     def suggest_program(self):
         url = "https://github.com/ZhenyaYoratt/YoHelper/discussions/new?category=suggest-programs"
         msg = QMessageBox()
-        msg.setWindowTitle(self.tr("Открытие ссылки"))
-        msg.setText(self.tr('Открыть ссылку во встроенном браузере? Нажмите "Нет", чтобы открыть в браузере по умолчанию.'))
+        msg.setWindowTitle(self.parent().tr("Открытие ссылки"))
+        msg.setText(self.parent().tr('Открыть ссылку во встроенном браузере? Нажмите "Нет", чтобы открыть в браузере по умолчанию.'))
         msg.setInformativeText(url)
         msg.setStandardButtons(QMessageBox.Yes | QMessageBox.No | QMessageBox.Cancel)
         msg.setDefaultButton(QMessageBox.Yes)
@@ -273,18 +273,18 @@ class SoftwareLauncher(QMainWindow, Window):
                 try:
                     os.startfile(os.path.abspath(os.path.join(SOFTWARE_DIR, os.path.basename(program['url']))))
                 except Exception as e:
-                    QMessageBox.critical(self, self.tr("Ошибка"), self.tr("Не удалось запустить программу {0}.\n{1}\n\nПопробуйте удалить и скачать завоно.").format(program_name, e))
+                    QMessageBox.critical(self, self.parent().tr("Ошибка"), self.tr("Не удалось запустить программу {0}.\n{1}\n\nПопробуйте удалить и скачать завоно.").format(program_name, e))
             else:
                 path = os.path.join(program_dir, program['path'])
                 os.startfile(path)
         except Exception as e:
-            QMessageBox.critical(self, self.tr("Ошибка"), self.tr("Не удалось запустить программу {0}.\n{1}\n\nПопробуйте удалить и скачать завоно.").format(program_name, e))
+            QMessageBox.critical(self, self.parent().tr("Ошибка"), self.tr("Не удалось запустить программу {0}.\n{1}\n\nПопробуйте удалить и скачать завоно.").format(program_name, e))
 
     def download_program(self, program_name):
         program = SOFTWARE_URLS.get(program_name)
 
         if not program:
-            QMessageBox.critical(self, self.tr("Ошибка"), self.tr("Ссылка для загрузки {0} отсутствует.").format(program_name))
+            QMessageBox.critical(self, self.parent().tr("Ошибка"), self.tr("Ссылка для загрузки {0} отсутствует.").format(program_name))
             return
 
         os.makedirs(SOFTWARE_DIR, exist_ok=True)
@@ -294,7 +294,7 @@ class SoftwareLauncher(QMainWindow, Window):
         progress_bar = QProgressBar()
         self.centralWidget().layout().addWidget(progress_bar)
         progress_bar.setValue(0)
-        progress_bar.setFormat(self.tr("Загрузка") + " " + program_name + "... %p%")
+        progress_bar.setFormat(self.parent().tr("Скачивание") + " " + program_name + "... %p%")
 
         self.worker = DownloadSoftwareWorker(self, program['url'], file_path)
         self.worker.set_max.connect(progress_bar.setMaximum)
@@ -330,22 +330,22 @@ class SoftwareLauncher(QMainWindow, Window):
                     except Exception as e:
                         msg = QMessageBox()
                         msg.setDetailedText(traceback.format_exc())
-                        msg.critical(self, self.tr("Ошибка"), self.tr("Ошибка второй распаковки программы {0}: {1}").format(program_name, e))
+                        msg.critical(self, self.parent().tr("Ошибка"), self.tr("Ошибка второй распаковки программы {0}: {1}").format(program_name, e))
                         return
-                QMessageBox.information(self, self.tr("Успех"), self.tr("Программа {0} успешно загружена и распакована.").format(program_name))
+                QMessageBox.information(self, self.parent().tr("Успешно"), self.tr("Программа {0} успешно загружена и распакована.").format(program_name))
             except Exception as e:
                 msg = QMessageBox()
                 msg.setDetailedText(traceback.format_exc())
-                msg.critical(self, self.tr("Ошибка"), self.tr("Ошибка распаковки программы {0}: {1}").format(program_name, e))
+                msg.critical(self, self.parent().tr("Ошибка"), self.tr("Ошибка распаковки программы {0}: {1}").format(program_name, e))
                 return
         else:
-            QMessageBox.information(self, self.tr("Успех"), self.tr("Программа {0} успешно загружена.").format(program_name))
+            QMessageBox.information(self, self.parent().tr("Успешно"), self.tr("Программа {0} успешно загружена.").format(program_name))
         self.launch_program(program_name)
         self.update_delete_button_state(program_name)
 
     def on_download_error(self, error_message, progress_bar: QProgressBar):
         progress_bar.deleteLater()
-        QMessageBox.critical(self, self.tr("Ошибка"), self.tr("Ошибка загрузки") + ": " + error_message)
+        QMessageBox.critical(self, self.parent().tr("Ошибка"), self.tr("Ошибка загрузки") + ": " + error_message)
 
     def delete_program(self, program_name):
         program = SOFTWARE_URLS.get(program_name)
@@ -359,9 +359,9 @@ class SoftwareLauncher(QMainWindow, Window):
                     for name in dirs:
                         os.rmdir(os.path.join(root, name))
                 os.rmdir(program_dir)
-                QMessageBox.information(self, self.tr("Успех"), self.tr("Программа {0} успешно удалена.").format(program_name))
+                QMessageBox.information(self, self.parent().tr("Успех"), self.tr("Программа {0} успешно удалена.").format(program_name))
             except Exception as e:
-                QMessageBox.critical(self, self.tr("Ошибка"), self.tr("Не удалось удалить программу {0}.\n{1}\n\nВозможно, программа запущена.").format(program_name, e))
+                QMessageBox.critical(self, self.parent().tr("Ошибка"), self.tr("Не удалось удалить программу {0}.\n{1}\n\nВозможно, программа запущена.").format(program_name, e))
         else:
-            QMessageBox.information(self, self.tr("Информация"), self.tr("Программа {0} не найдена.").format(program_name))
+            QMessageBox.information(self, self.parent().tr("Информация"), self.tr("Программа {0} не найдена.").format(program_name))
         self.update_delete_button_state(program_name)
