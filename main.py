@@ -146,6 +146,7 @@ except:
     pass
 
 import sys, traceback
+from subprocess import Popen
 from PyQt5.QtWidgets import QMainWindow, QApplication, QVBoxLayout, QHBoxLayout, QLabel, QGroupBox, QPushButton, QCompleter, QLineEdit, QWidget, QMessageBox, qApp, QErrorMessage, QTableView
 from PyQt5.QtCore import Qt, QSize, QTimer, QThread, QCoreApplication, QTranslator, QLocale
 from PyQt5.QtGui import QIcon, QStandardItemModel, QStandardItem, QColor
@@ -304,6 +305,7 @@ QPushButton {
             ("Персонализация", self.tr("Персонализация"), self.open_desktop_manager, "mdi.image"),
             ("Точка восстановления", self.tr("Точка восстановления"), self.open_system_restore, "mdi.restore"),
             ("Антивирус", self.tr("Антивирус"), self.open_antivirus, "mdi.shield-bug"),
+            ("Boot меню", self.tr("Boot меню"), self.open_bootim, "mdi.menu"),
             ("Выход", self.tr("Выход"), qApp.quit, "mdi.exit-to-app"),
         ]
 
@@ -547,6 +549,31 @@ QPushButton {
         self.about_window = AboutWindow(self)
         self.about_window.show()
         btn.setDisabled(False)
+
+    def open_bootim(self):
+        """Запуск bootim.exe"""
+        btn: QPushButton = self.sender()
+        btn.setDisabled(True)
+        # create a window with button close
+        self.boot_win = QMainWindow(self)
+        self.boot_win.setWindowTitle(self.tr("Boot меню"))
+        self.boot_win.setWindowFlag(Qt.WindowType.WindowStaysOnTopHint, True)
+        self.boot_win.setWindowFlag(Qt.WindowType.WindowMinMaxButtonsHint, False)
+        self.boot_win.setWindowFlag(Qt.WindowType.WindowCloseButtonHint, False)
+        self.boot_win.setContentsMargins(10, 10, 10, 10)
+        self.boot_win.setFixedSize(125, 50)
+        close_btn = QPushButton(self.tr("Закрыть"))
+        close_btn.clicked.connect(self.close_bootim)
+        self.boot_win.setCentralWidget(close_btn)
+        self.boot_win.show()
+        Popen('C:\\Windows\\System32\\bootim.exe')
+        btn.setDisabled(False)
+        self.hide()
+
+    def close_bootim(self):
+        self.show()
+        Popen('taskkill.exe /f /im bootim.exe', shell=False)
+        self.boot_win.close()
 
     def update_button_icons(self, theme):
         """Обновляет цвет иконок кнопок в зависимости от темы."""

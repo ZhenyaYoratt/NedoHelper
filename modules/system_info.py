@@ -19,41 +19,41 @@ def get_system_info():
     info['Процессор'] = platform.processor()
 
     # Оперативная память
-    mem_bytes = int(subprocess.check_output(['wmic', 'ComputerSystem', 'get', 'TotalPhysicalMemory']).split()[1])
+    mem_bytes = int(subprocess.check_output(['wmic', 'ComputerSystem', 'get', 'TotalPhysicalMemory'], shell=False).split()[1])
     info['ОЗУ (Всего)'] = f"{mem_bytes / (1024 ** 3):.2f} ГБ"
 
     # Код устройства и Код продукта
-    device_id = subprocess.check_output(['wmic', 'csproduct', 'get', 'UUID']).decode().split('\n')[1].strip()
-    product_id = subprocess.check_output(['wmic', 'os', 'get', 'SerialNumber']).decode().split('\n')[1].strip()
+    device_id = subprocess.check_output(['wmic', 'csproduct', 'get', 'UUID'], shell=False).decode().split('\n')[1].strip()
+    product_id = subprocess.check_output(['wmic', 'os', 'get', 'SerialNumber'], shell=False).decode().split('\n')[1].strip()
     info['Код устройства'] = device_id
     info['Код продукта'] = product_id
 
     # Тип системы
-    system_type = subprocess.check_output(['wmic', 'os', 'get', 'OSArchitecture']).decode('cp866').split('\n')[1].strip()
+    system_type = subprocess.check_output(['wmic', 'os', 'get', 'OSArchitecture'], shell=False).decode('cp866').split('\n')[1].strip()
     info['Тип системы'] = system_type
 
     # Перо и сенсорный ввод
-    pen_touch = subprocess.check_output(['powershell', '(Get-PnpDevice -Class "HIDClass" | Where-Object { $_.FriendlyName -like "*Touch Screen*" }).FriendlyName']).decode().strip()
+    pen_touch = subprocess.check_output(['powershell', '(Get-PnpDevice -Class "HIDClass" | Where-Object { $_.FriendlyName -like "*Touch Screen*" }).FriendlyName'], shell=False).decode().strip()
     if pen_touch:
         info['Перо и сенсор'] = pen_touch
     else:
         info['Перо и сенсор'] = 'Для этого монитора недоступен'
 
     # Выпуск
-    edition = subprocess.check_output(['wmic', 'os', 'get', 'Caption']).decode('cp866').split('\n')[1].strip()
+    edition = subprocess.check_output(['wmic', 'os', 'get', 'Caption'], shell=False).decode('cp866').split('\n')[1].strip()
     info['Выпуск'] = edition
 
     # Версия
-    version = subprocess.check_output(['wmic', 'os', 'get', 'Version']).decode().split('\n')[1].strip()
+    version = subprocess.check_output(['wmic', 'os', 'get', 'Version'], shell=False).decode().split('\n')[1].strip()
     info['Версия'] = version
 
     # Дата установки
-    install_date = subprocess.check_output(['wmic', 'os', 'get', 'InstallDate']).decode().split('\n')[1].strip()
+    install_date = subprocess.check_output(['wmic', 'os', 'get', 'InstallDate'], shell=False).decode().split('\n')[1].strip()
     install_date = re.sub(r'(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})', r'\3.\2.\1', install_date)
     info['Дата установки'] = install_date
 
     # Сборка ОС
-    build_number = subprocess.check_output(['wmic', 'os', 'get', 'BuildNumber']).decode().split('\n')[1].strip()
+    build_number = subprocess.check_output(['wmic', 'os', 'get', 'BuildNumber'], shell=False).decode().split('\n')[1].strip()
     info['Сборка ОС'] = build_number
 
     # Взаимодействие

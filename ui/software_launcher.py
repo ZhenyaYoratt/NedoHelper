@@ -219,14 +219,24 @@ class SoftwareLauncher(QMainWindow, Window):
             self.update_delete_button_state(program_name)
 
         # Кнопка для предложения программы
+        self.actions_buttons_layout = QHBoxLayout()
         self.suggest_button = QPushButton(self.tr("Предложить программу"))
         self.suggest_button.setIcon(qtawesome.icon("fa.plus", color="green"))
         self.suggest_button.clicked.connect(self.suggest_program)
-        layout.addWidget(self.suggest_button)
+        self.folder_button = QPushButton(self.tr("Открыть папку"))
+        self.folder_button.setIcon(qtawesome.icon("fa.folder-open"))
+        self.folder_button.clicked.connect(self.open_folder)
+        self.actions_buttons_layout.addWidget(self.suggest_button)
+        self.actions_buttons_layout.addWidget(self.folder_button)
+        layout.addLayout(self.actions_buttons_layout)
+
+    def open_folder(self):
+        os.startfile(SOFTWARE_DIR)
 
     def retranslateUi(self):
         self.setWindowTitle(make_title(self.parent().tr("Запуск сторонних программ")))
         self.suggest_button.setText(self.tr("Предложить программу"))
+        self.folder_button.setText(self.tr("Открыть папку"))
 
     def suggest_program(self):
         url = "https://github.com/ZhenyaYoratt/YoHelper/discussions/new?category=suggest-programs"

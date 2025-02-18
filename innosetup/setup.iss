@@ -5,7 +5,7 @@
 #define MyAppVersion "0.0.1"
 #define MyAppPublisher "Yoratt"
 #define MyAppURL "https://nedotube.vercel.app/"
-#define MyAppExeName "MyProg-x64.exe"
+#define MyAppExeName "YoHelper.exe"
 #define MyAppAssocName MyAppName + " File"
 #define MyAppAssocExt ".myp"
 #define MyAppAssocKey StringChange(MyAppAssocName, " ", "") + MyAppAssocExt
@@ -65,9 +65,8 @@ Name: "desktopicon\user"; Description: "{cm:ForCurrentUserOnly}"; GroupDescripti
 Name: "quicklaunchicon"; Description: "{cm:CreateQuickLaunchIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
-Source: "C:\Program Files (x86)\Inno Setup 6\Examples\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion; Components: main
-;Source: "C:\Users\002_Zhenya\GitHub\NedoHelper\dist\NedoHelper.exe"; DestDir: "{app}"; Flags: ignoreversion
-;Source: "C:\Users\002_Zhenya\GitHub\NedoHelper\dist\tts.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Users\002_Zhenya\GitHub\NedoHelper\dist\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion; Components: main
+Source: "C:\Users\002_Zhenya\GitHub\NedoHelper\software\*"; DestDir: "{app}\software"; Flags: ignoreversion; Components: software
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Registry]
@@ -82,34 +81,3 @@ Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: de
 
 [Run]
 Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent
-
-[Code]
-procedure OpenBrowser(Url: string);
-var
-  ErrorCode: Integer;
-begin
-  ShellExec('open', Url, '', '', SW_SHOWNORMAL, ewNoWait, ErrorCode);
-end;
-
-procedure LinkLabelClick(Sender: TObject);
-begin
-  OpenBrowser('https://www.example.com/');
-end;
-
-procedure InitializeWizard();
-var
-  LinkLabel: TLabel;
-begin
-  LinkLabel := TLabel.Create(WizardForm);
-  LinkLabel.Parent := WizardForm;
-  LinkLabel.Left := ScaleX(16);
-  LinkLabel.Top :=
-    WizardForm.NextButton.Top + (WizardForm.NextButton.Height div 2) -
-    (LinkLabel.Height div 2);
-  LinkLabel.Caption := 'Link';
-  LinkLabel.ParentFont := True;
-  LinkLabel.Font.Style := LinkLabel.Font.Style + [fsUnderline];
-  LinkLabel.Font.Color := clBlue;
-  LinkLabel.Cursor := crHand;
-  LinkLabel.OnClick := @LinkLabelClick;
-end;
