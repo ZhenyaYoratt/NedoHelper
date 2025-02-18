@@ -231,7 +231,12 @@ class SoftwareLauncher(QMainWindow, Window):
         layout.addLayout(self.actions_buttons_layout)
 
     def open_folder(self):
-        os.startfile(SOFTWARE_DIR)
+        try:
+            os.startfile(SOFTWARE_DIR)
+        except FileNotFoundError:
+            QMessageBox.critical(self, self.tr("Ошибка"), self.tr("Папка не найдена"))
+        except Exception as e:
+            QMessageBox.critical(self, self.tr("Ошибка"), str(e))
 
     def retranslateUi(self):
         self.setWindowTitle(make_title(self.parent().tr("Запуск сторонних программ")))

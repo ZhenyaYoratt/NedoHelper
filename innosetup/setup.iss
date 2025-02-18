@@ -56,7 +56,7 @@ Name: "russian"; MessagesFile: "compiler:Languages\Russian.isl"
 
 [Components]
 Name: "main"; Description: "{cm:MainFilesDescription}"; Types: full compact custom; Flags: fixed
-Name: "software"; Description: "{cm:SoftwareFilesDescription}"; Types: full
+;Name: "software"; Description: "{cm:SoftwareFilesDescription}"; Types: full
 
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}";
@@ -66,7 +66,7 @@ Name: "quicklaunchicon"; Description: "{cm:CreateQuickLaunchIcon}"; GroupDescrip
 
 [Files]
 Source: "C:\Users\002_Zhenya\GitHub\NedoHelper\dist\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion; Components: main
-Source: "C:\Users\002_Zhenya\GitHub\NedoHelper\software\*"; DestDir: "{app}\software"; Flags: ignoreversion; Components: software
+;Source: "C:\Users\002_Zhenya\GitHub\NedoHelper\software\*"; DestDir: "{app}\software"; Flags: ignoreversion; Components: software
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Registry]
@@ -80,4 +80,4 @@ Name: "{autoprograms}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
 Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon
 
 [Run]
-Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent
+Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent runasoriginaluser 

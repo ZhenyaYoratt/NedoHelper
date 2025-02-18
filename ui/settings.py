@@ -164,12 +164,17 @@ class SettingsWindow(QMainWindow):
             save_close_button.clicked.connect(lambda: (self.save_settings(), self.load_settings(apply=False), dialog.close()))
             layout.addWidget(save_close_button)
             dialog.setLayout(layout)
-            dialog.exec_()
-            
             frame_geometry = dialog.frameGeometry()
             center_point = self.screen().availableGeometry().center()
             frame_geometry.moveCenter(center_point)
             dialog.move(frame_geometry.topLeft())
+            try:
+                import pyi_splash # type: ignore
+                pyi_splash.close()
+            except:
+                pass
+            dialog.exec_()
+            
 
     def center(self):
         """Центрирует окно по центру экрана."""
