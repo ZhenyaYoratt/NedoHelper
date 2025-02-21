@@ -1,6 +1,6 @@
 from psutil import cpu_percent, virtual_memory, disk_partitions, disk_usage
 from .logger import *
-from .disk_manager import check_disk_status, get_disk_type
+from .disk_manager import check_disk_status
 import platform
 import subprocess
 import re
